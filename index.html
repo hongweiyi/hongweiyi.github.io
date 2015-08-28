@@ -49,7 +49,7 @@
 <script type="text/javascript" id="hexo.configuration">
   var CONFIG = {
     scheme: 'Mist',
-    sidebar: 'post'
+    sidebar: 'hide'
   };
 </script>
 
@@ -154,8 +154,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/08/28/README/" itemprop="url">
-                README
+              <a class="post-title-link" href="/2015/08/28/remoting-practice/" itemprop="url">
+                Java 网络编程最佳实践
               </a>
             
           
@@ -165,11 +165,26 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2015-08-28T21:01:47+08:00" content="2015-08-28">
+          <time itemprop="dateCreated" datetime="2015-08-28T23:11:23+08:00" content="2015-08-28">
             2015-08-28
           </time>
         </span>
 
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/最佳实践/" itemprop="url" rel="index">
+                  <span itemprop="name">最佳实践</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
         
 
         
@@ -185,24 +200,296 @@
 
       
         
-          <span itemprop="articleBody"><h1 id="建站">建站</h1><p>使用 <a href="https://hexo.io/zh-cn/" target="_blank" rel="external">hexo</a>，快速开始如下：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>npm install hexo-cli -g</span><br><span class="line"><span class="variable">$ </span>hexo init blog</span><br><span class="line"><span class="variable">$ </span>cd blog</span><br><span class="line"><span class="variable">$ </span>npm install</span><br><span class="line"><span class="variable">$ </span>hexo server</span><br></pre></td></tr></table></figure>
-<h1 id="主题">主题</h1><p>使用了 <a href="http://theme-next.iissnan.com/" target="_blank" rel="external">NexT</a>，快速开始如下：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> your-hexo-site</span><br><span class="line">$ git clone http<span class="variable">s:</span>//github.<span class="keyword">com</span>/iissnan/hexo-theme-<span class="keyword">next</span> themes/<span class="keyword">next</span></span><br></pre></td></tr></table></figure>
-<p>由于墙的存在，建议直接到项目的 <a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="external">github 主页</a> 直接下载 zip 包。</p>
-<h1 id="部署到_github_pages">部署到 github pages</h1><p>安装 git 部署插件即可，参考: <a href="https://hexo.io/zh-cn/docs/deployment.html" target="_blank" rel="external">部署</a></p>
-<ul>
-<li>安装插件</li>
+          <span itemprop="articleBody"><h1 id="Java_网络编程最佳实践">Java 网络编程最佳实践</h1><h2 id="通信层">通信层</h2><ul>
+<li>直接使用最成熟的网络框架，如 Netty</li>
+<li>单连接 &amp; 连接复用 &amp; 长连接<ul>
+<li>建议提前设计心跳机制</li>
+<li>集群较小，长连接无需开启心跳</li>
+<li>如果网络情况比较复杂，建议开启心跳。如有防火墙，会将连接清掉且不会向客户端发送 RST 信令，导致长连接变成一个脏连接</li>
 </ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm <span class="operator"><span class="keyword">install</span> hexo-deployer-git <span class="comment">--save</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>在 <code>_config.yml</code> 中修改 deploy 内容</li>
+</li>
 </ul>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">deploy</span>:</span><br><span class="line">  <span class="attribute">type</span>: git</span><br><span class="line">  <span class="attribute">repo</span>: <span class="attribute">https</span>:<span class="comment">//github.com/hongweiyi/hongweiyi.github.io.git</span></span><br></pre></td></tr></table></figure>
+<h2 id="线程模型">线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
 <ul>
-<li>部署</li>
+<li>序列化过程在业务线程中处理</li>
+<li>请求/响应包多个批量从 IO 线程交给业务线程处理</li>
+<li>服务端线程池需要有保护策略<ul>
+<li>框架层面的 RejectExcetpion</li>
+<li>业务层面的限流策略</li>
 </ul>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>hexo deploy</span><br></pre></td></tr></table></figure>
+</li>
+<li>需要定时打印线程池大小，方便性能分析</li>
+</ul>
+<h2 id="序列化">序列化</h2><ul>
+<li>全站都是 Java 系</li>
+</ul>
+<p>为了以后能让其它语言更好的交互，协议设计越扁平越好，切忌将整个协议类对象序列化，仅整个序列化方法参数对象列表及返回值对象。</p>
+<ul>
+<li>全站各种语言百花齐放</li>
+</ul>
+<p>可以考虑直接使用 Protobuf 或者 msgpack 这样的跨语言的序列化协议，但我个人没使用经验。</p>
+<h2 id="容灾">容灾</h2><ul>
+<li>必须要有超时时间，分布式环境下无超时机制对整体环境影响非常大</li>
+<li>需要有连接隔离机制（根据请求量、错误率等）<ul>
+<li>可参考 <a href="https://github.com/Netflix/ribbon" target="_blank" rel="external">Netflix 的 ribbon</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="故障定位">故障定位</h2><ul>
+<li>客户端发送、服务端接收均需要打印日志，日志必须要有的几个字段：<ul>
+<li>时间戳</li>
+<li>唯一ID： 由于客户端和服务端的请求量较大，所以需要有唯一 ID 能够将客户端日志和服务端请求串起来</li>
+<li>IP 信息</li>
+<li>如下：<ul>
+<li>client:time,unique-id,server-ip</li>
+<li>server:time,unique-id,client-ip</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>提供较好的方式打印网络层日志<ul>
+<li>经常会发生客户端有请求日志，但是服务端没有接收日志的情况</li>
+<li>这个时候无法判断是客户端出错还是服务端出错，可以提供 debug 日志打印网络层的请求日志</li>
+</ul>
+</li>
+</ul>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/08/28/java-performace-practice/" itemprop="url">
+                Java 最佳实践
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-08-28T22:32:00+08:00" content="2015-08-28">
+            2015-08-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/最佳实践/" itemprop="url" rel="index">
+                  <span itemprop="name">最佳实践</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><h1 id="Java_最佳实践">Java 最佳实践</h1><ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/08/28/git-practice/" itemprop="url">
+                GIT 最佳实践
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-08-28T22:32:00+08:00" content="2015-08-28">
+            2015-08-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/最佳实践/" itemprop="url" rel="index">
+                  <span itemprop="name">最佳实践</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：</p>
+<h2 id="Labels">Labels</h2><ul>
+<li>BUG</li>
+<li>P0</li>
+<li>P1</li>
+<li>P2</li>
+<li>TIPS</li>
+<li>TODO</li>
+<li>功能Label<ul>
+<li>交互</li>
+<li>视觉</li>
+<li>…</li>
+</ul>
+</li>
+<li>子功能Label<ul>
+<li>业务1</li>
+<li>业务2</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<h2 id="Branch">Branch</h2><ul>
+<li>方式1: <a href="http://www.jianshu.com/p/67afe711c731" target="_blank" rel="external">Git版本控制与工作流</a><ul>
+<li>master</li>
+<li>release</li>
+<li>develop</li>
+<li>feature/*</li>
+<li>hotfix</li>
+</ul>
+</li>
+<li>方式2<ul>
+<li>master</li>
+<li>name-dev</li>
+</ul>
+</li>
+</ul>
+<h2 id="Issue">Issue</h2><ul>
+<li>命名<ul>
+<li>XX1-XX2-Description</li>
+<li>XX1: 功能</li>
+<li>XX2: 子功能</li>
+</ul>
+</li>
+<li>Push<ul>
+<li>comment 中添加 #{Issue Id}</li>
+</ul>
+</li>
+</ul>
+<h2 id="Push">Push</h2><ul>
+<li>最小功能提交原则</li>
+</ul>
+<h2 id="Milestone">Milestone</h2><h3 id="常规">常规</h3><ul>
+<li>命名<ul>
+<li>v1.0.0</li>
+<li>v1.0.1</li>
+<li>…</li>
+</ul>
+</li>
+<li>内容<ul>
+<li>基本描述</li>
+<li>版本负责人</li>
+</ul>
+</li>
+</ul>
+<h3 id="其它">其它</h3><ul>
+<li>Application Talk<ul>
+<li>针对 Application 的讨论与展望</li>
+<li>同时也可以发设计文档</li>
+</ul>
+</li>
+</ul>
+<h2 id="其它实践">其它实践</h2><ul>
+<li>可以建立 project-management 分支<ul>
+<li>更多的关注项目管理的内容<ul>
+<li>文档</li>
+<li>项目管理 issue</li>
+</ul>
+</li>
+<li>如果有些 issue 同时涉及多个不同子工程，可以将这些写在这里面</li>
+</ul>
+</li>
+</ul>
 </span>
         
       
@@ -225,6 +512,10 @@
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&raquo;</a>
+  </nav>
+
  </div>
 
         
@@ -256,21 +547,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-count">1</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-count">3</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
