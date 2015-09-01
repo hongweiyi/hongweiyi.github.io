@@ -163,6 +163,112 @@
           
           
             
+              <a class="post-title-link" href="/2015/09/01/java-source-code-practice/" itemprop="url">
+                Java 源码阅读 最佳实践
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-01T23:40:00+08:00" content="2015-09-01">
+            2015-09-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/最佳实践/" itemprop="url" rel="index">
+                  <span itemprop="name">最佳实践</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/01/java-source-code-practice/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/01/java-source-code-practice/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+<h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
+<h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>
+<h2 id="方式">方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
+<ul>
+<li>针对应用程序（Tomcat、Hadoop）：找启动脚本 -&gt; 找到 main 入口 -&gt; 开始 Debug</li>
+<li>库、框架（FastJSON、Spring）：找到关键类 -&gt; 打断点 -&gt; 查看堆栈</li>
+</ul>
+<h3 id="查找方法调用关系">查找方法调用关系</h3><p>以 Intellij IDEA 的 Mac OS X 的快捷键为例：</p>
+<ul>
+<li>Alt + F7 (Find Usage)</li>
+<li>Ctrl + Alt + H (Call Hierarchy)</li>
+</ul>
+<h3 id="搜索关键字">搜索关键字</h3><p>这个一般在无头绪的时候才会使用的。比如出现了框架内部的错误，里面包含了特殊关键字，如错误日志或者没有堆栈的方法。</p>
+<p>这个在 Intellij IDEA 中比较好用，可以包含依赖的三方库进行全文搜索。快捷键：</p>
+<ul>
+<li>Ctrl + Shift + F (Find in path)</li>
+</ul>
+<blockquote>
+<p>搜索三方库需要选择 Custom -&gt; Project and Libraries</p>
+</blockquote>
+<p>如果是 Eclipse 的话，似乎只能是大概知道是哪个 Jar 包之后，解压 source 包再全文搜索吧 = =</p>
+<h2 id="其他">其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2015/08/30/css-practice/" itemprop="url">
                 CSS 最佳实践
               </a>
@@ -389,171 +495,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/08/28/git-practice/" itemprop="url">
-                GIT 最佳实践
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于
-          <time itemprop="dateCreated" datetime="2015-08-28T22:32:00+08:00" content="2015-08-28">
-            2015-08-28
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; 分类于
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/最佳实践/" itemprop="url" rel="index">
-                  <span itemprop="name">最佳实践</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/08/28/git-practice/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/28/git-practice/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody"><p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：</p>
-<h2 id="Labels">Labels</h2><ul>
-<li>BUG</li>
-<li>P0</li>
-<li>P1</li>
-<li>P2</li>
-<li>TIPS</li>
-<li>TODO</li>
-<li>功能Label<ul>
-<li>交互</li>
-<li>视觉</li>
-<li>…</li>
-</ul>
-</li>
-<li>子功能Label<ul>
-<li>业务1</li>
-<li>业务2</li>
-<li>…</li>
-</ul>
-</li>
-</ul>
-<h2 id="Branch">Branch</h2><ul>
-<li>方式1: <a href="http://www.jianshu.com/p/67afe711c731" target="_blank" rel="external">Git版本控制与工作流</a><ul>
-<li>master</li>
-<li>release</li>
-<li>develop</li>
-<li>feature/*</li>
-<li>hotfix</li>
-</ul>
-</li>
-<li>方式2<ul>
-<li>master</li>
-<li>name-dev</li>
-</ul>
-</li>
-</ul>
-<h2 id="Issue">Issue</h2><ul>
-<li>命名<ul>
-<li>XX1-XX2-Description</li>
-<li>XX1: 功能</li>
-<li>XX2: 子功能</li>
-</ul>
-</li>
-<li>Push<ul>
-<li>comment 中添加 #{Issue Id}</li>
-</ul>
-</li>
-</ul>
-<h2 id="Push">Push</h2><ul>
-<li>最小功能提交原则</li>
-</ul>
-<h2 id="Milestone">Milestone</h2><h3 id="常规">常规</h3><ul>
-<li>命名<ul>
-<li>v1.0.0</li>
-<li>v1.0.1</li>
-<li>…</li>
-</ul>
-</li>
-<li>内容<ul>
-<li>基本描述</li>
-<li>版本负责人</li>
-</ul>
-</li>
-</ul>
-<h3 id="其它">其它</h3><ul>
-<li>Application Talk<ul>
-<li>针对 Application 的讨论与展望</li>
-<li>同时也可以发设计文档</li>
-</ul>
-</li>
-</ul>
-<h2 id="其它实践">其它实践</h2><ul>
-<li>可以建立 project-management 分支<ul>
-<li>更多的关注项目管理的内容<ul>
-<li>文档</li>
-<li>项目管理 issue</li>
-</ul>
-</li>
-<li>如果有些 issue 同时涉及多个不同子工程，可以将这些写在这里面</li>
-</ul>
-</li>
-</ul>
-</span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -592,7 +533,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -606,7 +547,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
