@@ -1,0 +1,692 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Java,Mina,Netty," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="netty-mina深入学习与对比（二）">
+<meta property="og:url" content="http://hongweiyi.com/2014/05/netty-mina-in-depth-2/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。">
+<meta property="og:updated_time" content="2015-12-29T13:30:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="netty-mina深入学习与对比（二）">
+<meta name="twitter:description" content="上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> netty-mina深入学习与对比（二） | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              netty-mina深入学习与对比（二）
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2014-05-17T22:03:00+08:00" content="2014-05-17">
+            2014-05-17
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2014/05/netty-mina-in-depth-2/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2014/05/netty-mina-in-depth-2/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。</p>
+<a id="more"></a>
+<h3 id="1-_数据是如何write出去的">1. 数据是如何write出去的</h3><p>java nio如果是non-blocking的话，在每次write(bytes[N])的时候，并不会将N字节全部write出去，每次write仅一部分（具体大小和<code>tcp_write_buffer</code>有关）。那么，mina和netty是怎么处理这种情况的呢？</p>
+<h4 id="1-1_代码">1.1 代码</h4><ul>
+<li><code>mina-1.1.7</code>: SocketIoProcessor.doFlush</li>
+<li><code>mina-2.0.4</code>: AbstractPollingIoProcessor.flushNow</li>
+<li><code>mina-3.0.0.M3-SNAPSHOT</code>: AbstractNioSession.processWrite</li>
+<li><code>netty-3.5.8.Final</code>: AbstractNioWorker.write0</li>
+<li><code>netty-4.0.6.Final</code>: AbstractNioByteChannel.doWrite</li>
+</ul>
+<h4 id="1-2_分析">1.2 分析</h4><p>mina1、2，netty3的方式基本一致。 在发送端每个session均有一个writeBufferQueue，有这样一个队列，可以保证写入与写出均有序。在真正write时，大致逻辑均是一一将队列中的writeBuffer取出，写入socket。但有一些不同的是，mina1是每次peek一次，当该buffer全部写出之后再poll（mina3也是这种机制）；而mina2、netty3则是直接poll第一个，将其存为currentWriteRequest，直到currentWriteRequest全部写出之后，才会再poll下一个。这样的做法是为了省几次peek的时间么？</p>
+<p>同时mina、netty在write时，有一种spin write的机制，即循环write多次。mina1的spin write count为256，写死在代码里了，表示256有点大；mina2这个机制废除但代码保留；netty3则可以配置，默认为16。netty在这里略胜一筹！</p>
+<p>netty4与netty3的机制差不多，但是netty4为这个事情特意写了一个ChannelOutboundBuffer类，输出队列写在了该类的flushed:Object[]成员中，但表示ChannelOutboundBuffer这个类的代码有点长，就暂不深究了。</p>
+<h3 id="2-_数据是如何read进来的">2. 数据是如何read进来的</h3><p>如第三段内容，每次write只是输出了一部分数据，read同理，也有可能只会读入部分数据，这样就是导致读入的数据是残缺的。而mina和netty默认不会理会这种由于nio导致的数据分片，需要由业务层自己额外做配置或者处理。</p>
+<h4 id="2-1_代码">2.1 代码</h4><ul>
+<li><code>nfs-rpc</code>: ProtocolUtils.decode</li>
+<li><code>mina-1.1.7</code>: SocketIoProcessor.read, CumulativeProtocolDecoder.decode</li>
+<li><code>mina-2.0.4</code>: AbstractPollingIoProcessor.read, CumulativeProtocolDecoder.decode</li>
+<li><code>mina-3.0.0.M3-SNAPSHOT</code>: NioSelectorLoop.readBuffer</li>
+<li><code>netty-3.5.8.Final</code>: NioWorker.read, FrameDecoder</li>
+<li><code>netty-4.0.6.Fianl</code>: AbstractNioByteChannel$NioByteUnsafe.read</li>
+</ul>
+<h4 id="2-2_业务层处理">2.2 业务层处理</h4><p>nfs-rpc在协议反序列化的过程中，就会考虑这个的问题，依次读入每个字节，当发现当前字节或者剩余字节数不够时，会将buf的readerIndex设置为初始状态。具体的实现，有兴趣的同学可以学习<code>nfs-rpc：ProtocolUtils.decode</code></p>
+<p>nfs-rpc在decode时，出现错误就会将buf的readerIndex设为0，把readerIndex设置为0就必须要有个前提假设：每次decode时buf是同一个，即该buf是复用的。那么，具体情况是怎样呢？</p>
+<h4 id="2-3_框架层处理">2.3 框架层处理</h4><p>我看读mina与netty这块的代码，发现主要演进与不同的点在两个地方：读buffer的创建与数据分片的处理方式。</p>
+<p><strong>mina:</strong></p>
+<p>mina1、2的读buffer创建方式比较土，在每次read之前，会重新allocate一个新的buf对象，该buf对象的大小是根据读入数据大小动态调整。当本次读入数据等于该buf大小，下一次allocate的buf对象大小会翻倍；当本次读入数据不足该buf大小的二分之一，下一次allocate的buf对象同样会缩小至一半。需要注意的是，*2与/2的代码都可以用位运算，但是mina1竟没用位运算，有意思。</p>
+<p>mina1、2处理数据分片可以继承CumulativeProtocolDecoder，该decoder会在session中存入(BUFFER, cumulativeBuffer)。decode过程为：1）先将message追加至cumulativeBuffer；2）调用具体的decode逻辑；3）判断cumulativeBuffer.hasRemaining()，为true则压缩cumulativeBuffer，为false则直接删除(BUFFER, cumulativeBuffer)。实现业务的decode逻辑可以参考nfs-rpc中MinaProtocolDecoder的代码。</p>
+<p>mina3在处理读buffer的创建与数据分片比较巧妙，它所有的读buffer共用一个buffer对象（默认64kb），每次均会将读入的数据追加至该buffer中，这样即省去了buffer的创建与销毁事件，也省去了cumulativeDecoder的处理逻辑，让代码很清爽啊！</p>
+<p><strong>netty:</strong></p>
+<p>netty3在读buffer创建部分的代码还是挺有意思的，首先，它创建了一个SocketReceiveBufferAllocator的allocate对象，名字为recvBufferPool，但是里面代码完全和pool扯不上关系；其次，它每次创建buffer也会动态修改初始大小的机制，它设计了232个大小档位，最大值为Integer.MAX_VALUE，没有具体考究，这种实现方式似乎比每次大小翻倍优雅一点，具体代码可以参考：<code>AdaptiveReceiveBufferSizePredictor</code>。</p>
+<p>对应mina的CumulativeProtocolDecoder类，在netty中则是FrameDecoder和ReplayingDecoder，没深入只是大致扫了下代码，原理基本一致。BTW，ReplayingDecoder似乎挺强大的，有兴趣的可以看看这两篇：</p>
+<blockquote>
+<p><a href="http://biasedbit.com/netty-tutorial-replaying-decoder" target="_blank" rel="external">High speed custom codecs with ReplayingDecoder</a><br><a href="http://biasedbit.com/an-enhanced-version-of-replayingdecoder-for-netty/" target="_blank" rel="external">An enhanced version of ReplayingDecoder for Netty</a></p>
+</blockquote>
+<p>netty4在读buffer创建部分机制与netty3大同小异，不过由于netty有了ByteBufAllocator的概念，要想每次不重新创建销毁buffer的话，可以采用PooledByteBufAllocator。</p>
+<p>在处理分片上，netty4抽象出了Message这样的概念，我的理解就是，一个Message就是业务可读的数据，转换Message的抽象类：ByteToMessageDecoder，当然也有netty3中的ReplayingDecoder，继承自ByteToMessageDecoder，具体可以研究代码。</p>
+<h3 id="3-_ByteBuffer设计的差异">3. ByteBuffer设计的差异</h3><h4 id="3-1_自建buffer的原因">3.1 自建buffer的原因</h4><p><strong>mina:</strong></p>
+<p>需要说明的是，只有mina1、2才有自己的buffer类，mina3内部只用nio的原生ByteBuffer类（提供了一个组合buffer的代理类-IoBuffer）。mina1、2自建buffer的原因如下：</p>
+<ul>
+<li>It doesn’t provide useful getters and putters such as fill,get/putString, and get/putAsciiInt()enough.</li>
+<li>It is difficult to write variable-length data due to its fixed capacity</li>
+</ul>
+<p>第一条比较好理解，即提供了更为方便的方法用以操作buffer。第二条则是觉得nio的ByteBuffer是定长的，无法自动扩容或者缩容，所以提供了自动扩/缩容的方法：IoBuffer.setAutoExpand, IoBuffer.setAutoShrink。但是扩/缩容的实现，也是基于nio的ByteBuffer，重新ByteBuffer.allocate(capacity)，再把原有的数据拷贝过去。</p>
+<p><strong>netty:</strong></p>
+<p>在我前面的博文（<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">Netty 4.x学习笔记 – ByteBuf</a>）我已经提到这些原因：</p>
+<ul>
+<li>需要的话，可以自定义buffer类型</li>
+<li>通过组合buffer类型，可实现透明的zero-copy</li>
+<li>提供动态的buffer类型，如StringBuffer一样(扩容方式也是每次double)，容量是按需扩展</li>
+<li>无需调用flip()方法</li>
+<li>常常「often」比ByteBuffer快</li>
+</ul>
+<p>以上理由来自netty3的API文档：<a href="http://docs.jboss.org/netty/3.2/api/org/jboss/netty/buffer/package-summary.html" target="_blank" rel="external">Package org.jboss.netty.buffer</a>，netty4没见到官方的说法，但是我觉得还得加上一个更为重要也是最为重要的理由，就是可以实现buffer池化管理。</p>
+<h4 id="3-2_实现的差异">3.2 实现的差异</h4><p><strong>mina:</strong></p>
+<p>mina的实现较为基础，仅仅只是在ByteBuffer上的一些简单封装。</p>
+<p><strong>netty:</strong></p>
+<p>netty3与netty4的实现大致相同（ChannlBuffer -&gt; ByteBuf），具体可以参见：<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">Netty 4.x学习笔记 – ByteBuf</a>，netty4实现了PooledByteBufAllocator，传闻是可以大大减少GC的压力，但是官方不保证没有内存泄露，我自己压测中也出现了内存泄露的警告，建议生产中谨慎使用该功能。</p>
+<blockquote>
+<p>netty5.x有一个更为高级的buffer泄露跟踪机制，PooledByteBufAllocator也已经默认开启，有机会可以尝试使用一下。</p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/Mina/" rel="tag">#Mina</a>
+          
+            <a href="/tags/Netty/" rel="tag">#Netty</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/i-need-an-answer-now-from-remote/" rel="prev">我现在就要答案 《REMOTE》</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/05/netty-mina-in-depth-1/" rel="next">netty-mina深入学习与对比（一）</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2014/05/netty-mina-in-depth-2/"
+                   data-title="netty-mina深入学习与对比（二）" data-url="http://hongweiyi.com/2014/05/netty-mina-in-depth-2/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-_数据是如何write出去的"><span class="nav-number">1.</span> <span class="nav-text">1. 数据是如何write出去的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1_代码"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2_分析"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-_数据是如何read进来的"><span class="nav-number">2.</span> <span class="nav-text">2. 数据是如何read进来的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1_代码"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2_业务层处理"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 业务层处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3_框架层处理"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 框架层处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-_ByteBuffer设计的差异"><span class="nav-number">3.</span> <span class="nav-text">3. ByteBuffer设计的差异</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1_自建buffer的原因"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 自建buffer的原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2_实现的差异"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 实现的差异</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

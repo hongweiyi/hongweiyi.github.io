@@ -1,0 +1,680 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="一、问题描述
+有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法设计 - 概率初探">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/algorithm-probability/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="一、问题描述
+有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb1.png">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb2.png">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法设计 - 概率初探">
+<meta name="twitter:description" content="一、问题描述
+有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 算法设计 - 概率初探 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              算法设计 - 概率初探
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-16T12:36:40+08:00" content="2012-02-16">
+            2012-02-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/algorithm-probability/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/algorithm-probability/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>一、问题描述</strong></p>
+<p>有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。</p>
+ <a id="more"></a>  
+<p><strong>二、解决思路</strong></p>
+<p><strong>1**</strong>）解法一**</p>
+<p>拿这题问朋友的时候，很多人都是说：“一个m长度的for循环，取m次random。”</p>
+<p>这个方法看似可以，简单方便，代码也一目了然：    <table border="1" cellspacing="0" cellpadding="0" width="561"><tbody>       <tr>         <td valign="top" width="559">           <p>// random() -&gt; (0,1)</p>
+<p>for i in [0, m):</p>
+<p>&#160;&#160;&#160; results[i] = data[random()*(n-1)]<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p>但是，这段代码有什么问题吗？结果集中会不会出现重复的结果呢？既然是随机的，那肯定就有可能重复，如何消重就得看解法二了。</p>
+<p><strong>2**</strong>）解法二**</p>
+<p>要消重的话，就需要将已经选择的元素剔出，不进入下一次迭代过程。这个就和中国古代的“抓阄”是一个概念了，用高中知识解释就是“古典概率模型”——在有限多个基本结果、每个结果出现的可能性相同的条件下，先选与后选概率相同。</p>
+<p>将已经选择的元素剔出看似很方便，直接删除即可。但是数据集采用数组形式存储，删除的时间复杂度为线性，有人又说可以改成链表，但是链表存储查找又是线性时间了。那么我们能做的就是不删除元素，只是改变一下它的位置：将已选择的元素移到数组末尾。如下图：</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/image1.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb1.png" alt="image" title="image"></a> </p>
+<p>代码如下：    <table border="1" cellspacing="0" cellpadding="0" width="561"><tbody>       <tr>         <td valign="top" width="559">           <p>// random() -&gt; (0,1)</p>
+<p>tmp := n-1;</p>
+<p>for i in [0, m):</p>
+<p>&#160;&#160;&#160; swap(data, random()*tmp, tmp);</p>
+<p>&#160;&#160;&#160; tmp–;<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p>题外话：以上问题源自实际编码中，同时在&lt;编程珠玑 II&gt;中也有提到，不过书中所提到是现实生活问题：N个地区，随机选择M个做样本。书中提到了一个很有趣的解法：“将N个地区名字打印出来，剪成均等的字条，放入纸篓摇乱，抓取M条。”作者称之为haha!算法，的确，看到这个算法我也哈哈大笑了很久。有时候，我们如果打破我们的概念壁垒，换一种思维思考问题，是一种解法更是一种乐趣。</p>
+<p><strong>三、问题升级</strong></p>
+<p>问题一升级，就到了Google的经典面试题了：给你一个长度为N的链表。N很大，但你不知道N有多大。你的任务是从这N个元素中随机取出k个元素。你只能遍历这个链表一次。你的算法必须保证取出的元素恰好有k个，且它们是完全随机的（出现概率均等）？</p>
+<p><strong>四、升级问题解法</strong></p>
+<p>不知道N的长度，就不满足古典概型的有限个基本问题的要求。如题目没要求只能遍历一遍，可否求出长度再转换成古典概型呢？怕也不行，如果数据是动态增加的，两次遍历依然无法解决问题。</p>
+<p>那么问题就转换成蓄水池抽样（Reservoir Sampling）问题了。算法描述如下：</p>
+<p>1）先选择前k个元素，放入结果集中；</p>
+<p>2）从k+1开始，取[1, k+1]的random，如果得到的随机数小于k，就替换掉结果集中的相应元素；</p>
+<p>3）重复第2步，直到迭代完毕。</p>
+<p>伪代码：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>// random() -&gt; (0,1)</p>
+<p>for i in [0, n):</p>
+<p>&#160;&#160;&#160; if i &lt; k then: // 将前k个元素放入结果集中</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; results[i] := data[i];</p>
+<p>&#160;&#160;&#160; else:</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; tmp := random() * i;</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; if tmp &lt; k then:</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; swap(results, tmp, data, i); // 交换结果集与数据集的元素<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p><strong>证明1：</strong></p>
+<p>1）前k个被选中的概率均为1；</p>
+<p>2）第k+1个元素被选中概率为k/k+1，结果集中的元素没被剔出的概率为： 1-p， p = （k / k+1）×（1 / k）。k / k+1为第k+1被选中的概率，1 / k为不幸被剔出的概率。综上，结果集中元素没被剔出的概率也为k / k+1；</p>
+<p>3）归纳法，即可证明。</p>
+<p><strong>证明2：</strong></p>
+<p>同样也可以这样证明，元素a被选中的概率为：</p>
+<p>被选中的概率×（后面元素没被选中 + 后面元素被选中 × 没被替换的概率）</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/image2.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb2.png" alt="image" title="image"></a> </p>
+<p>证明2简明扼要啊！</p>
+<p><strong>五、总结</strong></p>
+<p>其实没啥好总结的，上面所提到仅仅只是概率运用的很小一部分。对概率理解还是得从古典概率模型出发，一般情况下，书上将概率算法大致分为四类：数值概率算法、蒙特卡罗（Monte Carlo）算法、拉斯维加斯（Las Vegas）算法和舍伍德（Sherwood）算法，我也没想通上面的是属于上面四种的哪一种，或许哪种都不是，算法嘛，思想在即可，不必纠结于概念。</p>
+<p>顺便说句：两天前，一次不经意的防泼溅测试，我的小黑本不幸挂了。两天后的今天，换了主板的小黑又原地复活啦！！！哈哈……</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag">#算法</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/algorithm-search/" rel="prev">算法设计 - 回溯法到搜索浅谈</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/algorithm-dynammic-programming/" rel="next">算法设计 - 动态规划</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/algorithm-probability/"
+                   data-title="算法设计 - 概率初探" data-url="http://hongweiyi.com/2012/02/algorithm-probability/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

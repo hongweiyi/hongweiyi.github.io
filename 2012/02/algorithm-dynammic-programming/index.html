@@ -1,0 +1,721 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="一、定义说明
+动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法设计 - 动态规划">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/algorithm-dynammic-programming/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="一、定义说明
+动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法设计 - 动态规划">
+<meta name="twitter:description" content="一、定义说明
+动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 算法设计 - 动态规划 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              算法设计 - 动态规划
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-14T20:13:50+08:00" content="2012-02-14">
+            2012-02-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/algorithm-dynammic-programming/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/algorithm-dynammic-programming/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>一、定义说明</strong></p>
+<pre><code>动态规划（<span class="keyword">Dynamic</span> Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。
+</code></pre><a id="more"></a>
+<pre><code>动态规划常用于求最优解问题，此类问题可能有很多可行解，每个解都有一个值，而我们希望找到一个最优（最大、最小）值的解。需要注意，这样的问题可能有多个最优解，但是我们只求解&amp;ldquo;一个&amp;rdquo;。
+
+动态规划算法的设计分为如下<span class="number">4</span>个步骤：
+
+<span class="number">1</span>）描述最优解的结构；
+
+<span class="number">2</span>）递归定义最优解的值；
+
+<span class="number">3</span>）按自底向上的方式计算最优解的值；
+
+<span class="number">4</span>）由计算出的结果构造一个最优解。
+
+**二、简单示例**
+
+斐波那契（Fibonacci）数列。相信所有大学生都对这个名字不会陌生，大计基（大学计算机基础）课上老师会给大家一个这样的公式：
+</code></pre><blockquote>
+<p>f(n) = f(n-2) + f(n-1);&nbsp;&nbsp;f(0) =0,&nbsp;f(1) = 1</p>
+</blockquote>
+<pre><code>同时，老师就会给一个递归的解，几行代码了事。期末或国家计算机考试的时候，写出递归解就算过关了。但对于我们程序猿来说，可不是这么回事了，递归算<span class="function"><span class="title">f</span><span class="params">(<span class="number">20</span>)</span></span>都算不出来。
+
+不知道拿Fibonacci说事合理不合理，因为Fibonacci数列不存在最优不最优，我们姑且算求得答案算最优解吧。
+
+动态规划有两个要素：**最优子结构与重叠子问题**。
+
+最优子结构要素：如果问题的最优解所包含的子问题的解也是最优的，我们就称该问题具有最优子结构要素。
+
+子问题重叠要素：子问题重叠要素是指在用递归算法自顶向下对问题进行求解时，每次产生的子问题并不总是新问题，有些子问题会被重复计算多次。
+
+Fibonacci数列满足最优子结构，那子问题重叠呢？<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">1</span>)</span></span>、<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">2</span>)</span></span>均要用到<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">3</span>)</span></span>的解，但是每次都要重复计算一次，所以也满足子问题重叠性质。
+
+已经描述了Fibonacci的最优解结构，公式也就是其递归解，现在需要做的就是自底向上计算最优解了，伪代码如下：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    f[] := new bigint[n];<br><br>                    f[0] := f[1] := 1;<br><br>                    for i in [2, n):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp; f[i] := f[i-1] + f[i-2];<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>构造出的最优解就是上述代码中的f(n)了。动态规划利用了子问题的重叠性质，对每一个子问题只计算一次，然后将其计算结果保存在一个表格中，当再次需要计算已经计算过的子问题时，只是在表格中简单地查看一下结果，从而获得较高的效率。
+
+<span class="strong">**三、经典例子**</span>
+
+接下来汇总一些经典的动态规划问题，但是只给出状态转移方程（递归解）和伪代码。
+
+<span class="strong">**1）01背包问题**</span>
+
+有N件物品和一个容量为W的背包。第i件物品的重量是w[i]，价值是v[i]。求解将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。为啥叫01背包呢，因为每个物体就一件，放就是1不放就是0。
+
+子问题为V[<span class="link_label">i</span>][<span class="link_reference">w</span>]，定义为：前i件物品恰放入一个容量为w的背包可以获得的最大价值。
+
+状态转移方程：
+
+V[<span class="link_label">i</span>][<span class="link_reference">w</span>] = MAX{V[<span class="link_label">i-1</span>][<span class="link_reference">w</span>], V[<span class="link_label">i-1</span>][<span class="link_reference">w-w[i</span>]]+v[i]}
+
+其中，V[<span class="link_label">i-1</span>][<span class="link_reference">w</span>]代表第i件物品没有加入到背包中（为0），V[<span class="link_label">i-1</span>][<span class="link_reference">w-w[i</span>]]+v[i]表示第i件物品加入了（为1），在01中取最大值。
+
+伪代码：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    V[][] := new int[n][W]<br><br>                    for i in [1, n):<br><br>                    &nbsp;&nbsp;&nbsp; for w in (W, w[i-1]]: // 保证w-w[i-1]不越界<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V[i][w] := MAX{V[i-1][w], V[i-1][w-w[i]]+v[i]}<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>上面的时间复杂度为<span class="function"><span class="title">O</span><span class="params">(n*W)</span></span>，空间复杂度也为<span class="function"><span class="title">O</span><span class="params">(n*W)</span></span>。我们可以压缩一下空间，因为我们只需要袋子装满没有，装满后的价值是多少，设V[w]：在w重量下，袋子中物品的最大价值。
+
+状态转移方程：
+</code></pre><blockquote>
+<p>V [w] = MAX{V[w], V[w-w[i]]+v[i]}</p>
+</blockquote>
+<pre><code>伪代码：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    V[]:= new int [W+1]<br><br>                    for i in [0, n):<br><br>                    &nbsp;&nbsp;&nbsp; for w in [W, w[i]-1]: // 保证w-w[i-1]不越界<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V[w] := MAX{V[w], V[w-w[i]]+v[i]}<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="strong">**2）最长公共子序列（Longest Common Sequence）**</span>
+
+求两数组相同的最长子序列，子序列可以不连续的。状态转移方程：
+
+[<span class="link_label">![clip_image002</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb1.jpg "clip_image002"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0021.jpg</span>)
+
+c[<span class="link_label">i</span>][<span class="link_reference">j</span>]表示在字符串x的i位前与字符串y的j位前最长公共子序列。很容易理解，如果一个x[<span class="link_label">i</span>]、y[<span class="link_label">j</span>]相等，c[<span class="link_label">i-1</span>][<span class="link_reference">j-1</span>]加1，不等的话，c[<span class="link_label">i</span>][<span class="link_reference">j</span>]等于c[<span class="link_label">i-1</span>][<span class="link_reference">j</span>]、c[<span class="link_label">i</span>][<span class="link_reference">j-1</span>]中较大的数。
+
+伪代码：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    c[][] := new int[len(x)][len(y)]<br><br>                    for i in [0, len(x)):<br><br>                    &nbsp;&nbsp;&nbsp; for j in [0, len(y));<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if i==0 || j==0 then:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i][j] :=0;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if x[i] == y[j] then:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i-1][j-1] += 1;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i][j]:= MAX{c[i][j-1], c[i-1][j]};<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>3）最长递增子序列（Longest Increase Sequence）<span class="keyword">*</span><span class="keyword">*</span>
+
+求一个一维数组（N个元素）中最长递增子序列的长度。状态转移方程：
+</code></pre><blockquote>
+<p>LIS[i+1] = MAX{1, LIS[k] +1}, array[i+1] &gt; array[k], for k in [0, i]</p>
+</blockquote>
+<pre><code>伪代码：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    L[] :=new int[len(array)];<br><br>                    for i in [0, len(array)):<br><br>                    &nbsp;&nbsp;&nbsp; L[i] := 1 // 初始默认为1<br><br>                    &nbsp;&nbsp;&nbsp; for j in [0, j):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if array[i] &gt; array[j] &amp;&amp; L[j] +1 &gt; L[i]:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L[i] = L[j] +1;<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="strong">**四、小结**</span>
+
+以上整理自&amp;lt;<span class="strong">**算法导论**</span>&amp;gt;、&amp;lt;<span class="strong">**编程之美**</span>&amp;gt;，要掌握动态规划主要是理解两个要素：最优子结构和重叠子问题。要懂得找到一个好的&amp;ldquo;表格&amp;rdquo;来装子问题，将大问题逐步简化，直到得到状态转移方程。&amp;ldquo;表格&amp;rdquo;即子问题最优解，如背包问题：V[<span class="link_label">w</span>]为背包重量为w的时候最大价值；LCS问题：c[<span class="link_label">i</span>][<span class="link_reference">j</span>]为x[0, i]、y[0, j]的最大子序列；LIS问题：L[i]为array[0, i]的最大递增序列。
+
+但要完全掌握动态规划仅靠以上几道经典问题是不够的，需要不断思考、分析、实践，才可逐渐掌握这一算法分析设计方法。以上经典问题的解答也是经典的，还有许多需要优化以及修改的地方，但不写在博客里了，有兴趣的可以参考相关书籍，也欢迎留言讨论。
+</code></pre></span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag">#算法</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/algorithm-probability/" rel="prev">算法设计 - 概率初探</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/jvm-structure/" rel="next">JVM内存结构</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/algorithm-dynammic-programming/"
+                   data-title="算法设计 - 动态规划" data-url="http://hongweiyi.com/2012/02/algorithm-dynammic-programming/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

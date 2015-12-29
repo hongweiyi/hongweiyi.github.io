@@ -163,8 +163,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/20/configurate-solr-src-in-eclipse/" itemprop="url">
-                在Eclipse中配置Solr源码
+              <a class="post-title-link" href="/2012/02/iterative-mapred/" itemprop="url">
+                迭代式MapReduce解决方案（一）
               </a>
             
           
@@ -174,8 +174,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-20T00:06:01+08:00" content="2013-03-20">
-            2013-03-20
+          <time itemprop="dateCreated" datetime="2012-02-08T23:11:00+08:00" content="2012-02-08">
+            2012-02-08
           </time>
         </span>
 
@@ -200,8 +200,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/20/configurate-solr-src-in-eclipse/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/20/configurate-solr-src-in-eclipse/" itemprop="commentsCount"></span>
+              <a href="/2012/02/iterative-mapred/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/iterative-mapred/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -216,17 +216,10 @@
 
       
         
-          <p><strong>1.</strong> 下载solr的src包，并解压</p>
-<pre><code>&amp;nbsp;
-
-<span class="keyword">*</span><span class="keyword">*</span>2.<span class="keyword">*</span><span class="keyword">*</span> 解压后，在解压后的根目录执行ant eclipse，即生成eclipse需要的项目文件
-
-打开eclipse，File &amp;gt; Import &amp;gt; Existing Projects into Workspace
-
-选择刚才解压后的根目录，这时候java build path等都已经设置好了。
-</code></pre>
+          <p><strong>一、迭代式Mapreduce简介</strong></p>
+<p>普通的MapReduce任务是将一个任务分割成map与reduce两个阶段。map阶段负责过滤、筛选、检查输入数据，并将处理后的结果写入本地磁盘中；reduce阶段则负责远程读入map的本地输出结果，对数据进行归并、分析等处理，之后再将结果写入HDFS中。其数据流过程如下：<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/03/20/configurate-solr-src-in-eclipse/#more" rel="contents">
+            <a class="btn" href="/2012/02/iterative-mapred/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -259,8 +252,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/18/maven-repositories/" itemprop="url">
-                Maven笔记 - 仓库
+              <a class="post-title-link" href="/2012/01/python-chat/" itemprop="url">
+                人生苦短，我用Python
               </a>
             
           
@@ -270,8 +263,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-18T10:13:17+08:00" content="2013-03-18">
-            2013-03-18
+          <time itemprop="dateCreated" datetime="2012-01-20T16:40:51+08:00" content="2012-01-20">
+            2012-01-20
           </time>
         </span>
 
@@ -296,8 +289,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/18/maven-repositories/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/18/maven-repositories/" itemprop="commentsCount"></span>
+              <a href="/2012/01/python-chat/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/01/python-chat/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -312,11 +305,9 @@
 
       
         
-          <p><strong>1、前言</strong></p>
-<pre><code>上一篇[<span class="link_label">博客</span>](<span class="link_url">http://hongweiyi.com/2013/03/maven-coordinates-dependencies/</span>)介绍了Maven坐标和依赖。在Maven中，任何一个依赖、插件或者项目构建的输出，都可以成为构件。而坐标和依赖是任何一个构件在Maven世界中的逻辑表示方式，构件的物理表示方式是文件，Maven则通过仓库（Repositories）来统一管理这些文件。Maven仓库是通过简单文件系统存储管理的，当遇到与仓库相关的问题，可以直接查找相关文件，方便定位问题。
-</code></pre>
+          <p>用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&lt;<a href="http://www.joynb.net/blog/archives/120">Python少打字小技巧</a>&gt;，但还是无法很好的运用。<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/03/18/maven-repositories/#more" rel="contents">
+            <a class="btn" href="/2012/01/python-chat/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -349,8 +340,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/17/maven-coordinates-dependencies/" itemprop="url">
-                Maven笔记 – 坐标与依赖
+              <a class="post-title-link" href="/2011/12/design-pattern-adapter/" itemprop="url">
+                设计模式 - 适配器模式
               </a>
             
           
@@ -360,8 +351,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-17T20:47:05+08:00" content="2013-03-17">
-            2013-03-17
+          <time itemprop="dateCreated" datetime="2011-12-26T22:31:00+08:00" content="2011-12-26">
+            2011-12-26
           </time>
         </span>
 
@@ -386,8 +377,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/17/maven-coordinates-dependencies/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/17/maven-coordinates-dependencies/" itemprop="commentsCount"></span>
+              <a href="/2011/12/design-pattern-adapter/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-adapter/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -402,77 +393,371 @@
 
       
         
-          <span itemprop="articleBody"><p><strong>1、前言</strong></p>
-<pre><code>Maven ['meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
+          <p><strong>GOF**</strong>定义：**</p>
+<p><em>“Convert the interface of a class into another interface clients expect. Adapter lets classed work together thar couldn’t otherwise because of incompatible interfaces.” </em></p>
+<p><em>“将一个类的接口变换成客户端所期待的另一种接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。”</em><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2011/12/design-pattern-adapter/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
 
-<span class="variable">&lt;!--more--&gt;</span>
+    <footer class="post-footer">
+      
 
-这篇就介绍Maven比较重要的两个基本概念，坐标与依赖。以下大多数都是总结自《Maven实战》的笔记：
+      
 
-&amp;nbsp;
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
 
-<span class="keyword">*</span><span class="keyword">*</span>2、Maven<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>坐标元素<span class="keyword">*</span><span class="keyword">*</span>
 
-在开发项目的时候，开发者会到处收集第三方构件，而第三方构件版本各异并且难以收集，会导致大量时间花费在搜索、浏览网页等工作上。Maven则提供了一种统一的规范，让开发者通过简单的标识来表示一个构件并可以自动找到这个构件，这个标识就是坐标。通过以下坐标元素，可以唯一定义一个构件：
+    
+      
 
-<span class="keyword">*</span><span class="keyword">*</span>groupId<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>定义当前Maven项目隶属的实际项目
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-<span class="keyword">*</span><span class="keyword">*</span>artifactId<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>定义实际项目中的一个Maven项目（模块），推荐使用实际项目名称作为artifactId的前缀，方便寻找实际构件。如nexus-indexer是nexus的indexer模块。
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2011/12/design-pattern-facade/" itemprop="url">
+                设计模式 - 门面模式
+              </a>
+            
+          
+        </h1>
+      
 
-<span class="keyword">*</span><span class="keyword">*</span>version<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>Maven项目当前所处的版本。
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2011-12-26T20:29:00+08:00" content="2011-12-26">
+            2011-12-26
+          </time>
+        </span>
 
-<span class="keyword">*</span><span class="keyword">*</span>packaging(optional)<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>该元素定义Maven项目的打包方式（jar、war）
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
 
-<span class="keyword">*</span><span class="keyword">*</span>classsifier(optional)<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>附属构件，如javadocs、sources等，TestNG就有一个为jdk5的附属构件。BTW，不能直接定义项目的classifer，需要附加的插件帮助生成。
+              
+              
 
-[code lang=<span class="string">"xml"</span>]&amp;lt;groupId&amp;gt;com.hongweiyi&amp;lt;/groupId&amp;gt;
-</code></pre><p>&lt;artifactId&gt;HelloWorld&lt;/artifactId&gt;<br>&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;<br>&lt;packaging&gt;jar&lt;/packaging&gt;</p>
-<pre><code>[/code]
+            
+          </span>
+        
 
-&amp;nbsp;
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2011/12/design-pattern-facade/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-facade/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
 
-<span class="keyword">*</span><span class="keyword">*</span>3、依赖配置<span class="keyword">*</span><span class="keyword">*</span>
+    <div class="post-body">
 
-<span class="keyword">*</span><span class="keyword">*</span>groupId<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>、artifactId、version：<span class="keyword">*</span><span class="keyword">*</span>这三个基本坐标，必须有。
+      
+      
 
-<span class="keyword">*</span><span class="keyword">*</span>type<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>依赖的类型，对应于项目坐标定义的packaging，默认值为jar。
+      
+        
+          <p><strong>GOF**</strong>定义：**</p>
+<p><em>“Provide a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use.” </em><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2011/12/design-pattern-facade/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
 
-<span class="keyword">*</span><span class="keyword">*</span>scope<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>依赖范围
+    <footer class="post-footer">
+      
 
-Maven在编译项目住代码、编译执行测试、实际运行项目的时候都会用相应的一套classpath
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top"><br><br>                    <strong>依赖范围</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>对于编译classpath有效</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>对于测试classpath有效</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>对于运行时classpath有效</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>例子</strong><br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    compile<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    spring-core<br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    test<br><br>            </td><br>            <td valign="top"><br><br>                    -<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    JUnit<br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    provided<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    servlet-api<br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    runtime<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    JDBC 驱动实现<br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    system<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>Y</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    本地的，Maven仓库之外的类库文件<br><br>            </td><br>        </tr><br>        <tr><br>            <td valign="top"><br><br>                    import<br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    <strong>-</strong><br><br>            </td><br>            <td valign="top"><br><br>                    导入依赖范围，并无实际影响<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+      
 
-<pre><code><span class="subst">&amp;</span>nbsp;
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
 
-传递依赖，在使用某开源项目的时候，经常使用了某三方包后，发现该三方包还依赖其他包，这就不得不一个个导入相应的依赖包。而Maven则很方便，不用考虑三方包依赖了什么，Maven会直接解析各个直接依赖的POM，并将那些必要的间接依赖，以传递性依赖的形式引入到当前的项目中。
 
-传递依赖也会有问题，比如：A-<span class="subst">&amp;</span><span class="literal">gt</span>;B-<span class="subst">&amp;</span><span class="literal">gt</span>;C-<span class="subst">&amp;</span><span class="literal">gt</span>;X(<span class="number">1.0</span>)；A-<span class="subst">&amp;</span><span class="literal">gt</span>;D-<span class="subst">&amp;</span><span class="literal">gt</span>;X(<span class="number">2.0</span>)，在这种情况下，Maven依赖解调第一原则是：路径最近者优先。上面那个例子，X(<span class="number">2.0</span>)路径较近，所以会优先解析它。那么如果路径长度一样怎么解析呢？如：A-<span class="subst">&amp;</span><span class="literal">gt</span>;B-<span class="subst">&amp;</span><span class="literal">gt</span>;X(<span class="number">1.0</span>) A-<span class="subst">&amp;</span><span class="literal">gt</span>;C-<span class="subst">&amp;</span><span class="literal">gt</span>;X(<span class="number">2.0</span>)，这个就要用Maven解调的第二原则：第一声明者优先。在路径长度相等的前提下，POM中依赖声明的顺序决定了谁会被解析使用。
-</code></pre><blockquote>
-<p>BTW：依赖范围不仅可以控制依赖与三种classpath的关系，还对依赖性传递产生影响，这个影响有点绕，笔者还没弄太明白，就先不发了。T_T</p>
-</blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>optional<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>可选依赖。 (false / true)
+    
+      
 
-A-&amp;gt;B, B-&amp;gt;X(optional), B-&amp;gt;Y(optional)
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-A如果要用X或者Y的话，需要在POM中显示声明该Dependency。
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2011/12/design-pattern-decorate/" itemprop="url">
+                设计模式 - 装饰模式
+              </a>
+            
+          
+        </h1>
+      
 
-[code lang=<span class="string">"xml"</span>]&amp;lt;project&amp;gt;
-</code></pre><p>&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;<br>&lt;dependecies&gt;<br>   &lt;dependecy&gt;<br>      &lt;groupId&gt;com.hongweiyi.blog&lt;/groupId&gt;<br>      &lt;artifactId&gt;project-b&lt;/artifactId&gt;<br>      &lt;version&gt;1.0.0&lt;/version&gt;<br>   &lt;/dependency&gt;<br>   &lt;dependency&gt;        &lt;!– 显示声明X (Y) –&gt;<br>     &lt;groupId&gt;com.hongweiyi.blog&lt;/groupId&gt;<br>     &lt;artifactId&gt;project-X&lt;/artifactId&gt; &lt;!–artifactId&gt;project-Y&lt;/artifactId–&gt;<br>     &lt;version&gt;1.1.0&lt;/version&gt;<br>   &lt;/dependency&gt;<br>&lt;/dependencies&gt;<br>&lt;/project&gt;</p>
-<pre><code>[/code]
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2011-12-25T23:41:03+08:00" content="2011-12-25">
+            2011-12-25
+          </time>
+        </span>
 
-<span class="keyword">*</span><span class="keyword">*</span>exclusions：<span class="keyword">*</span><span class="keyword">*</span>排除传递性依赖。
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
 
-传递性会给项目隐式地引入很多依赖，简化项目依赖管理的同时，也会带来一些风险。如果有一个三方包依赖，而这三方包依赖了另一个类库的SNAPSHOT版本，这个版本就成为了当前项目的传递性依赖，而SNAPSHOT的不稳定性也会直接影响到当前项目。所以需要将这个SNAPSHOT的版本给排除掉，并显示声明一个好用的版本。
+              
+              
 
-[code lang=<span class="string">"xml"</span>]&amp;lt;project&amp;gt;
-</code></pre><p>&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;<br>&lt;dependecies&gt;<br>   &lt;dependecy&gt;<br>      &lt;groupId&gt;com.hongweiyi.blog&lt;/groupId&gt;<br>      &lt;artifactId&gt;project-b&lt;/artifactId&gt;<br>      &lt;version&gt;1.0.0&lt;/version&gt;<br>      &lt;exclusions&gt;<br>         &lt;exclusion&gt;      &lt;!– 排除project-c –&gt;<br>            &lt;groupId&gt;com.hongweiyi.blog&lt;/groupId&gt;<br>            &lt;artifactId&gt;project-c&lt;/artifactId&gt;<br>          &lt;/exclusion&gt;<br>      &lt;exclusions&gt;<br>   &lt;/dependency&gt;<br>   &lt;dependency&gt;        &lt;!– 重新声明project-c 1.1.0版 –&gt;<br>     &lt;groupId&gt;com.hongweiyi.blog&lt;/groupId&gt;<br>     &lt;artifactId&gt;project-c&lt;/artifactId&gt;<br>     &lt;version&gt;1.1.0&lt;/version&gt;<br>   &lt;/dependency&gt;<br>&lt;/dependencies&gt;<br>&lt;/project&gt;</p>
-<pre><code><span class="attr_selector">[/code]</span>
+            
+          </span>
+        
 
-<span class="keyword">&amp;</span><span class="tag">nbsp</span>;
-</code></pre><blockquote>
-<p>参考资料：《Maven实战》</p>
-</blockquote>
-</span>
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2011/12/design-pattern-decorate/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-decorate/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>GOF**</strong>定义：**</p>
+<p><em>“Attach additional responsibilities to an object dynamically keeping the same interface. Decorators provide a flexible alternative to subclassing for extending functionality.” </em></p>
+<p><em>“动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式相比生成子类更为灵活。”</em><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2011/12/design-pattern-decorate/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2011/12/design-pattern-proxy/" itemprop="url">
+                设计模式 - 代理模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2011-12-25T23:37:24+08:00" content="2011-12-25">
+            2011-12-25
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2011/12/design-pattern-proxy/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-proxy/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>GOF**</strong>定义：**</p>
+<p><em>“Provide a surrogate or placeholder for another object to control access to it.” </em></p>
+<p><em>“为其它对象提供一种代理以控制对这个对象的访问。”</em><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2011/12/design-pattern-proxy/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2011/12/design-pattern-additional/" itemprop="url">
+                设计模式 - 优点总结（补）
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2011-12-25T23:36:59+08:00" content="2011-12-25">
+            2011-12-25
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2011/12/design-pattern-additional/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-additional/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>之前写的模式（工厂、抽象工厂、单例、观察者、责任链）没有总结优点，在这里补上。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2011/12/design-pattern-additional/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -495,7 +780,7 @@ A如果要用X或者Y的话，需要在POM中显示声明该Dependency。
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/12/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/12/">&raquo;</a>
   </nav>
 
  </div>
@@ -529,7 +814,7 @@ A如果要用X或者Y的话，需要在POM中显示声明该Dependency。
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-count">98</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

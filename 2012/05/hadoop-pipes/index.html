@@ -1,0 +1,810 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hadoop,Hadoop Pipes,MapReduce," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、Hadoop Pipes**简介
+Hadoop Pipes是Hadoop MapReduce的C++接口代称。不同于使用标准输入和输出来实现的map代码和reduce代码之间的Streaming编程，Pipes使用Socket作为TaskTracker与C++进程之间数据传输的通道，数据传输为字节流。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop Pipes编程">
+<meta property="og:url" content="http://hongweiyi.com/2012/05/hadoop-pipes/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、Hadoop Pipes**简介
+Hadoop Pipes是Hadoop MapReduce的C++接口代称。不同于使用标准输入和输出来实现的map代码和reduce代码之间的Streaming编程，Pipes使用Socket作为TaskTracker与C++进程之间数据传输的通道，数据传输为字节流。">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hadoop Pipes编程">
+<meta name="twitter:description" content="1**、Hadoop Pipes**简介
+Hadoop Pipes是Hadoop MapReduce的C++接口代称。不同于使用标准输入和输出来实现的map代码和reduce代码之间的Streaming编程，Pipes使用Socket作为TaskTracker与C++进程之间数据传输的通道，数据传输为字节流。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Hadoop Pipes编程 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Hadoop Pipes编程
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-05-12T23:04:42+08:00" content="2012-05-12">
+            2012-05-12
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/05/hadoop-pipes/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/05/hadoop-pipes/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、Hadoop Pipes<strong>**简介</strong></p>
+<p>Hadoop Pipes是Hadoop MapReduce的C++接口代称。不同于使用标准输入和输出来实现的map代码和reduce代码之间的Streaming编程，Pipes使用Socket作为TaskTracker与C++进程之间数据传输的通道，数据传输为字节流。</p>
+<a id="more"></a>
+<p><strong>2**</strong>、Hadoop Pipes<strong>**编程初探</strong></p>
+<p>Hadoop Pipes可供开发者编写RecordReader、Mapper、Partitioner、Reducer、RecordWriter五个组件，当然，也可以自定义Combiner。</p>
+<p>网上有一大堆Hadoop Pipes的WordCount，个人觉得最好的WordCount还是Hadoop自带的，可以参见目录：$HADOOP_HOME/src/examples/pipes/impl</p>
+<p>与Pipes相关的头文件放在了目录：</p>
+<blockquote>
+<p>$HADOOP_HOME/c++/Linux-i386oramd64-32/include/hadoop/  </p>
+</blockquote>
+<p>主要的文件为Pipes.hh，该头文件定义了一些抽象类，除去开发者需要编写的五大组件之外，还有JobConf、TaskContext、Closeable、Factory四个。</p>
+<p><strong>TaskContext**</strong>：**开发者可以从context中获取当前的key，value，progress和inputSplit等数据信息，当然，比较重要的就是调用emit将结果回传给Hadoop Framework。除了TaskContext，还有MapContext与ReduceContext，代码见下：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> TaskContext {&#160;&#160; </span></span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">class</span><span> Counter {&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">private</span><span>:&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="datatypes">int</span><span> id;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; Counter(</span><span class="datatypes">int</span><span> counterId) : id(counterId) {}&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; Counter(</span><span class="keyword">const</span><span> Counter&amp; counter) : id(counter.id) {}&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="datatypes">int</span><span> getId() </span><span class="keyword">const</span><span> { </span><span class="keyword">return</span><span> id; }&#160;&#160; </span></li>
+<li><span>&#160; };&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> JobConf* getJobConf() = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; getInputKey() = 0;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; getInputValue() = 0;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> emit(</span><span class="keyword">const</span><span> std::string&amp; key, </span><span class="keyword">const</span><span> std::string&amp; value) = 0;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> progress() = 0;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> setStatus(</span><span class="keyword">const</span><span> std::string&amp; status) = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span> Counter*&#160;&#160;&#160; </span></li>
+<li><span>getCounter(</span><span class="keyword">const</span><span> std::string&amp; group, </span><span class="keyword">const</span><span> std::string&amp; name) = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> incrementCounter(</span><span class="keyword">const</span><span> Counter* counter, uint64_t amount) = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span> ~TaskContext() {}&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span></span><span class="keyword">class</span><span> MapContext: </span><span class="keyword">public</span><span> TaskContext {&#160;&#160; </span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; getInputSplit() = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; getInputKeyClass() = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; getInputValueClass() = 0;&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span></span><span class="keyword">class</span><span> ReduceContext: </span><span class="keyword">public</span><span> TaskContext {&#160;&#160; </span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">bool</span><span> nextValue() = 0;&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span>     </li>
+</ol>
+<p><strong>JobConf</strong>：开发者可以通过获得任务的属性<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> JobConf {&#160;&#160; </span></span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">bool</span><span> hasKey(</span><span class="keyword">const</span><span> std::string&amp; key) </span><span class="keyword">const</span><span> = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">const</span><span> std::string&amp; get(</span><span class="keyword">const</span><span> std::string&amp; key) </span><span class="keyword">const</span><span> = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">int</span><span> getInt(</span><span class="keyword">const</span><span> std::string&amp; key) </span><span class="keyword">const</span><span> = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">float</span><span> getFloat(</span><span class="keyword">const</span><span> std::string&amp; key) </span><span class="keyword">const</span><span> = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">bool</span><span> getBoolean(</span><span class="keyword">const</span><span> std::string&amp;key) </span><span class="keyword">const</span><span> = 0;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span> ~JobConf() {}&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span>     </li>
+</ol>
+<p><strong>Closeable</strong>：这个抽象类是五大组件的基类，只有两个方法，一个close()，一个析构函数。这个设计还是挺有Java风格的。</p>
+<p><strong>Factory</strong>：一个抽象工厂，用来创建五大组件的类，是模版工厂的基类。具体的可以参见TemplateFactory.hh。开发者在调用runTask时，创建相应的Factory传入即可。</p>
+<p><strong>3**</strong>、Hadoop Pipes<strong>**编程</strong></p>
+<p>有了以上的基础知识，就可以开始编写MapReduce任务了。我们可以直接从examples着手，先来看看wordcount-simple.cc。</p>
+<p><strong>wordcount-simple.cc -&gt; Mapper &amp; Reducer</strong><br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> WordCountMap: </span><span class="keyword">public</span><span> HadoopPipes::Mapper {&#160;&#160; </span></span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; HadoopPipes::TaskContext::Counter* inputWords;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; WordCountMap(HadoopPipes::TaskContext&amp; context) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; inputWords = context.getCounter(WORDCOUNT, INPUT_WORDS);&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">void</span><span> map(HadoopPipes::MapContext&amp; context) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; std::vector&lt;std::string&gt; words =&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; HadoopUtils::splitString(context.getInputValue(), </span><span class="string">&quot; &quot;</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">for</span><span>(unsigned </span><span class="datatypes">int</span><span> i=0; i &lt; words.size(); ++i) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; context.emit(words[i], </span><span class="string">&quot;1&quot;</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; context.incrementCounter(inputWords, words.size());&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span></span><span class="keyword">class</span><span> WordCountReduce: </span><span class="keyword">public</span><span> HadoopPipes::Reducer {&#160;&#160; </span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; HadoopPipes::TaskContext::Counter* outputWords;&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160; WordCountReduce(HadoopPipes::TaskContext&amp; context) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; outputWords = context.getCounter(WORDCOUNT, OUTPUT_WORDS);&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">void</span><span> reduce(HadoopPipes::ReduceContext&amp; context) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="datatypes">int</span><span> sum = 0;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">while</span><span> (context.nextValue()) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; sum += HadoopUtils::toInt(context.getInputValue());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; context.emit(context.getInputKey(), HadoopUtils::toString(sum));&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; context.incrementCounter(outputWords, 1);&#160;&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span></li>
+<li><span>};&#160; </span>     </li>
+</ol>
+<p>该任务编写了两个主要组件，mapper与reducer。要实现这两个组件需要继承相应的基类。基类声明如下：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> Mapper: </span><span class="keyword">public</span><span> Closable {&#160;&#160; </span></span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> map(MapContext&amp; context) = 0;&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span></span><span class="keyword">class</span><span> Reducer: </span><span class="keyword">public</span><span> Closable {&#160;&#160; </span></li>
+<li><span></span><span class="keyword">public</span><span>:&#160;&#160; </span></li>
+<li><span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> reduce(ReduceContext&amp; context) = 0;&#160;&#160; </span></li>
+<li><span>};&#160;&#160; </span>     </li>
+</ol>
+<p>继承了相应的基类，就可以大胆的通过context获得key/value实现自己的逻辑了，结果处理完毕后，需要通过context.emit(key, value)将结果发送到下一阶段。</p>
+<p>注：</p>
+<p>1）由于Factory创建对象需要传入Context对象，所以还需要实现一个构造函数，参数为TaskContext。</p>
+<p>2）Hadoop Pipes内部规定，map与reduce的key/value均为Text类型，在C++中表现为string类型。不过，Hadoop还是做得比较贴心，有专门的方法负责处理string，具体可以参见StringUtils.hh。</p>
+<p>3）Counter可以称之为统计器，可供开发者统计一些需要的数据，如读入行数、处理字节数等。任务完毕后，可以在web控制参看结果。</p>
+<p><strong>wordcount-part.cc -&gt; Partitioner</strong><br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> WordCountPartitioner: </span><span class="keyword">public</span><span> HadoopPipes::Partitioner {&#160;&#160; </span></span>2.  <span></span><span class="keyword">public</span><span>:&#160;&#160; </span>3.  <span>&#160; WordCountPartitioner(HadoopPipes::TaskContext&amp; context){}&#160;&#160; </span>4.  <span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">int</span><span> partition(</span><span class="keyword">const</span><span> std::string&amp; key, </span><span class="datatypes">int</span><span> numOfReduces) {&#160;&#160; </span>5.  <span>&#160;&#160;&#160; </span><span class="keyword">return</span><span> 0;&#160;&#160; </span>6.  <span>&#160; }&#160;&#160; </span>7.  <span>};&#160;&#160; </span>     </li>
+</ol>
+<p>该实例在提供简单Mapper与Reducer方法的同时，还提供了Partitioner，实例实现较为简单，直接返回了第一个reduce位置。开发者自定义的Partitioner同mapper/reducer一致，需要继承其基类HadoopPipes:: RecordWriter，也需要提供一个传入TaskContext的构造函数，它的声明如下：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> Partitioner {&#160;&#160; </span></span>2.  <span></span><span class="keyword">public</span><span>:&#160;&#160; </span>3.  <span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">int</span><span> partition(</span><span class="keyword">const</span><span> std::string&amp; key, </span><span class="datatypes">int</span><span> numOfReduces) = 0;&#160;&#160; </span>4.  <span>&#160; </span><span class="keyword">virtual</span><span> ~Partitioner() {}&#160;&#160; </span>5.  <span>};&#160; </span>     </li>
+</ol>
+<p>Partitioner编写方法与Java的一致，对于partition方法，框架会自动为它传入两个参数，分别为key值和reduce task的个数numOfReduces，用户只需返回一个0~ numOfReduces-1的值即可。</p>
+<p><strong>wordcount-nopipe.cc -&gt; RecordReader &amp; RecordWriter</strong></p>
+<p>这个实例的命名让我思考了很久，是nopipe还是nopart呢？该实例没有实现Partitioner，实现了RecordReader与RecordWriter。框架在运行之初，检查到开发者没有使用Java内置的RecordWriter，所以就只将InputSplit信息通过Pipes发送给C++ Task，由Task实现自身的Record读方法。同样，在Record写数据时任务也没走Pipes，直接将数据写到了相应的位置，写临时文件会直接写到磁盘，写HDFS则需要通过libhdfs进行写操作。具体Pipes运行流程，请参见下篇博文。</p>
+<p>RecordReader/RecordWriter实现较长，这里就不贴了，贴一下这俩的基类：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
+<ol>
+<li><span><span class="keyword">class</span><span> RecordReader: </span><span class="keyword">public</span><span> Closable {&#160;&#160; </span></span>2.  <span></span><span class="keyword">public</span><span>:&#160;&#160; </span>3.  <span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">bool</span><span> next(std::string&amp; key, std::string&amp; value) = 0;&#160;&#160; </span>4.  <span>&#160; </span><span class="comment">// 读进度 </span><span>&#160; </span>5.  <span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="datatypes">float</span><span> getProgress() = 0;&#160;&#160; </span>6.  <span>};&#160;&#160; </span>7.  <span>&#160; </span>8.  <span></span><span class="keyword">class</span><span> RecordWriter: </span><span class="keyword">public</span><span> Closable {&#160;&#160; </span>9.  <span></span><span class="keyword">public</span><span>:&#160;&#160; </span>10.  <span>&#160; </span><span class="keyword">virtual</span><span>&#160;</span><span class="keyword">void</span><span> emit(</span><span class="keyword">const</span><span> std::string&amp; key,&#160;&#160; </span>11.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">const</span><span> std::string&amp; value) = 0;&#160;&#160; </span>12.  <span>};&#160; </span>     </li>
+</ol>
+<p>对于RecordReader，用户自定义的构造函数需携带类型为HadoopPipes::MapContext的参数（而不能是TaskContext），通过该参数的getInputSplit()的方法，用户可以获取经过序列化的InpuSplit对象，Java端采用不同的InputFormat可导致InputSplit对象格式不同，但对于大多数InpuSplit对象，它们可以提供至少三个信息：当前要处理的InputSplit所在的文件名，所在文件中的偏移量，它的长度。用户获取这三个信息后，可使用libhdfs库读取文件，以实现next方法。</p>
+<p>用户自定的RecordWriter的构造函数需携带参数TaskContext，通过该参数的getJobConf()可获取一个HadoopPipes::JobConf的对象，用户可从该对象中获取该reduce task的各种参数，如：该reduce task的编号（这对于确定输出文件名有用），reduce task的输出目录等。同时实现emit方法，将数据写入文件。</p>
+<p><strong>4**</strong>、Hadoop Pipes<strong>**任务提交</strong></p>
+<p>Hadoop Pipes任务提交命令根据Hadoop版本而不一，主体的命令有如下：</p>
+<p>hadoop pipes [-conf &lt;path&gt;] [-D &lt;key=value&gt;, &lt;key=value&gt;, …] [-input &lt;path&gt;] [-output &lt;path&gt;] [-jar &lt;jar file&gt;] [-inputformat &lt;class&gt;] [-map &lt;class&gt;] [-partitioner &lt;class&gt;] [-reduce &lt;class&gt;] [-writer &lt;class&gt;] [-program &lt;executable&gt;]    <table border="0" cellspacing="1" cellpadding="0"><tbody>       <tr>         <td valign="top" width="254">           <p><strong>命**</strong> <strong>**令</strong><br>         </p></td>          <td valign="top" width="292">           </td></tr></tbody></table></p>
+<p><strong>描**</strong> <strong>**述</strong><br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-conf &lt;path&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>任务配置文件<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-D &lt;key=value&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>添加单独的配置<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-input &lt;path&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>输入数据目录<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-output &lt;path&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>输出数据目录<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-jar &lt;jar file&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>应用程序jar包<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-inputformat class<br>                   <td valign="top" width="292">           </td></p>
+<p>#Java版的InputFormat<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-map &lt;class&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>Java版的Mapper<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-partitioner &lt;class&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>Java版的Partitioner<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-reduce &lt;class&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>Java版的Reducer<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-writer &lt;class&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>Java版的 RecordWriter<br>                        <tr>         <td valign="top" width="254">           </td></tr></p>
+<p>-program &lt;executable&gt;<br>                   <td valign="top" width="292">           </td></p>
+<p>C++可执行程序<br>                      </p>  <p></p>
+<p>想使用其它静态数据的话，还可以使用-files命令，该命令就是DistributedCache，直接将静态数据分发到所有datanode上。具体机制参见：<a href="http://www.hongweiyi.com/2012/02/iterative-mapred-distcache/" target="_blank" rel="external">DistributedCache</a>。使用如下：</p>
+<blockquote>
+<p><strong>shell</strong>: bin/hadoop pipes … -files dict.txt</p>
+<p><strong>c</strong>: file = fopen(“dict.txt”, “r”); // 直接根据文件名读取  </p>
+</blockquote>
+<p><strong>5**</strong>、小结**</p>
+<p>本篇博文简要了说了一下Hadoop Pipes的使用方法，下篇博文会对Hadoop Pipes的运行机制进行一个深入的讲解。</p>
+<p>在这里贴一下董的优化意见：为了提高系能，RecordReader和RecordWriter最好采用Java代码实现（或者重用Hadoop中自带的），这是因为Hadoop自带的C++库libhdfs采用JNI实现，底层还是要调用Java相关接口，效率很低，此外，如果要处理的文件为二进制文件或者其他非文本文件，libhdfs可能不好处理。</p>
+<p>&#160;</p>
+<blockquote>
+<p><strong>参考资料：</strong></p>
+<p>董的博客: <a href="http://dongxicheng.org/mapreduce/hadoop-pipes-programming/" target="_blank" rel="external">Hadoop pipes编程</a></p>
+<p>《Hadoop权威指南》</p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag">#Hadoop</a>
+          
+            <a href="/tags/Hadoop-Pipes/" rel="tag">#Hadoop Pipes</a>
+          
+            <a href="/tags/MapReduce/" rel="tag">#MapReduce</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/05/hadoop-pipes-src/" rel="prev">Hadoop Pipes运行机制</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/04/relax-schrodinger-cat/" rel="next">轻松一刻 - 薛定谔的猫</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/05/hadoop-pipes/"
+                   data-title="Hadoop Pipes编程" data-url="http://hongweiyi.com/2012/05/hadoop-pipes/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

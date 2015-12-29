@@ -1,0 +1,837 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Linux,Shell," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="3.0 **前言**
+《Linux/Unix设计思想》中有一条准则：&amp;amp;ldquo;采用纯文本文件来存储数据&amp;amp;rdquo;，原因如下：
+
+1）文本是通用的可转换格式
+2）文本文件易于阅读和编辑
+
+
+3）文本数据文件简化了Unix工具的使用
+
+
+4）可移植性的提高克服了速度的不足
+
+
+5）速度欠佳的缺点会被明年的机器克服
+
+在实战中有能感受到，文本文件的方便，也有非常多的工具辅助开发者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell常用命令 文本操作篇">
+<meta property="og:url" content="http://hongweiyi.com/2013/01/linux-text-shell/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="3.0 **前言**
+《Linux/Unix设计思想》中有一条准则：&amp;amp;ldquo;采用纯文本文件来存储数据&amp;amp;rdquo;，原因如下：
+
+1）文本是通用的可转换格式
+2）文本文件易于阅读和编辑
+
+
+3）文本数据文件简化了Unix工具的使用
+
+
+4）可移植性的提高克服了速度的不足
+
+
+5）速度欠佳的缺点会被明年的机器克服
+
+在实战中有能感受到，文本文件的方便，也有非常多的工具辅助开发者">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shell常用命令 文本操作篇">
+<meta name="twitter:description" content="3.0 **前言**
+《Linux/Unix设计思想》中有一条准则：&amp;amp;ldquo;采用纯文本文件来存储数据&amp;amp;rdquo;，原因如下：
+
+1）文本是通用的可转换格式
+2）文本文件易于阅读和编辑
+
+
+3）文本数据文件简化了Unix工具的使用
+
+
+4）可移植性的提高克服了速度的不足
+
+
+5）速度欠佳的缺点会被明年的机器克服
+
+在实战中有能感受到，文本文件的方便，也有非常多的工具辅助开发者">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Shell常用命令 文本操作篇 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Shell常用命令 文本操作篇
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-01-19T22:41:44+08:00" content="2013-01-19">
+            2013-01-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/01/linux-text-shell/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/01/linux-text-shell/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>3.0 **</strong>前言**</p>
+<pre><code>《Linux/Unix设计思想》中有一条准则：&amp;ldquo<span class="comment">;采用纯文本文件来存储数据&amp;rdquo;，原因如下：</span>
+</code></pre><blockquote>
+<p>1）文本是通用的可转换格式</p>
+<pre><code><span class="number">2</span>）文本文件易于阅读和编辑
+
+
+<span class="number">3</span>）文本数据文件简化了Unix工具的使用
+
+
+<span class="number">4</span>）可移植性的提高克服了速度的不足
+
+
+<span class="number">5</span>）速度欠佳的缺点会被明年的机器克服
+</code></pre></blockquote>
+<pre><code>在实战中有能感受到，文本文件的方便，也有非常多的工具辅助开发者处理、查看、编辑它们，如：awk、sed等，这篇博文就介绍与文本操作相关的常用命令。
+
+<span class="variable">&lt;!--more--&gt;</span>
+
+&amp;nbsp;
+
+<span class="keyword">*</span><span class="keyword">*</span>3.1 <span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>输入输出流<span class="keyword">*</span><span class="keyword">*</span>
+
+<span class="keyword">*</span><span class="keyword">*</span>echo<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>：<span class="keyword">*</span><span class="keyword">*</span>
+
+echo如同python中的print，不过不需要引号包住字符串，echo后接的除管理和重定向字符外均会输出。
+
+<span class="keyword">*</span><span class="keyword">*</span>cat<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>（<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>Concatenate<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>）：<span class="keyword">*</span><span class="keyword">*</span>
+
+它主要的功能是将文件的内容连续（concatenate）的输出到屏幕上，在上篇博文中就已经看到了，用来合并多个split的文件。
+
+<span class="keyword">*</span><span class="keyword">*</span>|<span class="string">****：**
+
+管道符号，接收管道左边命令的输出，并输入到右边的命令。在Linux中，管道是一种使用非常频繁的通信机制。从本质上说，管道也是一种文件，但它又和一般的文件有所不同。在 Linux 中，管道的实现并没有使用专门的数据结构，而是借助了文件系统的file结构和VFS的索引节点inode。通过将两个 file 结构指向同一个临时的 VFS 索引节点，而这个 VFS 索引节点又指向一个物理页面而实现的。
+
+这样，左边命令将数据写到索引节点，右边读取索引节点，读完之后方能继续写。详细实现机制可参考：[Linux管道的实现机制](http://oss.org.cn/kernel-book/ch07/7.1.1.htm)
+
+**输出重定向：**
+
+&amp;gt;: 将左边的输出输入到右边的文件
+
+&amp;gt;&amp;gt;: 将左边命令的输出追加输入到右边的文件
+
+标准输出流重定向：
+
+0、1、2分别代表了标准输入、标准输出、标准错误信息输出，实战中经常会将错误输出重定向到标准输出中，可用 2&amp;gt;&amp;amp;1。同时，linux中有特殊的文件，/dev/null可理解为回收站，所有输出输入到该文件中均会&amp;ldquo;消失&amp;rdquo;。
+
+**read:**
+
+Usage: read [option] [var(default:REPLY)]
+
+从标准输出流中读取一行，并给一个变量赋值。</span>
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="619"><br>    <tbody><br>        <tr><br>            <td valign="top" width="617"><br><br>                    &nbsp; &gt;&gt; $ echo &quot;hello world&quot; &gt; new.txt<br><br>                    &nbsp; &gt;&gt; $ cat new.txt<br><br>                    &nbsp; hello world<br><br>                    &nbsp; &gt;&gt; $ echo &quot;again&quot; &gt;&gt; new.txt<br><br>                    &nbsp; &gt;&gt; $ cat new.txt<br><br>                    &nbsp; hello world<br><br>                    &nbsp; again<br><br>                    &nbsp; &gt;&gt; $ echo &quot;col1 col2&quot; | awk &#39;{print $1}&#39;<br><br>                    &nbsp; col1<br><br>                    &nbsp; &gt;&gt; $ read newline &lt; new.txt; echo $newline<br><br>                    &nbsp; hello world<br><br>                    &nbsp; &gt;&gt; $ read &lt; new.txt; echo $REPLY<br><br>                    &nbsp; hello world<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<blockquote>
+<p><strong>TIPS1:</strong> read最常见的应该是用在while循环中了，cat file | while read line; do do_sth; done;</p>
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>TIPS2:<span class="keyword">*</span><span class="keyword">*</span> 2&amp;gt;&amp;amp;1常见的地方是用在定时任务中，将所有输出结果均输出到/dev/null中，/bin/sh your.sh &amp;gt; /dev/null 2&amp;gt;&amp;amp;1
+
+
+<span class="keyword">*</span><span class="keyword">*</span>TIPS3:<span class="keyword">*</span><span class="keyword">*</span> Linux中最快的创建空文件的方法不是touch，而是&amp;quot;&amp;gt; newfile&amp;quot;。哈哈，贱笑贱笑。
+</code></pre></blockquote>
+<pre><code>&amp;nbsp;
+
+<span class="keyword">*</span><span class="keyword">*</span>3.2&amp;nbsp;<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>文本查看<span class="keyword">*</span><span class="keyword">*</span>
+
+cat、head、tail、more、less均是查看文本的好工具，有时候结合起来效果会更好。
+
+<span class="keyword">*</span><span class="keyword">*</span>head(tail)：<span class="keyword">*</span><span class="keyword">*</span>
+
+查看文件首（尾）十行
+
+<span class="keyword">*</span><span class="keyword">*</span>more：<span class="keyword">*</span><span class="keyword">*</span>
+
+先显示文件一屏，再等待用户输入，回车是再显示下一行，空格是下一屏，q(ctrl+c)则退出
+
+<span class="keyword">*</span><span class="keyword">*</span>less：<span class="keyword">*</span><span class="keyword">*</span>
+
+类似more，不过可以往上翻。可用上下键，也可以用u(up)，d(down)键。
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="629"><br>    <tbody><br>        <tr><br>            <td valign="top" width="627"><br><br>                    &nbsp; &gt;&gt; $ tail -n 1000 file | more&nbsp;&nbsp;&nbsp; # 查看文件的最后1k行<br><br>                    &nbsp; &gt;&gt; $ head -n 10010 file | tail&nbsp;&nbsp;&nbsp;&nbsp; # 查看文件的第10k行<br><br>                    &nbsp; &gt;&gt; $ head -c 1(b|k|m) file&nbsp;&nbsp;&nbsp; # 查看文件的前1B|K|M数据<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>&amp;nbsp;
+
+<span class="keyword">*</span><span class="keyword">*</span>3.3&amp;nbsp;<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>文本字符集<span class="keyword">*</span><span class="keyword">*</span>
+
+字符集一直开发者的一个痛，按照东犇的说法是，要废除除utf8外所有字符集。此话虽然暴力，但是也有道理，不过要实现这个想法也基本是不太可能。开发者就只能一步一个脚印的走了。
+
+<span class="keyword">*</span><span class="keyword">*</span>file:<span class="keyword">*</span><span class="keyword">*</span>
+
+这是查看文本字符串的命令，不过个人觉得，基本不靠谱。因为要查看的数据都是代码生成的，输出的数据也不会有BOM信息，file也没有实现自检测文本字符功能。所以，现实中一般就是连蒙带猜了，不是gbk就是utf8。哈哈
+
+<span class="keyword">*</span><span class="keyword">*</span>iconv:<span class="keyword">*</span><span class="keyword">*</span>
+
+字符集转换工具
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ iconv -f from_code -t to_code file<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>文本字符集转换在这篇文章就只能点到为止了，字符集的问题三两句话基本讲不清楚，改天有机会单独写篇文章讲讲。
+</code></pre><blockquote>
+<p><strong>TIPS1:</strong> 输出文本到屏幕，显示的字符集是由终端所设置的。当出现乱码的时候，不要误认为是数据出错了，很有可能就是你的字符集设置有问题。</p>
+<pre><code>    **TIPS2:** 按照东犇的说法，建议开发者统一使用utf8编码。他也提供了一种较为方便的查看gbk文本的方法。
+
+
+<span class="tag">&lt;<span class="title">table</span> <span class="attribute">border</span>=<span class="value">"1"</span> <span class="attribute">cellpadding</span>=<span class="value">"0"</span> <span class="attribute">cellspacing</span>=<span class="value">"0"</span> <span class="attribute">width</span>=<span class="value">"605"</span>&gt;</span>
+
+    <span class="tag">&lt;<span class="title">tbody</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">tr</span>&gt;</span>
+
+            <span class="tag">&lt;<span class="title">td</span> <span class="attribute">valign</span>=<span class="value">"top"</span> <span class="attribute">width</span>=<span class="value">"603"</span>&gt;</span>
+
+
+                    &amp;nbsp; &amp;gt;&amp;gt; $ echo -e &amp;quot;\n&amp;quot;alias conv_gbk=\&amp;quot;iconv -f gbk -t utf8\&amp;quot; &amp;gt;&amp;gt; ~/.bashrc
+
+
+                    &amp;nbsp; &amp;gt;&amp;gt; $ source ~/.bashrc
+
+
+                    &amp;nbsp; &amp;gt;&amp;gt; $ cat file | conv_gbk
+
+
+            <span class="tag">&lt;/<span class="title">td</span>&gt;</span>
+
+        <span class="tag">&lt;/<span class="title">tr</span>&gt;</span>
+
+    <span class="tag">&lt;/<span class="title">tbody</span>&gt;</span>
+
+<span class="tag">&lt;/<span class="title">table</span>&gt;</span>
+</code></pre></blockquote>
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>3.4&amp;nbsp;<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>文本其他工具<span class="keyword">*</span><span class="keyword">*</span>
+
+<span class="keyword">*</span><span class="keyword">*</span>grep:<span class="keyword">*</span><span class="keyword">*</span>
+
+查找命令，是开发中使用频率非常高的命令。像我们这边，代码就是文档，最好的翻阅文档工具就是grep了。
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="636"><br>    <tbody><br>        <tr><br>            <td valign="top" width="634"><br><br>                    &nbsp; &gt;&gt; $ grep [pattern] [file]&nbsp;&nbsp;&nbsp; # grep是基于正则表达式的，查找file中符合pattern的行<br><br>                    &nbsp; &gt;&gt; $ grep -v pattern file&nbsp;&nbsp;&nbsp; # 查找file中不符合pattern的行<br><br>                    &nbsp; &gt;&gt; $ grep pattern . -r&nbsp;&nbsp;&nbsp; # -r recursive 查找当前目录下所有符合pattern的文件<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>wc:<span class="keyword">*</span><span class="keyword">*</span>
+
+wordcount工具，表示中国文字基本用不到。可以用其中一个：
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="635"><br>    <tbody><br>        <tr><br>            <td valign="top" width="633"><br><br>                    &nbsp; &gt;&gt; $ wc -l file&nbsp;&nbsp;&nbsp; # 统计file的行数<br><br>                    &nbsp; &gt;&gt; $ ls . | wc -l&nbsp;&nbsp;&nbsp; # 统计当前目录下文件的数目<br><br>                    &nbsp; &gt;&gt; $ grep pattern file | wc -l&nbsp;&nbsp;&nbsp; # 统计file中符合pattern的行数<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>sort:<span class="keyword">*</span><span class="keyword">*</span>
+
+排序工具：
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="634"><br>    <tbody><br>        <tr><br>            <td valign="top" width="632"><br><br>                    &nbsp; &gt;&gt; $ sort -k n (-n) (-r) file&nbsp;&nbsp; # 按照第n列，给file排序。-n numeric-sort -r reverse<br><br>                    &nbsp; &gt;&gt; $ ls -l . | sort -k 5 -n&nbsp;&nbsp;&nbsp; # 列出当前目录的文件，并按文件大小排序<br><br>                    &nbsp; &gt;&gt; $ ls -l . | sort -k5n -k6&nbsp;&nbsp;&nbsp; # 列出当前目录的文件，并按文件大小及时间排序<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>uniq:<span class="keyword">*</span><span class="keyword">*</span>
+
+去除连续重复行：
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="633"><br>    <tbody><br>        <tr><br>            <td valign="top" width="631"><br><br>                    &nbsp; &gt;&gt; $ cat file<br><br>                    &nbsp; test1<br><br>                    &nbsp; test2<br><br>                    &nbsp; test2<br><br>                    &nbsp; test1<br><br>                    &nbsp; &gt;&gt; $ uniq file<br><br>                    &nbsp; test1<br><br>                    &nbsp; test2<br><br>                    &nbsp; test1<br><br>                    &nbsp; &gt;&gt; $ sort file | uniq&nbsp;&nbsp;&nbsp;&nbsp; # 去除所有重复行<br><br>                    &nbsp; test1<br><br>                    &nbsp; test2<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code><span class="keyword">*</span><span class="keyword">*</span>diff &amp;amp; patch:<span class="keyword">*</span><span class="keyword">*</span>
+
+文本比较工具，和svn里面的diff一样。diff的文件较小的话，结果还可以忍受，如果过大，那结果就不是给人看的了，需要让机器来做一些工作了，如做增量拷贝。这个命令就是patch。
+
+命令较为繁琐，且个人用得较少，就直接引用其他文章了：<span class="keyword">*</span><span class="keyword">*</span>[用diff和patch工具维护源码](https://www.ibm.com/developerworks/cn/linux/l-diffp/)<span class="keyword">*</span><span class="keyword">*</span>
+
+<span class="keyword">*</span><span class="keyword">*</span>awk &amp;amp; sed:<span class="keyword">*</span><span class="keyword">*</span>
+
+sed(stream editor)意为流编辑器，我的理解就是它是按行处理。而awk则不仅仅可以按行，还可以按列。想必前面的文章，也看到了不少用awk的命令。两者各有所长，且博大精深啊，也有关于这两个工具的书。笔者在这里也只介绍我常用到的功能。
+</code></pre><table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ echo &quot;col1 col2 col3&quot; | awk &#39;{print $1&quot;\t&quot;$3}&#39;&nbsp;&nbsp;&nbsp; # $0：输入串 $1：col1 $2：col2 $3：col3 …<br><br>                    &nbsp; col1[tab]col3<br><br>                    &nbsp; &gt;&gt; $ echo &quot;col1 col2 col3&quot; | awk &#39;{print $1, $3}&#39;<br><br>                    &nbsp; col1[space]col3<br><br>                    &nbsp; &gt;&gt; $ sed -i &quot;s/pattern/replace_pattern/g&quot; file&nbsp;&nbsp;&nbsp; # 替换字符串<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<blockquote>
+<p><strong>WARNING:</strong> 当文本为中文的时候，sed -i &quot;s/char/replace_char/g&quot;替换ascii标点的时候，需要特别注意。因为gbk编码中有些字节会小于128，而sed替换也是逐字节对比替换，所以有时候会导致中文乱码。</p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag">#Linux</a>
+          
+            <a href="/tags/Shell/" rel="tag">#Shell</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/01/linux-process-shell/" rel="prev">Shell常用命令 进程操作篇</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/01/linux-file-directory-shell/" rel="next">Shell常用命令 文件/目录操作篇</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/01/linux-text-shell/"
+                   data-title="Shell常用命令 文本操作篇" data-url="http://hongweiyi.com/2013/01/linux-text-shell/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

@@ -1,0 +1,660 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Solr," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1、前言Solr升级到4.0后便有了一个新功能，就是facet.pivot，关于pivot的介绍可以看上一篇文章：《Apache Solr – Facet介绍》 这篇主要讲述Pivot的内部实现机制，以及如何将这个功能移植到低版本的Solr中来。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Solr —— Facet Pivot实现与低版本移植">
+<meta property="og:url" content="http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1、前言Solr升级到4.0后便有了一个新功能，就是facet.pivot，关于pivot的介绍可以看上一篇文章：《Apache Solr – Facet介绍》 这篇主要讲述Pivot的内部实现机制，以及如何将这个功能移植到低版本的Solr中来。">
+<meta property="og:updated_time" content="2015-12-29T13:30:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache Solr —— Facet Pivot实现与低版本移植">
+<meta name="twitter:description" content="1、前言Solr升级到4.0后便有了一个新功能，就是facet.pivot，关于pivot的介绍可以看上一篇文章：《Apache Solr – Facet介绍》 这篇主要讲述Pivot的内部实现机制，以及如何将这个功能移植到低版本的Solr中来。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Apache Solr —— Facet Pivot实现与低版本移植 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Apache Solr —— Facet Pivot实现与低版本移植
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-03-27T23:12:00+08:00" content="2013-03-27">
+            2013-03-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/03/apache-solr-facet-pivot-implementation-tranplant/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/apache-solr-facet-pivot-implementation-tranplant/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h3 id="1、前言">1、前言</h3><p>Solr升级到4.0后便有了一个新功能，就是facet.pivot，关于pivot的介绍可以看上一篇文章：<a href="http://hongweiyi.com/2013/03/apache-solr-facet-introduction/">《Apache Solr – Facet介绍》</a> 这篇主要讲述Pivot的内部实现机制，以及如何将这个功能移植到低版本的Solr中来。</p>
+<a id="more"></a>
+<h3 id="2、Pivot实现机制">2、Pivot实现机制</h3><blockquote>
+<p><code>http://...?q=*:*&amp;facet=true&amp;&amp;facet.field=province&amp;facet.field=city&amp;facet.pivot=province,city&amp;wt=json</code></p>
+</blockquote>
+<h4 id="2-1_获得所有pivots参数列表">2.1 获得所有pivots参数列表</h4><blockquote>
+<p>e.g.: [“province,city”, …]</p>
+</blockquote>
+<h4 id="2-2_将pivots交给PivotFacetHelper处理">2.2 将pivots交给PivotFacetHelper处理</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// FacetComponent.java -&gt; process</span></span><br><span class="line"><span class="comment">// e.g.: ["province,city"]</span></span><br><span class="line">String[] pivots = params.getParams(FacetParams.FACET_PIVOT);</span><br><span class="line"><span class="keyword">if</span> (pivots != <span class="keyword">null</span> &amp;&amp; pivots.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">	PivotFacetHelper pivotHelper = <span class="keyword">new</span> PivotFacetHelper(rb.req,</span><br><span class="line">						rb.getResults().docSet, params, rb);</span><br><span class="line">	<span class="comment">// process each pivots individually</span></span><br><span class="line">	NamedList v = pivotHelper.process(pivots);</span><br><span class="line">	<span class="keyword">if</span> (v != <span class="keyword">null</span>) &#123;</span><br><span class="line">		counts.add(PIVOT_KEY, v);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-3_解析pivot，获得每个field_–&gt;_pivot:_field_subField_fnames">2.3 解析pivot，获得每个field –&gt; pivot: field subField fnames</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PivotFacetHelper.java -&gt; process</span></span><br><span class="line"><span class="keyword">for</span> (String pivot : pivots) &#123;</span><br><span class="line">	<span class="comment">// …</span></span><br><span class="line"></span><br><span class="line">	String[] fields = pivot.split(<span class="string">","</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (fields.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">	    <span class="keyword">throw</span> <span class="keyword">new</span> SolrException(ErrorCode.BAD_REQUEST,</span><br><span class="line">			<span class="string">"Pivot Facet needs at least two fields: "</span> + pivot);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	String field = fields[<span class="number">0</span>];</span><br><span class="line">	String subField = fields[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">	<span class="comment">// the rest of fields</span></span><br><span class="line">	Deque&lt;String&gt; fnames = <span class="keyword">new</span> LinkedList&lt;String&gt;();</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = fields.length - <span class="number">1</span>; i &gt; <span class="number">1</span>; i--) &#123;</span><br><span class="line">		fnames.push(fields[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// …</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-4_获得第一级field的facets">2.4 获得第一级field的facets</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PivotFacetHelper.java -&gt; process</span></span><br><span class="line"><span class="comment">// e.g.: field: province</span></span><br><span class="line"><span class="comment">//        superFacets : ["Jiangsu", 4, "Hunan", 3, "Guangdong", 2, "Beijing", 1, "Zhejiang", 1]</span></span><br><span class="line">NamedList&lt;Integer&gt; superFacets = <span class="keyword">this</span>.getTermCounts(field);</span><br></pre></td></tr></table></figure>
+<h4 id="2-5_递归调用pivotResult_=_doPivot(superFacets,_field,_subField,_fnames,_docs)">2.5 递归调用pivotResult = doPivot(superFacets, field, subField, fnames, docs)</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">        <span class="comment">// …</span></span><br><span class="line">        <span class="comment">// super.key usually == pivot unless local-param 'key' used</span></span><br><span class="line">        pivotResponse.add(key,</span><br><span class="line">        doPivots(superFacets, field, subField, fnames, base));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pivotResponse;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// PivotFacetHelper.java -&gt; doPivots</span></span><br><span class="line"><span class="keyword">protected</span> List&lt;NamedList&lt;Object&gt;&gt; doPivots(NamedList&lt;Integer&gt; superFacets, String field, String subField, Deque&lt;String&gt; fnames, DocSet docs) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// …</span></span><br><span class="line">	<span class="comment">// 遍历该级所有facet，获得该facet下所有下一级facet数据…</span></span><br><span class="line">    <span class="comment">// ["Jiangsu", "Hunan", "Guangdong", "Beijing", "Zhejiang"]</span></span><br><span class="line">	<span class="keyword">for</span> (Map.Entry&lt;String, Integer&gt; kv : superFacets) &#123;</span><br><span class="line">		<span class="comment">// Only sub-facet if parent facet has positive count - still may not</span></span><br><span class="line">		<span class="comment">// be any values for the sub-field though</span></span><br><span class="line">		<span class="keyword">if</span> (kv.getValue() &gt;= minMatch) &#123;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// …</span></span><br><span class="line">			<span class="comment">// pivot就是该级facet，添加它相关数据（field、value、count）</span></span><br><span class="line">			SimpleOrderedMap&lt;Object&gt; pivot = <span class="keyword">new</span> SimpleOrderedMap&lt;Object&gt;();</span><br><span class="line">			pivot.add(<span class="string">"field"</span>, field);</span><br><span class="line">			<span class="keyword">if</span> (<span class="keyword">null</span> == fieldValue) &#123;</span><br><span class="line">				pivot.add(<span class="string">"value"</span>, <span class="keyword">null</span>);</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			    <span class="comment">// termval：当前facets、field下，所包含的值</span></span><br><span class="line">                <span class="comment">// e.g.: “Jiangsu”</span></span><br><span class="line">				termval = <span class="keyword">new</span> BytesRef();</span><br><span class="line">				ftype.readableToIndexed(fieldValue, termval);</span><br><span class="line">				pivot.add(<span class="string">"value"</span>, ftype.toObject(sfield, termval));</span><br><span class="line">			&#125;</span><br><span class="line">			pivot.add(<span class="string">"count"</span>, kv.getValue());</span><br><span class="line"></span><br><span class="line">			<span class="comment">// subField为空，这一级facet的这个pivot递归遍历完毕</span></span><br><span class="line">			<span class="keyword">if</span> (subField == <span class="keyword">null</span>) &#123;</span><br><span class="line">				values.add(pivot);</span><br><span class="line">			<span class="comment">// subField不为空，继续递归遍历</span></span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			    <span class="comment">// subset: 当前facet下，包含field:value的文档子集</span></span><br><span class="line">			    <span class="comment">// field:value -&gt; “province”:“Jiangsu”</span></span><br><span class="line">				DocSet subset = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (<span class="keyword">null</span> == termval) &#123;</span><br><span class="line">					DocSet hasVal = searcher.getDocSet(<span class="keyword">new</span> TermRangeQuery(</span><br><span class="line">							field, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">false</span>, <span class="keyword">false</span>));</span><br><span class="line">					subset = docs.andNot(hasVal);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					String term = <span class="keyword">new</span> String(<span class="keyword">new</span> String(termval.bytes,</span><br><span class="line">							termval.offset, termval.length));</span><br><span class="line"></span><br><span class="line">					Query query = <span class="keyword">new</span> TermQuery(<span class="keyword">new</span> Term(field, term));</span><br><span class="line">					subset = searcher.getDocSet(query, docs);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">super</span>.docs = subset;<span class="comment">// used by getTermCounts()</span></span><br><span class="line"></span><br><span class="line">                 <span class="comment">// nl: 获得当前docs下，下一级field的facets。</span></span><br><span class="line">                 <span class="comment">// nl我理解为next level</span></span><br><span class="line">                 <span class="comment">// e.g.: subField: “city”</span></span><br><span class="line">                 <span class="comment">//         nl: [“Suzhou”, 3, “Nanjing”, 1]</span></span><br><span class="line">				NamedList&lt;Integer&gt; nl = <span class="keyword">this</span>.getTermCounts(subField);</span><br><span class="line">				<span class="keyword">if</span> (nl.size() &gt;= minMatch) &#123;</span><br><span class="line">                     <span class="comment">// 继续下一层迭代</span></span><br><span class="line">					pivot.add(	<span class="string">"pivot"</span>,doPivots(nl, subField, nextField, fnames, subset));</span><br><span class="line">					values.add(pivot); <span class="comment">// only add response if there are</span></span><br><span class="line">											<span class="comment">// some counts</span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// put the field back on the list</span></span><br><span class="line">	fnames.push(nextField);</span><br><span class="line">	<span class="keyword">return</span> values;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>新版添加新机制方式可以参考，并不是在源码基础上大刀阔斧的改。而是添加了一个新类，只需原有获取facet流程逻辑上，添加少数几行代码即可，这也算是模块化思想么？</p>
+</blockquote>
+<h3 id="3、移植Pivot功能到低级版本">3、移植Pivot功能到低级版本</h3><blockquote>
+<p>这里是从solr4.0移植到solr3.5</p>
+</blockquote>
+<p>移植步骤倒也还方便，主要是添加PivotFacetHelper类，剩下的就是一步一步修复红叉叉了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Index: core/src/java/org/apache/solr/handler/component/FacetComponent.java</span><br><span class="line">===================================================================</span><br><span class="line">--- core/src/java/org/apache/solr/handler/component/FacetComponent.java	(Version unknown old)</span><br><span class="line">+++ core/src/java/org/apache/solr/handler/component/FacetComponent.java	(Version unknown <span class="keyword">new</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">46</span>a47,<span class="number">48</span></span><br><span class="line">&gt; 	<span class="keyword">static</span> <span class="keyword">final</span> String PIVOT_KEY = <span class="string">"facet_pivot"</span>;</span><br><span class="line">&gt;</span><br><span class="line"><span class="number">66</span>c68,<span class="number">79</span></span><br><span class="line">&lt;</span><br><span class="line">---</span><br><span class="line">&gt; 			NamedList&lt;Object&gt; counts = f.getFacetCounts();</span><br><span class="line">&gt; 			<span class="comment">// e.g.: ["province,city"]</span></span><br><span class="line">&gt; 			String[] pivots = params.getParams(FacetParams.FACET_PIVOT);</span><br><span class="line">&gt; 			<span class="keyword">if</span> (pivots != <span class="keyword">null</span> &amp;&amp; pivots.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">&gt; 				PivotFacetHelper pivotHelper = <span class="keyword">new</span> PivotFacetHelper(rb.req,</span><br><span class="line">&gt; 						rb.getResults().docSet, params, rb);</span><br><span class="line">&gt; 				<span class="comment">// process each pivots individually</span></span><br><span class="line">&gt; 				NamedList v = pivotHelper.process(pivots);</span><br><span class="line">&gt; 				<span class="keyword">if</span> (v != <span class="keyword">null</span>) &#123;</span><br><span class="line">&gt; 					counts.add(PIVOT_KEY, v);</span><br><span class="line">&gt; 				&#125;</span><br><span class="line">&gt; 			&#125;</span><br><span class="line"><span class="number">68</span>c81</span><br><span class="line">&lt; 			rb.rsp.add(<span class="string">"facet_counts"</span>, f.getFacetCounts());</span><br><span class="line">---</span><br><span class="line">&gt; 			rb.rsp.add(<span class="string">"facet_counts"</span>, counts);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Index: solrj/src/java/org/apache/solr/common/params/FacetParams.java</span><br><span class="line">===================================================================</span><br><span class="line">--- solrj/src/java/org/apache/solr/common/params/FacetParams.java	(Version unknown old)</span><br><span class="line">+++ solrj/src/java/org/apache/solr/common/params/FacetParams.java	(Version unknown <span class="keyword">new</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">92</span>a93,<span class="number">98</span></span><br><span class="line">&gt; 	<span class="comment">/**</span><br><span class="line">&gt; 	 * Comma separated list of fields to pivot</span><br><span class="line">&gt; 	 *</span><br><span class="line">&gt; 	 * example: author,type (for types by author / types within author)</span><br><span class="line">&gt; 	 */</span></span><br><span class="line">&gt; 	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String FACET_PIVOT = FACET + <span class="string">".pivot"</span>;</span><br><span class="line"><span class="number">94</span>a101,<span class="number">106</span></span><br><span class="line">&gt; 	 * Minimum number of docs that need to match to be included in the sublist</span><br><span class="line">&gt; 	 *</span><br><span class="line">&gt; 	 * <span class="keyword">default</span> value is <span class="number">1</span></span><br><span class="line">&gt; 	 */</span><br><span class="line">&gt; 	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String FACET_PIVOT_MINCOUNT = FACET_PIVOT + <span class="string">".mincount"</span>;</span><br><span class="line">&gt; 	<span class="comment">/**</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Index: core/src/java/org/apache/solr/request/SimpleFacets.java</span><br><span class="line">===================================================================</span><br><span class="line">--- core/src/java/org/apache/solr/request/SimpleFacets.java	(Version unknown old)</span><br><span class="line">+++ core/src/java/org/apache/solr/request/SimpleFacets.java	(Version unknown <span class="keyword">new</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">74</span>,<span class="number">76</span>c74,<span class="number">77</span></span><br><span class="line">&lt; 	String facetValue; <span class="comment">// the field to or query to facet on (minus local params)</span></span><br><span class="line">&lt; 	DocSet base; <span class="comment">// the base docset for this particular facet</span></span><br><span class="line">&lt; 	String key; <span class="comment">// what name should the results be stored under</span></span><br><span class="line">---</span><br><span class="line">&gt; 	<span class="keyword">protected</span> String facetValue; <span class="comment">// the field to or query to facet on (minus</span></span><br><span class="line">&gt; 									<span class="comment">// local params)</span></span><br><span class="line">&gt; 	<span class="keyword">protected</span> DocSet base; <span class="comment">// the base docset for this particular facet</span></span><br><span class="line">&gt; 	<span class="keyword">protected</span> String key; <span class="comment">// what name should the results be stored under</span></span><br><span class="line"><span class="number">92</span>,<span class="number">93</span>c93,<span class="number">94</span></span><br><span class="line">&lt; 	<span class="function"><span class="keyword">void</span> <span class="title">parseParams</span><span class="params">(String type, String param)</span> <span class="keyword">throws</span> ParseException,</span><br><span class="line">&lt; 			IOException </span>&#123;</span><br><span class="line">---</span><br><span class="line">&gt; 	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">parseParams</span><span class="params">(String type, String param)</span></span><br><span class="line">&gt; 			<span class="keyword">throws</span> ParseException, IOException </span>&#123;</span><br></pre></td></tr></table></figure>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Index</span>: core/src/java/org/apache/solr/schema/<span class="type">FieldType</span>.java</span><br><span class="line">===================================================================</span><br><span class="line">--- core/src/java/org/apache/solr/schema/<span class="type">FieldType</span>.java	(<span class="type">Version</span> unknown old)</span><br><span class="line">+++ core/src/java/org/apache/solr/schema/<span class="type">FieldType</span>.java	(<span class="type">Version</span> unknown new)</span><br><span class="line"><span class="number">394</span>a399,<span class="number">411</span></span><br><span class="line">&gt; 	public <span class="type">Object</span> toObject(<span class="type">SchemaField</span> sf, <span class="type">BytesRef</span> term) &#123;</span><br><span class="line">&gt; 		final <span class="type">CharsRef</span> <span class="keyword">ref</span> = new <span class="type">CharsRef</span>(term.length);</span><br><span class="line">&gt; 		indexedToReadable(term, <span class="keyword">ref</span>);</span><br><span class="line">&gt; 		final <span class="type">Fieldable</span> f =  createField(sf, <span class="keyword">ref</span>.toString(), <span class="number">1</span>.<span class="number">0</span>f);</span><br><span class="line">&gt; 		<span class="keyword">return</span> toObject(f);</span><br><span class="line">&gt; 	&#125;</span><br><span class="line">&gt;</span><br><span class="line">&gt; 	/** <span class="type">Given</span> an indexed term, append the human readable representation */</span><br><span class="line">&gt; 	public <span class="type">CharsRef</span> indexedToReadable(<span class="type">BytesRef</span> input, <span class="type">CharsRef</span> output) &#123;</span><br><span class="line">&gt; 		<span class="type">UnicodeUtil</span>.<span class="type">UTF8toUTF16</span>(input, output);</span><br><span class="line">&gt; 		<span class="keyword">return</span> output;</span><br><span class="line">&gt; 	&#125;</span><br><span class="line">&gt;</span><br><span class="line"><span class="number">418</span>a436,<span class="number">441</span></span><br><span class="line">&gt; 	/** <span class="type">Given</span> the readable value, <span class="keyword">return</span> the term value that will match it. */</span><br><span class="line">&gt; 	public <span class="type">void</span> readableToIndexed(<span class="type">CharSequence</span> val, <span class="type">BytesRef</span> <span class="literal">result</span>) &#123;</span><br><span class="line">&gt; 		final <span class="type">String</span> internal = readableToIndexed(val.toString());</span><br><span class="line">&gt; 		<span class="type">UnicodeUtil</span>.<span class="type">UTF16toUTF8</span>(internal, <span class="number">0</span>, internal.length(), <span class="literal">result</span>);</span><br><span class="line">&gt; 	&#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="header">Index: core/src/java/org/apache/solr/handler/component/PivotFacetHelper.java</span><br><span class="line">===================================================================</span></span><br><span class="line"><span class="bullet">--- </span>core/src/java/org/apache/solr/handler/component/PivotFacetHelper.java	(Version unknown old)</span><br><span class="line"><span class="code">+++</span> core/src/java/org/apache/solr/handler/component/PivotFacetHelper.java	(Version unknown new)</span><br><span class="line"></span><br><span class="line">144c152,155</span><br><span class="line"><span class="header">&lt;        Query query = new TermQuery(new Term(field, termval));</span><br><span class="line">---</span></span><br><span class="line">&gt;        String term = new String(new String(termval.bytes,</span><br><span class="line">&gt;                       termval.offset, termval.length));</span><br><span class="line">&gt;</span><br><span class="line">&gt;        Query query = new TermQuery(new Term(field, term));</span><br><span class="line">147,148c158,159</span><br><span class="line">&lt;        super.docs = subset;// used by getTermCounts()</span><br><span class="line"><span class="header">&lt;</span><br><span class="line">---</span></span><br><span class="line">&gt;        super.base = subset;// used by getTermCounts()</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>没弄过patch，上面的就将就着看吧。</p>
+<p><strong>WARNING</strong>:</p>
+<p>3.x中，SimpleFacet组件中有两个成员，docs/base。在4.x中，这两个成员改名为docsOrig/docs。名字倒是清晰了，就是移植的时候没注意倒是挺麻烦的。</p>
+<p><strong>WARNING</strong>:</p>
+<p>BytesRef这个类，在4.x中改动比较大，而且Term也原生支持BytesRef。为了偷懒，就直接将BytesRef.bytes转换成了String。</p>
+<p><strong>WARNING</strong>:</p>
+<p> 上面还有一些小类，没有写上，有红叉叉自己改改应该问题不大。</p></blockquote><p></p>
+
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Solr/" rel="tag">#Solr</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/04/apache-solr-distributed-search/" rel="prev">Apache Solr —— DistributedSearch</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/apache-solr-facet-introduction/" rel="next">Apache Solr —— Facet介绍</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/03/apache-solr-facet-pivot-implementation-tranplant/"
+                   data-title="Apache Solr —— Facet Pivot实现与低版本移植" data-url="http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、前言"><span class="nav-number">1.</span> <span class="nav-text">1、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、Pivot实现机制"><span class="nav-number">2.</span> <span class="nav-text">2、Pivot实现机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1_获得所有pivots参数列表"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 获得所有pivots参数列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2_将pivots交给PivotFacetHelper处理"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 将pivots交给PivotFacetHelper处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3_解析pivot，获得每个field_–>_pivot:_field_subField_fnames"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 解析pivot，获得每个field –> pivot: field subField fnames</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4_获得第一级field的facets"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 获得第一级field的facets</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5_递归调用pivotResult_=_doPivot(superFacets,_field,_subField,_fnames,_docs)"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 递归调用pivotResult = doPivot(superFacets, field, subField, fnames, docs)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、移植Pivot功能到低级版本"><span class="nav-number">3.</span> <span class="nav-text">3、移植Pivot功能到低级版本</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

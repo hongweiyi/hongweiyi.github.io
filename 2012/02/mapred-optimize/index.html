@@ -1,0 +1,682 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hadoop,MapReduce," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="一、概述
+这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MapReduce优化（一）">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/mapred-optimize/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="一、概述
+这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MapReduce优化（一）">
+<meta name="twitter:description" content="一、概述
+这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> MapReduce优化（一） | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              MapReduce优化（一）
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-11T23:36:10+08:00" content="2012-02-11">
+            2012-02-11
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/mapred-optimize/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/mapred-optimize/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>一、概述</strong></p>
+<p>这篇博文主要是解决上一篇&lt;<a href="http://www.hongweiyi.com/?p=250" target="_blank" rel="external">迭代式MapReduce解决方案（一）</a>&gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&lt;<a href="http://dongxicheng.org/tag/hadoop%E4%BC%98%E5%8C%96/" target="_blank" rel="external">董的博客</a>&gt;、&lt;<a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">淘宝数据平台</a>&gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。<br> <a id="more"></a>  </p>
+<p><strong>二、问题的提出</strong></p>
+<p>用的例子依然是上篇博客讲到的PageRank计算，其中输入数据为随机生成的100W行记录，大小3.22G。我们也可以来粗略的估算一下，单个map task生成的临时文件大小：</p>
+<p>3.22G数据，100W记录。每行平均32kb，一个split为64M，约2W行数据。由于是随机生成的数据，所以每行平均约为500个外链地址，每个连接地址都会生成一行临时结果&lt;URL_ID AER_PR&gt;，算每行结果15字节，那么最后的生成结果为2W×500×15b = 150M。</p>
+<p>而实际上，在不进行任何优化的情况下，一个map task生成的临时文件为140.6M，很大的结果啊！</p>
+<p><strong>三、优化方案</strong></p>
+<p><strong>1**</strong>、设置combiner**</p>
+<p>Mapreduce中的Combiner就是为了避免map任务和reduce任务之间的数据传输而设置的，Hadoop允许用户针对map task的输出指定一个合并函数。</p>
+<p>对于Combiner有几点需要说明的是：</p>
+<p>1）有很多人认为这个combiner和map输出的数据合并是一个过程，其实不然，map输出的数据合并只会产生在有数据spill出的时候，即进行merge操作。</p>
+<p>2）与mapper与reducer不同的是，combiner没有默认的实现，需要显式的设置在conf中才有作用。</p>
+<p>3）并不是所有的job都适用combiner，只有操作满足结合律的才可设置combiner。combine操作类似于：opt(opt(1, 2, 3), opt(4, 5, 6))。如果opt为求和、求最大值的话，可以使用，但是如果是求中值的话，不适用。</p>
+<p>4）一般来说，combiner即reducer，它们俩进行同样的操作。</p>
+<p>对于PageRank计算来说，单个reduce操作即对值求和，适用combine操作。添加代码如下：</p>
+<blockquote>
+<p>job.setCombinerClass(PRReducer.class);  </p>
+</blockquote>
+<p>最后输出结果大小28.3M，“压缩”比约为20%。</p>
+<p><strong>2**</strong>、数据压缩**</p>
+<p>顾名思义，对输出结果进行压缩，Hadoop称之为codec。下面列举一些常见的codec：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="123">           <p><strong>压缩格式</strong><br>         </p></td>          <td valign="top" width="406">           </td></tr></tbody></table></p>
+<p><strong>HadoopCompressionCodec</strong><br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
+<p>DEFLATE<br>                   <td valign="top" width="406">           </td></p>
+<p>org.apache.hadoop.io.compress.DefaultCodec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
+<p>gzip<br>                   <td valign="top" width="406">           </td></p>
+<p>org.apache.hadoop.io.compress.GzipCodec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
+<p>bzip2<br>                   <td valign="top" width="406">           </td></p>
+<p>org.apache.hadoop.io.compress.BZip2Codec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
+<p>LZO<br>                   <td valign="top" width="406">           </td></p>
+<p>com.hadoop.compression.lzo.LzopCodec<br>                      </p>  <p></p>
+<p>以下两行代码即可：</p>
+<blockquote>
+<p>conf.setBoolean(&quot;mapred.compress.map.output&quot;, true);</p>
+<p>conf.set (&quot;mapred.map.output.compression.codec&quot;, &quot;<em>*</em>Codec&quot;);  </p>
+</blockquote>
+<p>但需要注意的是，时间与空间永远是矛盾的，若要获得大的压缩比就会降低一些时间效率。通常来说，想要达到cpu和磁盘压缩比的平衡取舍，LzoCodec比较适合。不过由于GPL许可的原因，该库没有包含在Apache的发行版中，需要单独从<strong><a href="http://code.google.com/p/hadoop-gpl-compression" target="_blank" rel="external">Google Code</a></strong>或<strong><a href="https://github.com/kevinweil/hadoop-lzo" target="_blank" rel="external">GitHub</a></strong>下载，其中后者包含有修正的软件错误及其它一些工具。</p>
+<p>本文使用的是默认的压缩方式DefaultCodec，压缩比约为29%。</p>
+<p><strong>3**</strong>、查看临时文件内部，具体情况具体分析**</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p>上面的文件就是我的临时文件内部格式， value在内存中为DoubleWritable，没有考虑精度问题。一个value数据输出后，就会占20字节，我们是否需要这么高的精度呢？</p>
+<p>我觉得是不需要，不需要的话，就是将输出数据精度降低，实验中将double精度降至6位，“压缩”比约为59%。这个例子很实在，即对于每个任务来说，不仅仅是job conf需要优化，其自身算法或者说数据格式都还有很大的优化空间。没有最好，只有更好！</p>
+<p><strong>四、总结</strong></p>
+<p>经过上面几个“简单”的优化，代码行数修改寥寥几行，临时数据从140.6M降到了4.9M，压缩比为3.49%。需要注意的是，实验所用数据是模拟的，且数据分布较为均匀，故在实际生产环境中压缩比应该没这么高，所以需要根据job的实际情况，选择combine、压缩、数据格式，但其所带来的优化结果仍会很可观。</p>
+<p>本文只是简要的抽出了一些方便做实验的优化方法，更多的更广的配置、代码优化方法，敬请期待以后的博文。</p>
+<blockquote>
+<p><strong>参考资料：</strong></p>
+<p>&lt; <a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">hadoop作业调优参数整理及原理</a>&gt;</p>
+<p>&lt;Hadoop权威指南 &gt;</p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag">#Hadoop</a>
+          
+            <a href="/tags/MapReduce/" rel="tag">#MapReduce</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/jvm-structure/" rel="prev">JVM内存结构</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/iterative-mapred/" rel="next">迭代式MapReduce解决方案（一）</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/mapred-optimize/"
+                   data-title="MapReduce优化（一）" data-url="http://hongweiyi.com/2012/02/mapred-optimize/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

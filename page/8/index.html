@@ -163,8 +163,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/10/22/once-java-profiling/" itemprop="url">
-                记一次java性能问题定位
+              <a class="post-title-link" href="/2012/04/hadoop-default-conf/" itemprop="url">
+                Hadoop默认配置和常用配置
               </a>
             
           
@@ -174,8 +174,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-10-22T23:21:52+08:00" content="2013-10-22">
-            2013-10-22
+          <time itemprop="dateCreated" datetime="2012-04-20T20:48:18+08:00" content="2012-04-20">
+            2012-04-20
           </time>
         </span>
 
@@ -200,8 +200,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/10/22/once-java-profiling/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/10/22/once-java-profiling/" itemprop="commentsCount"></span>
+              <a href="/2012/04/hadoop-default-conf/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/04/hadoop-default-conf/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -216,158 +216,11 @@
 
       
         
-          <span itemprop="articleBody"><p><strong>1、前言</strong></p>
-<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。
-
-<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
-
-<span class="strong">**2、定位流程**</span>
-
-<span class="strong">**2.1 定位问题进程**</span>
-
-top命令可以简单定位进程pid，如下：
-
-[<span class="link_label">![Image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image_thumb.png "Image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image.png</span>)
-
-jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。
-
-<span class="strong">**2.2 查看日志**</span>
-
-常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？
-
-<span class="strong">**2.3 定位问题线程**</span>
-
-既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。
-
-[<span class="link_label">![Image(1)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image1_thumb.png "Image(1</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image1.png)
-
-不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。
-
-<span class="strong">**2.4 Thread dump**</span>
-
-拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。
-
-jstack 15195 &amp;gt; jstack.15195.dump
-
-[<span class="link_label">![Image(2)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image2_thumb.png "Image(2</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image2.png)
-
-快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。
-
-通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。
-
-<span class="strong">**2.5 查看gc状态**</span>
-
-jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：
-
-[<span class="link_label">![Image(3)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image3_thumb.png "Image(3</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image3.png)
-
-[<span class="link_label">![Image(4)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image4_thumb.png "Image(4</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image4.png)
-
-短短几分钟，就FGC了28次！初步定位问题为FGC问题。
-</code></pre><blockquote>
-<p>注：用jstat -gcutil $PID $INTERVAL $TIMES查询可能会更直接，我查到这里应用被停止了，就木有现场了。</p>
-</blockquote>
-<pre><code><span class="strong">**3、问题解决**</span>
-
-现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。
-
-CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。
-
-解决方法有两种：1）提高Perm区大小，-XX:PermSize -XX:MaxPermSize，2）关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled。
-
-这里有关于Perm区GC时机的深入且详细的解释，[<span class="link_label">http://rednaxelafx.iteye.com/blog/1108439</span>](<span class="link_url">http://rednaxelafx.iteye.com/blog/1108439</span>)
-</code></pre><blockquote>
-<p>CMS收集器的使用好像有很多很多的优(jiu)化(shi)点(keng)啊！</p>
-<pre><code>还得深入学习实践一下！
-</code></pre></blockquote>
-</span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2013/08/31/solr-switch-query-parser/" itemprop="url">
-                Solr Query Parser学习有感
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于
-          <time itemprop="dateCreated" datetime="2013-08-31T10:55:12+08:00" content="2013-08-31">
-            2013-08-31
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; 分类于
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/技术分享/" itemprop="url" rel="index">
-                  <span itemprop="name">技术分享</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2013/08/31/solr-switch-query-parser/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/08/31/solr-switch-query-parser/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><strong>1、前言</strong></p>
-<pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
-</code></pre>
+          <p><strong>获取默认配置</strong></p>
+<p>配置hadoop，主要是配置core-site.xml，hdfs-site.xml，mapred-site.xml三个配置文件，默认下来，这些配置文件都是空的，所以很难知道这些配置文件有哪些配置可以生效，上网找的配置可能因为各个hadoop版本不同，导致无法生效。浏览更多的配置，有两个方法：</p>
+<p>1.选择相应版本的hadoop，下载解压后，找到core-default.xml，hdfs-default.xml，mapred-default.xml。这些分别在hadoop/src/{core | hdfs | mapred}下面。这些就是默认配置，可以参考这些配置的说明和key，配置hadoop集群。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/08/31/solr-switch-query-parser/#more" rel="contents">
+            <a class="btn" href="/2012/04/hadoop-default-conf/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -400,8 +253,8 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
           
           
             
-              <a class="post-title-link" href="/2013/05/28/multi-columns-group-by/" itemprop="url">
-                多列group-by及其应用场景
+              <a class="post-title-link" href="/2012/04/nlp-say-hi/" itemprop="url">
+                新手说自然语言处理
               </a>
             
           
@@ -411,8 +264,8 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-05-28T23:31:56+08:00" content="2013-05-28">
-            2013-05-28
+          <time itemprop="dateCreated" datetime="2012-04-09T15:41:27+08:00" content="2012-04-09">
+            2012-04-09
           </time>
         </span>
 
@@ -437,8 +290,8 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/05/28/multi-columns-group-by/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/05/28/multi-columns-group-by/" itemprop="commentsCount"></span>
+              <a href="/2012/04/nlp-say-hi/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/04/nlp-say-hi/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -453,12 +306,453 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
 
       
         
-          <p><strong>1、前言</strong></p>
-<p>一直以来都对多列group by没什么感觉，也不知道它到底要干嘛。这篇文章就粗略的讲一下什么是多列groupby，以及它的应用场景简例，没有什么深度，仅作为自己的知识笔记。</p>
-<blockquote>
-<p><strong>BTW: </strong>没感觉应该是因为一直没怎么接触数据库吧，罪过罪过(- -)
+          <p><strong>1**</strong>、自然语言处理（Natural Language Processing）**</p>
+<p>看自然语言处理的材料、书籍也有一段时间了，最近好像快看出点门道了，今天就以一个新手的角度来说说我所理解的自然语言处理。<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/05/28/multi-columns-group-by/#more" rel="contents">
+            <a class="btn" href="/2012/04/nlp-say-hi/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/04/nlp-repost-semantic/" itemprop="url">
+                转 - 漫话中文自动分词和语义识别（下）：句法结构和语义结构
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-04-01T17:54:48+08:00" content="2012-04-01">
+            2012-04-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/04/nlp-repost-semantic/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/04/nlp-repost-semantic/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>这篇文章是<a href="http://www.matrix67.com/blog/archives/4212">漫话中文分词算法</a>的续篇。在这里，我们将紧接着上一篇文章的内容继续探讨下去：如果计算机可以对一句话进行自动分词，它还能进一步整理句子的结构，甚至理解句子的意思吗？这两篇文章的关系十分紧密，因此，我把前一篇文章改名为了《漫话中文自动分词和语义识别（上）》，这篇文章自然就是它的下篇。我已经在很多不同的地方做过与这个话题有关的演讲了，在这里我想把它们写下来，和更多的人一同分享。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/04/nlp-repost-semantic/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/04/nlp-repost-segmentation/" itemprop="url">
+                转 – 漫话中文自动分词和语义识别（上）：中文分词算法
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-04-01T17:48:00+08:00" content="2012-04-01">
+            2012-04-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/04/nlp-repost-segmentation/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/04/nlp-repost-segmentation/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>M牛的这篇博文实在是太精彩了，读了一遍又一遍，最后干脆就直接转过来了。有兴趣的可以直接看他的博客：<a href="http://www.matrix67.com/blog/archives/4212">matrix67</a><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/04/nlp-repost-segmentation/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/03/weibo-analysis/" itemprop="url">
+                @小e_鸿伟的微博粗分析
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-03-26T23:20:04+08:00" content="2012-03-26">
+            2012-03-26
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/生活分享/" itemprop="url" rel="index">
+                  <span itemprop="name">生活分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/03/weibo-analysis/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/03/weibo-analysis/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1**</strong>、杂侃**</p>
+<p>最近状态着实不太好，也有点闲。大部分时间都在看书，coding也不太多，琢磨着写一两个小程序，也没找到好玩的。昨晚无聊刷微博的时候，灵机一动，干脆分析分析自己的微博吧。所以也就有了这篇文章。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/03/weibo-analysis/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/03/data-structure-disjoint-set/" itemprop="url">
+                趣味数据结构 - 并查集
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-03-16T22:45:30+08:00" content="2012-03-16">
+            2012-03-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/03/data-structure-disjoint-set/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/03/data-structure-disjoint-set/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1**</strong>、简介**</p>
+<p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/03/data-structure-disjoint-set/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/03/data-structure-skiplists/" itemprop="url">
+                趣味数据结构 - SkipLists
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-03-09T21:13:11+08:00" content="2012-03-09">
+            2012-03-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/03/data-structure-skiplists/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/03/data-structure-skiplists/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1**</strong>、简介**</p>
+<p>给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/03/data-structure-skiplists/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -484,7 +778,7 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/9/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/7/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/9/">&raquo;</a>
   </nav>
 
  </div>
@@ -518,7 +812,7 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-count">98</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

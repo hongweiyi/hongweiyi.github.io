@@ -1,0 +1,714 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Netty,线程模型," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1、前言前面两篇学习笔记已经说完了ByteBuf和Channel和Pipeline，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty 4.x学习笔记 - 线程模型">
+<meta property="og:url" content="http://hongweiyi.com/2014/01/netty-4-x-thread-model/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1、前言前面两篇学习笔记已经说完了ByteBuf和Channel和Pipeline，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。">
+<meta property="og:image" content="http://hongweiyi.com/images/wpid-Multi-reactors3.png">
+<meta property="og:image" content="http://hongweiyi.com/images/wpid-Netty-thread-model3.png">
+<meta property="og:image" content="http://hongweiyi.com/images/wpid-EventLoopAndEventExecutor3.jpg">
+<meta property="og:updated_time" content="2015-12-29T13:30:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty 4.x学习笔记 - 线程模型">
+<meta name="twitter:description" content="1、前言前面两篇学习笔记已经说完了ByteBuf和Channel和Pipeline，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Netty 4.x学习笔记 - 线程模型 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Netty 4.x学习笔记 - 线程模型
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2014-01-14T23:25:00+08:00" content="2014-01-14">
+            2014-01-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2014/01/netty-4-x-thread-model/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2014/01/netty-4-x-thread-model/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h3 id="1、前言">1、前言</h3><p>前面两篇学习笔记已经说完了<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">ByteBuf</a>和<a href="http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/">Channel和Pipeline</a>，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。</p>
+<a id="more"></a>
+<h3 id="2、Netty线程模型">2、Netty线程模型</h3><p>将具体代码实现前，先来谈谈Netty的线程模型。正如许多博客所提到的，Netty采用了Reactor模式，但是许多博客也只是提到了而已，同时大家也不会忘记附上几张Doug Lee大神的图，但是并不会深入的解释。为了更好的学习和理解Netty的线程模型，我在这里稍微详细的说一下我对它的理解。</p>
+<p>Reactor模式有多个变种，Netty基于Multiple Reactors模式（如下图）做了一定的修改，Mutilple Reactors模式有多个reactor：mainReactor和subReactor，其中mainReactor负责客户端的连接请求，并将请求转交给subReactor，后由subReactor负责相应通道的IO请求，非IO请求（具体逻辑处理）的任务则会直接写入队列，等待worker threads进行处理。</p>
+<center><div style="width: 80%;"><img src="/images/wpid-Multi-reactors3.png" alt="Multiple Reactors"></div></center>
+
+<p>Netty的线程模型基于Multiple Reactors模式，借用了mainReactor和subReactor的结构，但是从代码里看来，它并没有Thread Pool这个东东。Netty的subReactor与worker thread是同一个线程，采用IO多路复用机制，可以使一个subReactor监听并处理多个channel的IO请求，我给称之为：「Single Thread with many Channel」。我根据代码整理出下面这种Netty线程模型图：</p>
+<center><div style="width: 80%;"><img src="/images/wpid-Netty-thread-model3.png" alt="Netty线程模型"></div></center>
+
+<p>上图中的parentGroup和childGroup是Bootstrap构造方法中传入的两个对象，这两个group均是线程池，childGroup线程池会被各个subReactor充分利用，parentGroup线程池则只是在bind某个端口后，获得其中一个线程作为mainReactor。上图我将subReactor和worker thread合并成了一个个的loop，具体的请求操作均在loop中完成，下文会对loop有个稍微详细的解释。&nbsp;</p>
+<blockquote>
+<p>   以上均是Nio情况下。Oio采用的是Thread per Channel机制，即每个连接均创建一个线程负责该连接的所有事宜。<br>   Doug Lee大神的Reactor介绍：<a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf" target="_blank" rel="external">Scalable IO in Java</a></p>
+</blockquote>
+<h3 id="3、EventLoop和EventExecutor实现">3、EventLoop和EventExecutor实现</h3><p>EventLoop和EventExecutor实现共有4个主要逻辑接口，EventLoop、EventLoopGroup、EventExecutor、EventExecutorGroup，内部实现、继承的逻辑表示无法直视，有种擦边球的感觉。具体的类图如下：</p>
+<center><div style="width: 80%;"><img src="/images/wpid-EventLoopAndEventExecutor3.jpg" alt="EventLoop和EventExecutor类图"></div></center>
+
+<h4 id="3-1_EventLoopGroup:">3.1 EventLoopGroup:</h4><p>主要方法是newChild，我理解为EventLoop的工厂类。<code>**EventLoopGroup.newChild</code>创建<code>**EventLoop</code>对象。OioEventLoopGroup除外，它没有实现newChild方法，调用父类的并创建ThreadPerChannelEventLoop对象。</p>
+<h4 id="3-2_EventLoop:">3.2 EventLoop:</h4><p>主要方法是run()，是整个Netty执行过程的逻辑代码实现，后面细说。</p>
+<h4 id="3-3_EventExecutorGroup:">3.3 EventExecutorGroup:</h4><p>线程池实现，主要成员是children数组，主要方法是next()，获得线程池中的一个线程，由子类调用。由于Oio采用的是Thread per Channel机制，所以没有实现前面两个。</p>
+<h4 id="3-4_EventExecutor:">3.4 EventExecutor:</h4><p>Task的执行类，主要成员是taskQueue以及真正的运行线程对象executor，主要方法是taskQueue操作方法execute、takeTask、addTask等，以及doStartThread方法，后面细说。</p>
+<h3 id="4、NioEventLoopGroup实现">4、NioEventLoopGroup实现</h3><p>这里以常用的NioEventLoopGroup为例。NioEventLoopGroup在Bootstrap初始化时作为参数传入构造方法，由于NioEventLoopGroup涉及的代码较多，就不大篇幅的贴代码了，只写流程性的文字或相应类和方法：</p>
+<h4 id="4-1_mainReactor:">4.1 mainReactor:</h4><p><code>1. Bootstrap.bind(port)</code><br><code>2. Bootstrap.initAndRegister()</code><br><code>2.1 Boostrap.init()</code></p>
+<blockquote>
+<p>初始化Channel，配置Channel参数，以及Pipeline。其中初始化Pipeline中，需要插入ServerBootstrapAcceptor对象用作acceptor接收客户端连接请求，acceptor也是一种ChannelInboundHandlerAdapter。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p.addLast(<span class="keyword">new</span> ChannelInitializer&lt;Channel&gt;() &#123;</span><br><span class="line">  <span class="annotation">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(Channel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    ch.pipeline().addLast(<span class="keyword">new</span> ServerBootstrapAcceptor(currentChildHandler, currentChildOptions,</span><br><span class="line">       currentChildAttrs));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>调用channel的unsafe对象注册selector，具体实现类为AbstractChannel$AbstractUnsafe.register。如下：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(<span class="keyword">final</span> ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (eventLoop.inEventLoop()) &#123;  <span class="comment">// 是否在Channel的loop中</span></span><br><span class="line">    register0(promise);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;  <span class="comment">// 不在</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      eventLoop.execute(<span class="keyword">new</span> Runnable() &#123;  <span class="comment">// EventLoop执行一个任务</span></span><br><span class="line">        <span class="annotation">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          register0(promise);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eventLoop.execute(runnable);是比较重要的一个方法。在没有启动真正线程时，它会启动线程并将待执行任务放入执行队列里面。启动真正线程(startThread())会判断是否该线程已经启动，如果已经启动则会直接跳过，达到线程复用的目的。启动的线程，主要调用方法是NioEventLoop的run()方法，run()方法在下面有详细介绍：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable task)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(&amp;quot;task&amp;quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">boolean</span> inEventLoop = inEventLoop();</span><br><span class="line">  <span class="keyword">if</span> (inEventLoop) &#123;</span><br><span class="line">    addTask(task);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    startThread();  <span class="comment">// 启动线程</span></span><br><span class="line">    addTask(task);  <span class="comment">// 添加任务队列</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!addTaskWakesUp) &#123;</span><br><span class="line">    wakeup(inEventLoop);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>   2.2 group().register(channel)</p>
+<blockquote>
+<p>将 channel 注册到下一个 EventLoop 中。</p>
+</blockquote>
+<p><code>3. 接收连接请求</code></p>
+<p>由NioEventLoop.run()接收到请求：</p>
+<p><code>3.1 AbstractNioMessageChannel$NioMessageUnsafe.read()</code></p>
+<p><code>3.2 NioServerSocketChannel.doReadMessages()</code></p>
+<blockquote>
+<p>获得childEventLoopGroup中的EventLoop，并依据该loop创建新的SocketChannel对象。</p>
+</blockquote>
+<p><code>3.3 pipeline.fireChannelRead(readBuf.get(i));</code></p>
+<blockquote>
+<p>readBuf.get(i)就是3.2中创建的SocketChannel对象。在2.2初始化Bootstrap的时候，已经将acceptor处理器插入pipeline中，所以理所当然，这个SocketChannel对象由acceptor处理器处理。</p>
+</blockquote>
+<p><code>3.4 ServerBootstrapAcceptor$ServerBootstrapAcceptor.channelRead();</code></p>
+<blockquote>
+<p>该方法流程与2.2、2.3类似，初始化子channel，并注册到相应的selector。注册的时候，也会调用eventLoop.execute用以执行注册任务，execute时，启动子线程。即启动了subReactor。</p>
+</blockquote>
+<h4 id="4-2_subReactor:">4.2 subReactor:</h4><p>subReactor的流程较为简单，主体完全依赖于loop，用以执行read、write还有自定义的NioTask操作，就不深入了，直接跳过解释loop过程。</p>
+<p><strong>loop:</strong></p>
+<p>loop是我自己提出来的组件，仅是代表subReactor的主要运行逻辑。例子可以参考NioEventLoop.run()。</p>
+<p>loop会不断循环一个过程：select -&gt; processSelectedKeys(IO操作) -&gt; runAllTasks(非IO操作)，如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (hasTasks()) &#123; <span class="comment">// 如果队列中仍有任务</span></span><br><span class="line">        selectNow();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        select();</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">long</span> ioStartTime = System.nanoTime();  <span class="comment">// 用以控制IO任务与非IO任务的运行时间比</span></span><br><span class="line">      needsToSelectAgain = <span class="keyword">false</span>;</span><br><span class="line">      <span class="comment">// IO任务</span></span><br><span class="line">      <span class="keyword">if</span> (selectedKeys != <span class="keyword">null</span>) &#123;</span><br><span class="line">        processSelectedKeysOptimized(selectedKeys.flip());</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        processSelectedKeysPlain(selector.selectedKeys());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">long</span> ioTime = System.nanoTime() - ioStartTime;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">int</span> ioRatio = <span class="keyword">this</span>.ioRatio;</span><br><span class="line">      <span class="comment">// 非IO任务</span></span><br><span class="line">      runAllTasks(ioTime * (<span class="number">100</span> - ioRatio) / ioRatio);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (isShuttingDown()) &#123;</span><br><span class="line">        closeAll();</span><br><span class="line">        <span class="keyword">if</span> (confirmShutdown()) &#123;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就目前而言，基本上IO任务都会走processSelectedKeysOptimized方法，该方法即代表使用了优化的SelectedKeys。除非采用了比较特殊的JDK实现，基本都会走该方法。</p>
+<blockquote>
+<ol>
+<li>selectedKeys在openSelector()方法中初始化，Netty通过反射修改了Selector的selectedKeys成员和publicSelectedKeys成员。替换成了自己的实现&mdash;&mdash;SelectedSelectionKeySet。</li>
+<li>从OpenJDK 6/7的SelectorImpl中可以看到，selectedKeys和publicSeletedKeys均采用了HashSet实现。HashSet采用HashMap实现，插入需要计算Hash并解决Hash冲突并挂链，而SelectedSelectionKeySet实现使用了双数组，每次插入尾部，扩展策略为double，调用flip()则返回当前数组并切换到另外一个数据。</li>
+<li>ByteBuf中去掉了flip，在这里是否也可以呢？</li>
+</ol>
+</blockquote>
+<p>processSelectedKeysOptimized主要流程如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Object a = k.attachment();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (a <span class="keyword">instanceof</span> AbstractNioChannel) &#123;</span><br><span class="line">  processSelectedKey(k, (AbstractNioChannel) a);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="annotation">@SuppressWarnings</span>(&amp;quot;unchecked&amp;quot;)</span><br><span class="line">  NioTask&lt;SelectableChannel&gt; task = (NioTask&lt;SelectableChannel&gt;) a;</span><br><span class="line">  processSelectedKey(k, task);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在获得attachment后，判断是Channel呢还是其他，其他则是NioTask。找遍代码并没有发现Netty有注册NioTask的行为，同时也没发现NioTask的实现类。只有在NioEventLoop.register方法中有注册NioTask至selector的行为，便判断该行为是由用户调用，可以针对某个Channel注册自己的NioTask。这里就只讲第一个processSelectdKey(k, (AbstractNioChannel) a)，但代码就不贴了。</p>
+<p>和常规的NIO代码类似，processSelectdKey是判断SeletedKeys的readyOps，并做出相应的操作。操作均是unsafe做的。如read可以参考：AbstractNioByteChannel$NioByteUnsafe.read()。IO操作的流程大致都是：</p>
+<ul>
+<li>获得数据</li>
+<li>调用pipeline的方法，<code>fireChannel***</code></li>
+<li>插入任务队列</li>
+</ul>
+<p>执行完所有IO操作后，开始执行非IO任务（runAllTasks）。Netty会控制IO和非IO任务的比例，ioTime * (100 - ioRatio) / ioRatio，默认ioRatio为50。runAllTasks乃是父类SingleThreadExecutor的方法。方法主体很简单，将任务从TaskQueue拎出来，直接调用任务的run方法即可。</p>
+<blockquote>
+<p>   代码调用的是task.run()，而不是task.start()。即是单线程执行所有任务</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">runAllTasks</span><span class="params">(<span class="keyword">long</span> timeoutNanos)</span> </span>&#123;</span><br><span class="line">  fetchFromDelayedQueue();</span><br><span class="line">  Runnable task = pollTask();</span><br><span class="line">  <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 控制时间</span></span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">long</span> deadline = ScheduledFutureTask.nanoTime() + timeoutNanos;</span><br><span class="line">  <span class="keyword">long</span> runTasks = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">long</span> lastExecutionTime;</span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      task.run();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">      logger.warn(&amp;quot;A task raised an exception.&amp;quot;, t);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    runTasks ++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Check timeout every 64 tasks because nanoTime() is relatively expensive.</span></span><br><span class="line">    <span class="comment">// <span class="doctag">XXX:</span> Hard-coded value - will make it configurable if it is really a problem.</span></span><br><span class="line">    <span class="keyword">if</span> ((runTasks &amp; <span class="number">0x3F</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        lastExecutionTime = ScheduledFutureTask.nanoTime();</span><br><span class="line">      <span class="keyword">if</span> (lastExecutionTime &gt;= deadline) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    task = pollTask();</span><br><span class="line">    <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">     lastExecutionTime = ScheduledFutureTask.nanoTime();</span><br><span class="line">     <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.lastExecutionTime = lastExecutionTime;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5、总结">5、总结</h3><p>以上内容从设计和代码层面总结Netty线程模型的大致内容，中间有很多我的不成熟的思考与理解，请朋友轻拍与指正。</p>
+<p>看源码过程中是比较折磨人的。首先得了解你学习东西的业务价值是哪里？即你学了这个之后能用在哪里，只是不考虑场景仅仅为了看代码而看代码比较难以深入理解其内涵；其次，看代码一定一定得从逻辑、结构层面看，从细节层面看只会越陷越深，有种一叶障目不见泰山的感觉；最后，最好是能够将代码逻辑、结构画出来，或者整理出思维导图啥的，可以用以理清思路。前面两篇文章思维道路较为清晰，线程模型的导图有一些但是比较混乱，就不贴出来了，用作自己参考，有兴趣的可以找我要噢。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Netty/" rel="tag">#Netty</a>
+          
+            <a href="/tags/线程模型/" rel="tag">#线程模型</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/04/forget-your-lusts/" rel="prev">有求皆苦、无欲则刚</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/01/netty-4-x-channel-pipeline/" rel="next">Netty 4.x学习笔记 - Channel和Pipeline</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2014/01/netty-4-x-thread-model/"
+                   data-title="Netty 4.x学习笔记 - 线程模型" data-url="http://hongweiyi.com/2014/01/netty-4-x-thread-model/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、前言"><span class="nav-number">1.</span> <span class="nav-text">1、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、Netty线程模型"><span class="nav-number">2.</span> <span class="nav-text">2、Netty线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、EventLoop和EventExecutor实现"><span class="nav-number">3.</span> <span class="nav-text">3、EventLoop和EventExecutor实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1_EventLoopGroup:"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 EventLoopGroup:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2_EventLoop:"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 EventLoop:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3_EventExecutorGroup:"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 EventExecutorGroup:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4_EventExecutor:"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 EventExecutor:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、NioEventLoopGroup实现"><span class="nav-number">4.</span> <span class="nav-text">4、NioEventLoopGroup实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1_mainReactor:"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 mainReactor:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2_subReactor:"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 subReactor:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、总结"><span class="nav-number">5.</span> <span class="nav-text">5、总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

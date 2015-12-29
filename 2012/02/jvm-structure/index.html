@@ -1,0 +1,688 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、JVM规定**
+《The Java Virtual Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
+1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Nat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM内存结构">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/jvm-structure/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、JVM规定**
+《The Java Virtual Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
+1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Nat">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM内存结构">
+<meta name="twitter:description" content="1**、JVM规定**
+《The Java Virtual Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
+1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Nat">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> JVM内存结构 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              JVM内存结构
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-13T13:25:40+08:00" content="2012-02-13">
+            2012-02-13
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/jvm-structure/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/jvm-structure/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、JVM规定**</p>
+<p>《<em>The Java<strong> </strong>Virtual Machine Specification</em>》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
+<p>1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Native Method Stacks；</p>
+<p>以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。<br> <a id="more"></a>  </p>
+<p>如下图所示：</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0026_thumb.jpg" title="clip_image002[6]" target="_blank" rel="external">![clip_image002[6]</a>](<a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0026.jpg" target="_blank" rel="external">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0026.jpg</a>)</p>
+<p><strong>2**</strong>、内存空间详解**</p>
+<p><strong>1）PC寄存器和JVM方法栈</strong></p>
+<p>每个线程都会拥有以及创建一个属于自己的PC寄存器和JVM方法栈，PC寄存器占用的有可能为CPU寄存器或者OS内存，而JVM栈占用的为OC内存。</p>
+<p>每运行一个方法，便会将方法的信息压入JVM方法栈中，同时将当前执行方法放入PC寄存器中（需要注意的是，如果当前方法为Native方法，PC寄存器的值为空）。可以想到，如果方法栈太深，如递归方法，便会报StackOverflowError，同样如果占用空间太多，也会报OutOfMemoryError。需要修改JVM参数设置：-Xss××k，在××中填入数字。</p>
+<p><strong>2）本地方法栈</strong></p>
+<p>同JVM方法栈一样，本地方法栈存放的是native方法的调用的状态。在Sun JDK的实现中，本地方法栈和JVM方法栈是同一个。</p>
+<p><strong>3）方法区</strong></p>
+<p>方法区存放了要加载的类的信息（名称、修饰符等）、类的静态变量、类中定义为fianl类型的常量、类中的Field信息、类中的方法信息，你用Class对象的方法，如getName()、getFields()等来获取信息时，这些数据都来自方法区。需要注意的是，Runtime Constant Pool（常量池）也存放在方法区中。</p>
+<p>方法区是被同一个JVM所有线程所共享的，在Sun JDK中这块区域对应Permanet Generation（持久代），默认最小值为16MB，最大值为64MB，可通过-XX:PermSize及-XX:MaxPermSize来指定。当方法区无法满足分配请求时，会报OutOfMemoryError。</p>
+<p><strong>4）堆</strong></p>
+<p>堆用于存放对象实例以及数组值，可以认为所有通过new来创建的对象的内存均在此分配。一般所说的GC，大部分都是对堆进行的。</p>
+<p>堆在32位操作系统上最大为2GB，在64位的则没有限制，大小通过-Xms和-Xmx来控制。-Xms为JVM启动时申请的最小堆内存，默认为物理内存的1/64但小于1GB；-Xmx为JVM可申请的最大堆内存，默认为物理内存的1/4但小于1GB，默认当空余堆内存小于40%的时候，JVM会将堆增大到-Xmx指定大小，可通过-XX:MinHeapFreeRatio=来指定比例，空余堆大于70%时，会将堆大小降到-Xms指定大小，这个参数可用-XX:MaxHeapFreeRatio=来指定。但对于运行系统来说，会避免频繁调整堆大小，会将-Xms和-Xmx的值设为一样。</p>
+<p>为了让内存回收更加高效，Sun JDK从1.2开始对堆采取了分代管理的方法，如下图：</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0046_thumb.jpg" title="clip_image004[6]" target="_blank" rel="external">![clip_image004[6]</a>](<a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0046.jpg" target="_blank" rel="external">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0046.jpg</a>)</p>
+<p><strong>4.1) 新生代（New Generation）</strong></p>
+<p>大多数的新建对象都是从新生代中分配内存，新生代由Eden（伊甸园） Space和两块相同的Survivor Space（S0，S1或者From，To）构成。</p>
+<p>可通过-Xmn参数来指定新生代大小，-XX:SurvivorRatio来调整Eden与S Space的大小。</p>
+<p><strong>4.2）旧生代（Old Generation）</strong></p>
+<p>用于存放新生代经过多次垃圾回收仍然存活的对象，像Cache。同时新建的对象也有可能在旧生代上直接分配内存，一般来说是比较的对象，即：单一大对象以及大数组，-XX:PretenureSizeThreshold = 1024 (byte, default = 0)可用来代表单一对象超过多大即不在新生代分配。</p>
+<p>旧生代所占内存大小为-Xmx-（-Xmn）。</p>
+<p><strong>3**</strong>、典型JVM参数配置汇总<strong>     <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="223">           <p></p></td></tr></tbody></table></strong>配置**<br>                   <td valign="top" width="301">           </td></p>
+<p><strong>解释</strong><br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-Xss××k<br>                   <td valign="top" width="301">           </td></p>
+<p>方法栈深度<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:PermSize<br>                   <td valign="top" width="301">           </td></p>
+<p>方法区内存最小值<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:MaxPermSize<br>                   <td valign="top" width="301">           </td></p>
+<p>方法区内存最大值<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-Xms<br>                   <td valign="top" width="301">           </td></p>
+<p>JVM启动分配最小堆内存<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-Xmx<br>                   <td valign="top" width="301">           </td></p>
+<p>JVM启动分配最大堆内存<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:MinHeapFreeRatio=<br>                   <td valign="top" width="301">           </td></p>
+<p>堆内存需扩展时，剩余内存最小比例，默认40%<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:MaxHeapFreeRatio=<br>                   <td valign="top" width="301">           </td></p>
+<p>堆内存需收缩时，剩余内存最大比例，默认70%<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-Xmn<br>                   <td valign="top" width="301">           </td></p>
+<p>堆新生代内存大小<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:NewRatio=<br>                   <td valign="top" width="301">           </td></p>
+<p>如参数为4，则新生代与旧生代比例为1：4<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:SurvivorRatio=<br>                   <td valign="top" width="301">           </td></p>
+<p>S0/S1占新生代内存的比例<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:PretenureSizeThreshold=<br>                   <td valign="top" width="301">           </td></p>
+<p>需要内存超过参数的对象，直接在旧生代分配<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
+<p>-XX:MaxTenuringThreshold=<br>                   <td valign="top" width="301">           </td></p>
+<p>设置垃圾最大年龄。如果为0，新生代对象不经过S区，直接进行旧生代，值较大的话，会增加新生代对象再GC的概率。<br>                      </p>  <p></p>
+<p><strong>4、小结</strong></p>
+<p>总的来说，所有语言的内存结构都大同小异，均分为堆、栈、区，堆放动态分配（alloc）的对象，栈存放临时变量、方法过程等，区则存放编译时确定的方法签名、常量池等。</p>
+<p>JVM的内存结构需要结合GC一起学习，有兴趣的可以参考&lt;The Java™ Virtual Machine Specification&gt;以及&lt;分布式Java应用&gt;这两本书。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag">#JVM</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/algorithm-dynammic-programming/" rel="prev">算法设计 - 动态规划</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/mapred-optimize/" rel="next">MapReduce优化（一）</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/jvm-structure/"
+                   data-title="JVM内存结构" data-url="http://hongweiyi.com/2012/02/jvm-structure/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

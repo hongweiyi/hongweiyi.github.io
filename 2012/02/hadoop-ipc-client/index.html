@@ -1,0 +1,748 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hadoop,RPC," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、前言**
+上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop源码 - ipc.Client">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/hadoop-ipc-client/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、前言**
+上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hadoop源码 - ipc.Client">
+<meta name="twitter:description" content="1**、前言**
+上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Hadoop源码 - ipc.Client | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Hadoop源码 - ipc.Client
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-25T23:06:42+08:00" content="2012-02-25">
+            2012-02-25
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/hadoop-ipc-client/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/hadoop-ipc-client/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、前言**</p>
+<p>上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。<br>  <a id="more"></a></p>
+<p>Hadoop的RPC机制还是挺简单的，简述如下：</p>
+<p>1）创建代理对象；</p>
+<p>2）代理对象调用相应方法（invoke()）；</p>
+<p>3）invoke调用client对象的call方法，向服务器发送请求（参数、方法）；</p>
+<p>4）再等待call方法的完成；</p>
+<p>5）返回请求结果。</p>
+<p>具体是怎么实现的，下面来看看吧。</p>
+<p><strong>2**</strong>、Client类分析**</p>
+<p>有了RPC大致分析，Client我就挑重要的分析了。</p>
+<p><strong>1）connections</strong></p>
+<p>RPC中就有了ClientCache类，那么client可以复用，所以一个client对象会有多个连接对象，实现中是用HashTable&lt;ConnectionId, Connection&gt;存储的连接对象。</p>
+<p>其中，ConnectionId是用来唯一标识连接的ID，主要由客户端地址、时间戳再结合一个素数生成；Connection是Client中的静态内部类，用以处理远程连接对象。</p>
+<p><strong>2）Call</strong></p>
+<p>客户端方法调用的实体类，存放了id、参数、返回值等。需要注意的是，Call类中有callComplete()方法，在一次call调用完毕之后调用，并调用notify()通知client接收完毕。</p>
+<p><strong>3）call(Writable param, ConnectionId remoteId)</strong>     <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">public</span><span> Object invoke(Object proxy, Method method, Object[] args)&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">throws</span><span> Throwable {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; ObjectWritable value = (ObjectWritable)&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; client.call(</span><span class="keyword">new</span><span> Invocation(method, args), remoteId); </span><span class="comment">// 调用方法 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> value.get();&#160;&#160; </span></li>
+<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="comment">// client请求方法 </span><span>&#160; </span></span></p>
+</li>
+<li><span></span><span class="keyword">public</span><span> Writable call(Writable param, ConnectionId remoteId)&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">throws</span><span> InterruptedException, IOException {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; Call call = </span><span class="keyword">new</span><span> Call(param);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; Connection connection = getConnection(remoteId, call); </span><span class="comment">// 获得连接对象 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160; connection.sendParam(call);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 发送参数 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">synchronized</span><span> (call) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">while</span><span> (!call.done) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.wait();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 等待response </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">catch</span><span> (InterruptedException ie) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; interrupted = </span><span class="keyword">true</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> call.value;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><p><span>&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="comment">// Connection线程，等待服务器响应 </span><span>&#160; </span></span></p>
+</li>
+<li><span></span><span class="keyword">public</span><span>&#160;</span><span class="keyword">void</span><span> run() {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (LOG.isDebugEnabled())&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; LOG.debug(getName() + </span><span class="string">&quot;: starting, having connections &quot;</span><span>&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; + connections.size());&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">while</span><span> (waitForWork()) {</span><span class="comment">// 等待工作，主要依据是calls是否为空 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; receiveResponse();&#160; </span><span class="comment">// 接收响应 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; close();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="keyword">private</span><span>&#160;</span><span class="keyword">void</span><span> receiveResponse() {&#160;&#160; </span></span></p>
+</li>
+<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> id = in.readInt();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// try to read an id </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; Call call = calls.get(id);&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> state = in.readInt();&#160;&#160;&#160;&#160; </span><span class="comment">// read call status </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (state == Status.SUCCESS.state) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Writable value = ReflectionUtils.newInstance(valueClass, conf);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; value.readFields(in);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// read value </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.setValue(value);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; calls.remove(id);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">catch</span><span> (IOException e) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; markClosed(e);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="keyword">public</span><span>&#160;</span><span class="keyword">synchronized</span><span>&#160;</span><span class="keyword">void</span><span> setValue(Writable value) {&#160;&#160; </span></span></p>
+</li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.value = value;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; callComplete();&#160;&#160; </span></li>
+<li><span>}&#160;&#160; </span></li>
+<li><span></span><span class="keyword">protected</span><span>&#160;</span><span class="keyword">synchronized</span><span>&#160;</span><span class="keyword">void</span><span> callComplete() {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.done = </span><span class="keyword">true</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; notify();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// notify caller </span><span>&#160; </span></li>
+<li><span>}&#160;&#160; </span>                                 </li>
+</ol>
+<p>该方法由invoker调用，调用过程如下：</p>
+<p>A、构建Call对象</p>
+<p>B、 用remoteId获得connection对象</p>
+<p>&#160;&#160;&#160; a) 如果connections中有remoteId，取得该connection；反之，创建一个，并添加进connections；</p>
+<p>&#160;&#160;&#160; b) connection.setupIOstreams()连接到服务器，并配置好连接对象，发送协议头，接着运行connection线程，等待接收工作（waitForWork()）；</p>
+<p>C、 调用connection.sendParam发送协议体，等待接收响应，call.wait();；</p>
+<p>&#160;&#160;&#160; a) receiveResponse()，依次读入call的值（id，value）；</p>
+<p>&#160;&#160;&#160; b) 标记接收结束（markClosed），同时notifyAll()；</p>
+<p>D、 获得返回值，返回调用者。</p>
+<p><strong>3、异步/同步模型</strong></p>
+<p>Hadoop的RPC对外的接口其实是同步的，但是，RPC的内部实现其实是异步消息机制。hadoop用线程wait/notify机制实现异步转同步，发送请求（call）之后wait请求处理完毕，接收完响应（connection.receiveResponse()）之后notify，notify()方法在call.setValue中。</p>
+<p>但现在有一个问题，一个connection有多个call。可能同时有多个call在等待接收消息，那么是当client接收到response后，怎样确认它到底是之前哪个request的response呢？这个就是依靠的connection中的一个HashTable&lt;Integer, Call&gt;了，其中的Integer是用来标识Call，这样就可以将request和response对应上了。</p>
+<p><strong>4、小结</strong></p>
+<p>今天先休息一下了，吃坏东西了，悲催。</p>
+<blockquote>
+<p><strong>参考资料：</strong></p>
+<p><a href="http://blog.csdn.net/historyasamirror/article/details/6159248" target="_blank" rel="external">智障大师的专栏</a></p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag">#Hadoop</a>
+          
+            <a href="/tags/RPC/" rel="tag">#RPC</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/hadoop-ipc-server/" rel="prev">Hadoop源码 - ipc.Server</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/hadoop-ipc-rpc/" rel="next">Hadoop源码 - ipc.RPC</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/hadoop-ipc-client/"
+                   data-title="Hadoop源码 - ipc.Client" data-url="http://hongweiyi.com/2012/02/hadoop-ipc-client/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

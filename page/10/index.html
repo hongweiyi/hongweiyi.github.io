@@ -163,8 +163,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/27/apache-solr-facet-pivot-implementation-tranplant/" itemprop="url">
-                Apache Solr —— Facet Pivot实现与低版本移植
+              <a class="post-title-link" href="/2012/02/hadoop-ipc-rpc/" itemprop="url">
+                Hadoop源码 - ipc.RPC
               </a>
             
           
@@ -174,8 +174,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-27T23:12:00+08:00" content="2013-03-27">
-            2013-03-27
+          <time itemprop="dateCreated" datetime="2012-02-25T23:00:23+08:00" content="2012-02-25">
+            2012-02-25
           </time>
         </span>
 
@@ -200,8 +200,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/27/apache-solr-facet-pivot-implementation-tranplant/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/27/apache-solr-facet-pivot-implementation-tranplant/" itemprop="commentsCount"></span>
+              <a href="/2012/02/hadoop-ipc-rpc/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/hadoop-ipc-rpc/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -216,9 +216,10 @@
 
       
         
-          <h3 id="1、前言">1、前言</h3><p>Solr升级到4.0后便有了一个新功能，就是facet.pivot，关于pivot的介绍可以看上一篇文章：<a href="http://hongweiyi.com/2013/03/apache-solr-facet-introduction/">《Apache Solr – Facet介绍》</a> 这篇主要讲述Pivot的内部实现机制，以及如何将这个功能移植到低版本的Solr中来。</p>
+          <p><strong>1、前言</strong></p>
+<p>Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：<a href="http://baike.baidu.com/view/32726.htm">百度百科</a>。<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/03/27/apache-solr-facet-pivot-implementation-tranplant/#more" rel="contents">
+            <a class="btn" href="/2012/02/hadoop-ipc-rpc/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -251,8 +252,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/23/apache-solr-facet-introduction/" itemprop="url">
-                Apache Solr —— Facet介绍
+              <a class="post-title-link" href="/2012/02/iterative-mapred-distcache/" itemprop="url">
+                迭代式MapReduce解决方案（二） DistributedCache
               </a>
             
           
@@ -262,8 +263,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-23T14:31:00+08:00" content="2013-03-23">
-            2013-03-23
+          <time itemprop="dateCreated" datetime="2012-02-23T16:01:52+08:00" content="2012-02-23">
+            2012-02-23
           </time>
         </span>
 
@@ -288,8 +289,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/23/apache-solr-facet-introduction/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/23/apache-solr-facet-introduction/" itemprop="commentsCount"></span>
+              <a href="/2012/02/iterative-mapred-distcache/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/iterative-mapred-distcache/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -304,9 +305,11 @@
 
       
         
-          <h3 id="1、什么是Faceted_Search">1、什么是Faceted Search</h3><p><code>Facet[&#39;fæsɪt]</code>很难翻译，只能靠例子来理解了。Solr作者Yonik Seeley也给出更为直接的名字：导航（Guided Navigation）、参数化查询（Paramatic Search）。</p>
+          <p><strong>1**</strong>、DistributedCache In Hadoop**</p>
+<p>此篇文章主要是<a href="http://www.hongweiyi.com/?p=250">前一篇</a>的后续，主要讲Hadoop的分布式缓存机制的原理与运用。</p>
+<p>分布式缓存在MapReduce中称之为DistributedCache，它可以方便map task之间或者reduce task之间共享一些信息，同时也可以将第三方包添加到其classpath路径中去。Hadoop会将缓存数据分发到集群的所有准备启动的节点上，复制到在mapred.temp.dir中配置的目录。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/03/23/apache-solr-facet-introduction/#more" rel="contents">
+            <a class="btn" href="/2012/02/iterative-mapred-distcache/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -339,8 +342,8 @@
           
           
             
-              <a class="post-title-link" href="/2013/03/21/re-equip-my-little-black/" itemprop="url">
-                小黑改装流水记
+              <a class="post-title-link" href="/2012/02/algorithm-search/" itemprop="url">
+                算法设计 - 回溯法到搜索浅谈
               </a>
             
           
@@ -350,8 +353,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2013-03-21T17:18:48+08:00" content="2013-03-21">
-            2013-03-21
+          <time itemprop="dateCreated" datetime="2012-02-22T00:56:00+08:00" content="2012-02-22">
+            2012-02-22
           </time>
         </span>
 
@@ -360,8 +363,8 @@
             &nbsp; | &nbsp; 分类于
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/生活分享/" itemprop="url" rel="index">
-                  <span itemprop="name">生活分享</span>
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
                 </a>
               </span>
 
@@ -376,8 +379,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2013/03/21/re-equip-my-little-black/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/21/re-equip-my-little-black/" itemprop="commentsCount"></span>
+              <a href="/2012/02/algorithm-search/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/algorithm-search/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -392,10 +395,413 @@
 
       
         
-          <p>发现最近小黑真的是卡爆了，实在是无法忍受了。但又苦于MBA/RMBP没出更新，更苦于钱包瘦小，无奈只能在小黑身上动刀了。</p>
-<p>昨晚在某东上面买了一块SSD，选了金士顿的，120g。250g以上的就得上4位数了，接受不了，好像也用不了这么大，就装系统和软件足够了。好像三星的评价也挺不错，不过被人诟病的就是它采用了TLC SSD颗粒（和盖世系列的塑料后盖和P排一样，三星总要留大槽点给用户），寿命较短（我也不太了解这货，道听途说道听途说）。虽然我觉得电脑用不了多长时间，寿命不是什么问题，但是尝鲜的话，还是买个寿命长的吧（只有几百次擦写不知是神马概念）。<br>
+          <span itemprop="articleBody"><p><strong>一、定义说明</strong></p>
+<pre><code>回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。
+
+<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
+
+回溯法是设计递归过程的一种重要方法，它的求解过程实质上是一个先序遍历一颗&amp;ldquo;状态树&amp;rdquo;的过程，只是这一棵树不是遍历前预先建立的，而是隐含在遍历过程中。
+
+<span class="strong">**二、简单示例**</span>
+
+经典回溯的例子是求n个元素的幂集，幂集简单点说就是n个元素的全组合再加上空集，它的解空间树（状态树）如下：
+
+[<span class="link_label">![clip_image002</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb2.jpg "clip_image002"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0022.jpg</span>)
+
+上面的树是一颗满二叉树，树中每个结点的状态都是求解过程中可能出现的状态（即解）。递归过程可以简单理解为对n个元素的0、1取舍，伪代码如下：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def powerset(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i &gt; n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 取第i个元素（1）; powerset(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 舍第i个元素（0）; powerset(i+1);<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>&amp;nbsp;
+
+<span class="strong">**三、问题说明**</span>
+
+很多问题用回溯法求解时，描述过程的树不是一颗满二叉树，这类问题在求解之前需要确定问题的约束函数：&amp;ldquo;约束函数是根据题意定出的，通过描述合法解的一般特征用于去除不合法的解（剪支），从而避免继续搜索出这个不合法解的剩余部分。因此，约束函数是对于任何状态空间树上的节点都有效、等价的。&amp;rdquo;
+
+以四皇后问题为例，剪支后的状态树如下：
+
+[<span class="link_label">![clip_image004</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb1.jpg "clip_image004"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0041.jpg</span>)
+
+伪代码如下：
+</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def trial(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i&gt;n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for j in [0, n):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在(i, j)处放置棋子;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if 布局合法 Then: trail(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 拿走(i, j)处的棋子<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+
+<pre><code>&amp;nbsp;
+
+<span class="strong">**4、浅谈搜索**</span>
+
+上面所说的回溯法在&amp;lt;算法导论&amp;gt;中没有提到，觉着有些奇怪，但是仔细一想，好像又不那么奇怪。毕竟，回溯法是一种建立查找树、遍历树的递归应用算法，这些基础的知识在&amp;lt;算法导论&amp;gt;中均有详细解释，书中没单独辟章说明也不足为奇了。
+
+和友人[<span class="link_label">@烟雨华年</span>](<span class="link_url">http://weibo.com/liangke723</span>)讨论这个的时候，他提到：&amp;ldquo;将整个搜索状态树中的每一个结点看作一种状态，搜索一般是求一种状态到指定状态有没有可行的变化，或者最佳的变化。&amp;rdquo;个人觉得这句概括得还是挺到位的，大部分搜索都是检索从初始状态（状态树的根）到某个状态的变化，而可行的变化即验证是否存在解，最佳的变化即求最优解。
+
+说到这里又不得不说搜索两种最基本的方式，深度优先搜索（DFS）和广度优先搜索（BFS），网络上都是简单的描述一些，并没对它们的运用有一个很好的解释，那么这两种方式如何更好的运用呢？
+
+简单点说，就是验证最优解用DFS，搜索最优解&amp;amp;&amp;amp;解空间小用BFS。
+
+1）DFS有着内存需要相对较少的优点，可以利用栈在有限的空间内遍历所有的解，如前面提到的回溯法；
+
+2）BFS类似于树的分层遍历，有限空间的情况下无法使用。但是由于它分层的特性，可以保证当前搜索到的解都是最优解，可以不用完全遍历完解空间的情况下，找到最优解。如最短路径算法。
+
+网上还有一个有趣的说法：&amp;ldquo;一个行不通就用另外一个！&amp;rdquo;哈哈，想图省事的话，找一些模拟数据来跑一圈，是驴是马很快就可以见分晓啦！
+
+<span class="strong">**五、结束语**</span>
+
+搜索，算法中最重要的一个环节，以上仅是对它的粗浅认识，对其理解还有待进一步的深入&amp;hellip;&amp;hellip;
+</code></pre></span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/02/algorithm-probability/" itemprop="url">
+                算法设计 - 概率初探
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-16T12:36:40+08:00" content="2012-02-16">
+            2012-02-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/algorithm-probability/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/algorithm-probability/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>一、问题描述</strong></p>
+<p>有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2013/03/21/re-equip-my-little-black/#more" rel="contents">
+            <a class="btn" href="/2012/02/algorithm-probability/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/02/algorithm-dynammic-programming/" itemprop="url">
+                算法设计 - 动态规划
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-14T20:13:50+08:00" content="2012-02-14">
+            2012-02-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/algorithm-dynammic-programming/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/algorithm-dynammic-programming/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>一、定义说明</strong></p>
+<pre><code>动态规划（<span class="keyword">Dynamic</span> Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/02/algorithm-dynammic-programming/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/02/jvm-structure/" itemprop="url">
+                JVM内存结构
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-13T13:25:40+08:00" content="2012-02-13">
+            2012-02-13
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/jvm-structure/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/jvm-structure/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1**</strong>、JVM规定**</p>
+<p>《<em>The Java<strong> </strong>Virtual Machine Specification</em>》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
+<p>1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Native Method Stacks；</p>
+<p>以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/02/jvm-structure/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2012/02/mapred-optimize/" itemprop="url">
+                MapReduce优化（一）
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-11T23:36:10+08:00" content="2012-02-11">
+            2012-02-11
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/mapred-optimize/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/mapred-optimize/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>一、概述</strong></p>
+<p>这篇博文主要是解决上一篇&lt;<a href="http://www.hongweiyi.com/?p=250">迭代式MapReduce解决方案（一）</a>&gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&lt;<a href="http://dongxicheng.org/tag/hadoop%E4%BC%98%E5%8C%96/">董的博客</a>&gt;、&lt;<a href="http://www.tbdata.org/archives/1470">淘宝数据平台</a>&gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2012/02/mapred-optimize/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -421,7 +827,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
   </nav>
 
  </div>
@@ -455,7 +861,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-count">98</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
