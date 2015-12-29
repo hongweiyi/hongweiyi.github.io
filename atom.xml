@@ -1,0 +1,1159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[小e的笔记]]></title>
+  
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://hongweiyi.com/"/>
+  <updated>2015-12-29T14:26:50.000Z</updated>
+  <id>http://hongweiyi.com/</id>
+  
+  <author>
+    <name><![CDATA[Hongwei Yi]]></name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Docker 插件 - Volume plugins]]></title>
+    <link href="http://hongweiyi.com/2015/10/docker-volume-plugin/"/>
+    <id>http://hongweiyi.com/2015/10/docker-volume-plugin/</id>
+    <published>2015-10-14T14:05:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="Docker_插件是什么">Docker 插件是什么</h2><p>docker 插件是 docker 提供出来的扩展机制，目前 docker 支持 volume 和 network 两种插件，由于 network 插件比较复杂而且没有好的开源项目，这里主要介绍 volume 插件。</p>
+<p>插件是一个独立的进程和 docker daemon 运行在同一台 host 上，通过 Plugin Discovery 的机制进行插件发现，插件有几个要求：</p>
+<ul>
+<li>插件名要求是小写</li>
+<li>插件可以运行在容器内也可以运行在容器外，不过现阶段建议运行在容器外</li>
+</ul>
+<a id="more"></a>
+<h2 id="插件发现">插件发现</h2><p>插件发现机制需要插件将自己的地址文件放在固定目录，方便 docker 发现插件进程，有三种文件可以设置：</p>
+<ul>
+<li><code>.sock</code> 文件是 UNIX domain sockets</li>
+<li><code>.spec</code> 文本文件内包含了一个 URL，比如：<code>unix:///other.sock</code></li>
+<li><code>.json</code> 文本文件包含了插件的完整 JSON 描述</li>
+</ul>
+<p>UNIX domain socket 文件必须放在 <code>/run/docker/plugins</code> 目录，但是 <code>.spec</code>，<code>.json</code> 文件则可以放在 <code>/etc/docker/plugins</code> 或者 <code>/usr/lib/docker/plugins</code> 中。</p>
+<p>无后缀的文件名决定了插件的名字，比如 <code>/run/docker/plugins/myplugin.sock</code> 的插件名就是 <code>myplugin</code>。你可以在子目录中放置地址文件，比如 <code>/run/docker/plugins/myplugin/myplugin.sock</code>。</p>
+<p>docker 优先搜索 <code>/run/docker/plugins</code> 目录，如果没有 unix socket 的话才会去搜索 <code>/etc/docker/plugins</code> 和 <code>/usr/lib/docker/plugins</code>，如果根据指定插件名搜到了插件就会立马停止搜索。</p>
+<h3 id="-json"><code>.json</code></h3><p>JSON 格式文件示例：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">Name</span>": <span class="value"><span class="string">"plugin-example"</span></span>,</span><br><span class="line">  "<span class="attribute">Addr</span>": <span class="value"><span class="string">"https://example.com/docker/plugin"</span></span>,</span><br><span class="line">  "<span class="attribute">TLSConfig</span>": <span class="value">&#123;</span><br><span class="line">    "<span class="attribute">InsecureSkipVerify</span>": <span class="value"><span class="literal">false</span></span>,</span><br><span class="line">    "<span class="attribute">CAFile</span>": <span class="value"><span class="string">"/usr/shared/docker/certs/example-ca.pem"</span></span>,</span><br><span class="line">    "<span class="attribute">CertFile</span>": <span class="value"><span class="string">"/usr/shared/docker/certs/example-cert.pem"</span></span>,</span><br><span class="line">    "<span class="attribute">KeyFile</span>": <span class="value"><span class="string">"/usr/shared/docker/certs/example-key.pem"</span></span>,</span><br><span class="line">  &#125;</span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="插件生命周期">插件生命周期</h2><ul>
+<li>启动插件</li>
+<li>启动 docker</li>
+<li>停止 docker</li>
+<li>停止插件</li>
+</ul>
+<h2 id="插件激活">插件激活</h2><p>运行命令 <code>docker run --volume-driver=foo</code> 即可以激活名为 <code>foo</code> 的 volume 插件，需要注意的是，插件是按需加载机制，只有被使用到了才会被激活。</p>
+<h2 id="volume_插件使用">volume 插件使用</h2><p>示例：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -ti -v volumename:/<span class="typedef"><span class="keyword">data</span> <span class="comment">--volume-driver=flocker busybox sh</span></span></span><br></pre></td></tr></table></figure>
+<p>上面表示的意思是，使用 flocker 插件将 voluemname 挂载到容器的 /data 目录。</p>
+<p>注意：volumename 一定不能以 <code>/</code> 开头。（文档说的，没看 docker 源码，我实现一个以 <code>/</code> 开头好像也没问题，应该是规范吧）</p>
+<h2 id="插件_API_设计">插件 API 设计</h2><p>插件是 API 是基于 HTTP 的 JSON POST 请求，所以插件需要实现一个 HTTP 服务器并且将其 bind 到一个 UNIX socket 上。API 的版本设置在了 HTTP<br>头里面，现在这个头的固定值为：<code>application/vnd.docker.plugins.v1+json</code></p>
+<p>不过 docker 的开发人员已经提供了一个比较好的 docker volume 的扩展 API 代码，可以参考：<a href="https://github.com/calavera/dkvolume" target="_blank" rel="external">docker-volume-extension-api</a></p>
+<h3 id="/Plugin-Activate"><code>/Plugin.Activate</code></h3><p>请求：空</p>
+<p>响应：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "Implements:" ["VolumeDriver"]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回插件实现，表示是 volume 插件</p>
+<h3 id="/VolumeDriver-Create"><code>/VolumeDriver.Create</code></h3><p>请求：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Name</span>": <span class="value"><span class="string">"volume_name"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>告诉插件用户想要创建一个 volume，并将用户输入的 volume 名传给插件。插件在这个时候可以不用理会这个请求，会有真正挂载的请求。</p>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Err</span>": <span class="value"><span class="literal">null</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>如果出错返回错误字符串。</p>
+<h3 id="/VolumeDriver-Remove"><code>/VolumeDriver.Remove</code></h3><p>与 Create 相对应。</p>
+<p>请求：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Name</span>": <span class="value"><span class="string">"volume_name"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Err</span>": <span class="value"><span class="literal">null</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="/VolumeDriver-Mount"><code>/VolumeDriver.Mount</code></h3><p>请求：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Name</span>": <span class="value"><span class="string">"volume_name"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>用户请求挂载某个文件，这个请求仅会在容器启动时发送一次。</p>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   "<span class="attribute">Mountpoint</span>": <span class="value"><span class="string">"/path/to/directory/on/host"</span></span>,</span><br><span class="line">   "<span class="attribute">Err</span>": <span class="value"><span class="literal">null</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>将 volume_name 挂载的真正挂载点返回给 docker，如果出错则返回错误字符串。</p>
+<h3 id="/VolumeDriver-Path"><code>/VolumeDriver.Path</code></h3><p>请求：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Name</span>": <span class="value"><span class="string">"volume_name"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   "<span class="attribute">Mountpoint</span>": <span class="value"><span class="string">"/path/to/directory/on/host"</span></span>,</span><br><span class="line">   "<span class="attribute">Err</span>": <span class="value"><span class="literal">null</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>插件需要管理 volume_name 的真正挂载地址，这个请求需要将 volume_name 挂载的真正挂载点返回给 docker，如果出错则返回错误字符串。</p>
+<h3 id="/VolumeDriver-Unmount"><code>/VolumeDriver.Unmount</code></h3><p>请求：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Name</span>": <span class="value"><span class="string">"volume_name"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<p>表示 docker 已经不需要这个 volume 了，插件需要安全的将这个挂载从挂载点卸载。</p>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">Err</span>": <span class="value"><span class="literal">null</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考地址：<a href="https://docs.docker.com/extend/plugins/" target="_blank" rel="external">Understand Docker plugins</a></p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="Docker_插件是什么">Docker 插件是什么</h2><p>docker 插件是 docker 提供出来的扩展机制，目前 docker 支持 volume 和 network 两种插件，由于 network 插件比较复杂而且没有好的开源项目，这里主要介绍 volume 插件。</p>
+<p>插件是一个独立的进程和 docker daemon 运行在同一台 host 上，通过 Plugin Discovery 的机制进行插件发现，插件有几个要求：</p>
+<ul>
+<li>插件名要求是小写</li>
+<li>插件可以运行在容器内也可以运行在容器外，不过现阶段建议运行在容器外</li>
+</ul>]]>
+    
+    </summary>
+    
+      <category term="Docker" scheme="http://hongweiyi.com/tags/Docker/"/>
+    
+      <category term="Docker plugins" scheme="http://hongweiyi.com/tags/Docker-plugins/"/>
+    
+      <category term="Docker volume" scheme="http://hongweiyi.com/tags/Docker-volume/"/>
+    
+      <category term="自学资料" scheme="http://hongweiyi.com/categories/%E8%87%AA%E5%AD%A6%E8%B5%84%E6%96%99/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Docker Compose 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/10/docker-compose-pratice/"/>
+    <id>http://hongweiyi.com/2015/10/docker-compose-pratice/</id>
+    <published>2015-10-08T12:00:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="docker-compose_小功能">docker-compose 小功能</h2><ul>
+<li>daemon 模式</li>
+</ul>
+<p><code>docker-compose up -d</code></p>
+<ul>
+<li>设置 container 的名字</li>
+</ul>
+<p>显式设置 container 的名字：<a href="https://github.com/docker/compose/pull/1711" target="_blank" rel="external">Issue 讨论</a>, <a href="https://github.com/docker/compose/blob/master/docs/yml.md#container_name" target="_blank" rel="external">yml.md: container_name</a></p>
+<pre><code>* 设置了这个的话，<span class="keyword">scale</span> 能力就无法使用了
+* <span class="keyword">container</span> 名字默认格式：<span class="variable">${PROJECT}</span>-<span class="variable">${NAME}</span>-<span class="variable">${sacle_num}</span>
+</code></pre><h2 id="docker-compose_的问题">docker-compose 的问题</h2><ul>
+<li>无法给 yml 传递参数 <a href="https://github.com/docker/compose/issues/1377" target="_blank" rel="external">Issue 讨论</a>，好像有<a href="https://github.com/docker/compose/blob/master/docs/yml.md#variable-substitution" target="_blank" rel="external">解决方案</a>，不过不好用</li>
+<li>无法给 container 之间加依赖 <a href="https://github.com/docker/compose/issues/374" target="_blank" rel="external">Issue</a></li>
+<li>仅能控制多个 container 的启动和关系，如果有初始化任务（如DB 初始化），还需要额外写脚本文件</li>
+<li>docker-compose 和 docker-swarm 集成还在开发中：<a href="https://github.com/docker/compose/blob/master/SWARM.md" target="_blank" rel="external">https://github.com/docker/compose/blob/master/SWARM.md</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="docker-compose_小功能">docker-compose 小功能</h2><ul>
+<li>daemon 模式</li>
+</ul>
+<p><code>docker-compose up -d</code></p>
+<ul>
+<li>设置 contai]]>
+    </summary>
+    
+      <category term="Docker" scheme="http://hongweiyi.com/tags/Docker/"/>
+    
+      <category term="Docker Compose" scheme="http://hongweiyi.com/tags/Docker-Compose/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Java 网络编程最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/09/remoting-practice/"/>
+    <id>http://hongweiyi.com/2015/09/remoting-practice/</id>
+    <published>2015-09-09T16:00:00.000Z</published>
+    <updated>2015-12-29T14:33:29.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="通信层">通信层</h2><ul>
+<li>直接使用最成熟的网络框架，如 Netty</li>
+<li>单连接 &amp; 连接复用 &amp; 长连接<ul>
+<li>建议提前设计心跳机制</li>
+<li>集群较小，长连接无需开启心跳</li>
+<li>如果网络情况比较复杂，建议开启心跳。如有防火墙，会将连接清掉且不会向客户端发送 RST 信令，导致长连接变成一个脏连接</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+<h2 id="线程模型">线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
+<ul>
+<li>序列化过程在业务线程中处理</li>
+<li>请求/响应包多个批量从 IO 线程交给业务线程处理</li>
+<li>服务端线程池需要有保护策略<ul>
+<li>框架层面的 RejectExcetpion</li>
+<li>业务层面的限流策略</li>
+</ul>
+</li>
+<li>需要定时打印线程池大小，方便性能分析</li>
+</ul>
+<h2 id="序列化">序列化</h2><ul>
+<li>全站都是 Java 系</li>
+</ul>
+<p>为了以后能让其它语言更好的交互，协议设计越扁平越好，切忌将整个协议类对象序列化，仅整个序列化方法参数对象列表及返回值对象。</p>
+<ul>
+<li>全站各种语言百花齐放</li>
+</ul>
+<p>可以考虑直接使用 Protobuf 或者 msgpack 这样的跨语言的序列化协议，但我个人没使用经验。</p>
+<h2 id="容灾">容灾</h2><ul>
+<li>必须要有超时时间，分布式环境下无超时机制对整体环境影响非常大</li>
+<li>需要有连接隔离机制（根据请求量、错误率等）<ul>
+<li>可参考 <a href="https://github.com/Netflix/ribbon" target="_blank" rel="external">Netflix 的 ribbon</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="故障定位">故障定位</h2><ul>
+<li>客户端发送、服务端接收均需要打印日志，日志必须要有的几个字段：<ul>
+<li>时间戳</li>
+<li>唯一ID： 由于客户端和服务端的请求量较大，所以需要有唯一 ID 能够将客户端日志和服务端请求串起来</li>
+<li>IP 信息</li>
+<li>如下：<ul>
+<li>client:time,unique-id,server-ip</li>
+<li>server:time,unique-id,client-ip</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>提供较好的方式打印网络层日志<ul>
+<li>经常会发生客户端有请求日志，但是服务端没有接收日志的情况</li>
+<li>这个时候无法判断是客户端出错还是服务端出错，可以提供 debug 日志打印网络层的请求日志</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="通信层">通信层</h2><ul>
+<li>直接使用最成熟的网络框架，如 Netty</li>
+<li>单连接 &amp; 连接复用 &amp; 长连接<ul>
+<li>建议提前设计心跳机制</li>
+<li>集群较小，长连接无需开启心跳</li>
+<li>如果网络情况比较复杂，建议开启心跳。如有防火墙，会将连接清掉且不会向客户端发送 RST 信令，导致长连接变成一个脏连接</li>
+</ul>
+</li>
+</ul>]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="Network" scheme="http://hongweiyi.com/tags/Network/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Java 源码阅读 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/09/java-source-code-practice/"/>
+    <id>http://hongweiyi.com/2015/09/java-source-code-practice/</id>
+    <published>2015-09-01T15:40:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+<h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
+<h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>
+<a id="more"></a>
+<h2 id="方式">方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
+<ul>
+<li>针对应用程序（Tomcat、Hadoop）：找启动脚本 -&gt; 找到 main 入口 -&gt; 开始 Debug</li>
+<li>库、框架（FastJSON、Spring）：找到关键类 -&gt; 打断点 -&gt; 查看堆栈</li>
+</ul>
+<h3 id="「无法_Debug？」">「无法 Debug？」</h3><p>很多时候我们拿到的都是「无法运行」的代码，比如说构建起来很麻烦的源码、只有一个 lib 包。在这个时候只能采取一些其它手段了。</p>
+<ul>
+<li><p>在我看来，最有效的方式还是 Debug。如果遇到了比较难构建的源码，那么暂时放弃构建它的想法，可以直接新建一个工程并添加其 Jar 包依赖，写测试代码的方式进行 Debug。至于测试代码，可以从源码的官方文档、或者它的测试用例中找到；</p>
+</li>
+<li><p>如果以上也是比较麻烦的话，那就直接强行裸看代码吧，不过裸看代码也有一些简便的方法让你更好的裸看代码，比如接下来的。</p>
+</li>
+</ul>
+<h3 id="梳理整个工程的类依赖关系图">梳理整个工程的类依赖关系图</h3><p>以 Intellij IDEA 的为例：</p>
+<ul>
+<li>右键 Java 类</li>
+<li>点击 Diagrams</li>
+<li>点击 Show Diagrams</li>
+</ul>
+<h3 id="查找方法调用关系">查找方法调用关系</h3><p>以 Intellij IDEA 的 Mac OS X 的快捷键为例：</p>
+<ul>
+<li>Alt + F7 (Find Usage)</li>
+<li>Ctrl + Alt + H (Call Hierarchy)</li>
+</ul>
+<h3 id="搜索关键字">搜索关键字</h3><p>这个一般在无头绪的时候才会使用的。比如出现了框架内部的错误，里面包含了特殊关键字，如错误日志或者没有堆栈的方法。</p>
+<p>这个在 Intellij IDEA 中比较好用，可以包含依赖的三方库进行全文搜索。快捷键：</p>
+<ul>
+<li>Ctrl + Shift + F (Find in path)</li>
+</ul>
+<blockquote>
+<p>搜索三方库需要选择 Custom -&gt; Project and Libraries</p>
+</blockquote>
+<p>如果是 Eclipse 的话，似乎只能是大概知道是哪个 Jar 包之后，解压 source 包再全文搜索吧 = =</p>
+<h2 id="其他">其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+<h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
+<h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>]]>
+    
+    </summary>
+    
+      <category term="Java, 源码" scheme="http://hongweiyi.com/tags/Java-%E6%BA%90%E7%A0%81/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[CSS 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/08/css-practice/"/>
+    <id>http://hongweiyi.com/2015/08/css-practice/</id>
+    <published>2015-08-29T16:03:00.000Z</published>
+    <updated>2015-12-29T16:47:38.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="善用_伪元素(Pseudo-elements)">善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
+<li><code>:before</code></li>
+<li><code>:after</code></li>
+<li><code>:first-child</code></li>
+<li><code>:last-child</code></li>
+</ul>
+<h3 id="实例">实例</h3><ul>
+<li><p>插入类似列表符号：<a href="https://jsfiddle.net/pg4kpc3k/" target="_blank" rel="external">JsFiddle</a></p>
+</li>
+<li><p>插入 clearfix：<a href="https://jsfiddle.net/hy4av6eu/" target="_blank" rel="external">JsFiddle</a></p>
+</li>
+<li><p>first-child &amp; last-child 常用在 ul li 中，用以针对头尾设置不同的样式 </p>
+</li>
+</ul>
+<h2 id="善用属性选择器">善用属性选择器</h2><p>有了属性选择器可以设计很多自己的组件，比如按钮分组、进度条之类的。</p>
+<ul>
+<li><a href="https://jsfiddle.net/j94nvngo/" target="_blank" rel="external">进度条实现 - JsFiddle</a></li>
+</ul>
+<h2 id="待续…">待续…</h2>]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="善用_伪元素(Pseudo-elements)">善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
+<li><code>:before</code></li>
+<li><code>:after</c]]>
+    </summary>
+    
+      <category term="CSS" scheme="http://hongweiyi.com/tags/CSS/"/>
+    
+      <category term="Frontend" scheme="http://hongweiyi.com/tags/Frontend/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Java 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/08/java-practice/"/>
+    <id>http://hongweiyi.com/2015/08/java-practice/</id>
+    <published>2015-08-28T14:32:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]>
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[GIT 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/08/git-practice/"/>
+    <id>http://hongweiyi.com/2015/08/git-practice/</id>
+    <published>2015-08-28T14:32:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：<br><a id="more"></a></p>
+<h2 id="Labels">Labels</h2><ul>
+<li>BUG</li>
+<li>P0</li>
+<li>P1</li>
+<li>P2</li>
+<li>TIPS</li>
+<li>TODO</li>
+<li>功能Label<ul>
+<li>交互</li>
+<li>视觉</li>
+<li>…</li>
+</ul>
+</li>
+<li>子功能Label<ul>
+<li>业务1</li>
+<li>业务2</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<h2 id="Branch">Branch</h2><ul>
+<li>方式1: <a href="http://www.jianshu.com/p/67afe711c731" target="_blank" rel="external">Git版本控制与工作流</a><ul>
+<li>master</li>
+<li>release</li>
+<li>develop</li>
+<li>feature/*</li>
+<li>hotfix</li>
+</ul>
+</li>
+<li>方式2<ul>
+<li>master</li>
+<li>name-dev</li>
+</ul>
+</li>
+</ul>
+<h2 id="Issue">Issue</h2><ul>
+<li>命名<ul>
+<li>XX1-XX2-Description</li>
+<li>XX1: 功能</li>
+<li>XX2: 子功能</li>
+</ul>
+</li>
+<li>Push<ul>
+<li>comment 中添加 #{Issue Id}</li>
+</ul>
+</li>
+</ul>
+<h2 id="Push">Push</h2><ul>
+<li>最小功能提交原则</li>
+</ul>
+<h2 id="Milestone">Milestone</h2><h3 id="常规">常规</h3><ul>
+<li>命名<ul>
+<li>v1.0.0</li>
+<li>v1.0.1</li>
+<li>…</li>
+</ul>
+</li>
+<li>内容<ul>
+<li>基本描述</li>
+<li>版本负责人</li>
+</ul>
+</li>
+</ul>
+<h3 id="其它">其它</h3><ul>
+<li>Application Talk<ul>
+<li>针对 Application 的讨论与展望</li>
+<li>同时也可以发设计文档</li>
+</ul>
+</li>
+</ul>
+<h2 id="其它实践">其它实践</h2><ul>
+<li>可以建立 project-management 分支<ul>
+<li>更多的关注项目管理的内容<ul>
+<li>文档</li>
+<li>项目管理 issue</li>
+</ul>
+</li>
+<li>如果有些 issue 同时涉及多个不同子工程，可以将这些写在这里面</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：<br>]]>
+    
+    </summary>
+    
+      <category term="GIT" scheme="http://hongweiyi.com/tags/GIT/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[README]]></title>
+    <link href="http://hongweiyi.com/2015/08/README/"/>
+    <id>http://hongweiyi.com/2015/08/README/</id>
+    <published>2015-08-28T12:32:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="建站">建站</h1><p>使用 <a href="https://hexo.io/zh-cn/" target="_blank" rel="external">hexo</a>，快速开始如下：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>npm install hexo-cli -g</span><br><span class="line"><span class="variable">$ </span>hexo init blog</span><br><span class="line"><span class="variable">$ </span>cd blog</span><br><span class="line"><span class="variable">$ </span>npm install</span><br><span class="line"><span class="variable">$ </span>hexo server</span><br></pre></td></tr></table></figure>
+<h1 id="主题">主题</h1><p>使用了 <a href="http://theme-next.iissnan.com/" target="_blank" rel="external">NexT</a>，快速开始如下：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> your-hexo-site</span><br><span class="line">$ git clone http<span class="variable">s:</span>//github.<span class="keyword">com</span>/iissnan/hexo-theme-<span class="keyword">next</span> themes/<span class="keyword">next</span></span><br></pre></td></tr></table></figure>
+<p>由于墙的存在，建议直接到项目的 <a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="external">github 主页</a> 直接下载 zip 包。</p>
+<h1 id="部署到_github_pages">部署到 github pages</h1><p>安装 git 部署插件即可，参考: <a href="https://hexo.io/zh-cn/docs/deployment.html" target="_blank" rel="external">部署</a></p>
+<ul>
+<li>安装插件</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm <span class="operator"><span class="keyword">install</span> hexo-deployer-git <span class="comment">--save</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>在 <code>_config.yml</code> 中修改 deploy 内容</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">deploy</span>:</span><br><span class="line">  <span class="attribute">type</span>: git</span><br><span class="line">  <span class="attribute">repo</span>: <span class="attribute">https</span>:<span class="comment">//github.com/hongweiyi/hongweiyi.github.io.git</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>部署</li>
+</ul>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>hexo deploy</span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="建站">建站</h1><p>使用 <a href="https://hexo.io/zh-cn/" target="_blank" rel="external">hexo</a>，快速开始如下：</p>
+<figure class="highlight elixi]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[OOM Killer 的一次问题定位]]></title>
+    <link href="http://hongweiyi.com/2015/03/oom-killer-1/"/>
+    <id>http://hongweiyi.com/2015/03/oom-killer-1/</id>
+    <published>2015-03-16T14:01:01.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>这两天为了节省服务器资源，讲多个不同的 JVM 部署到了同一个 VM 上，想着应该没什么事，大不了处理速度慢一点而已，但是没想到确出现了意想不到的状况：各个 VM 上的 JVM 不约而同的挂了。挂了没事，解决 Bug 嘛，但是问题在于 JVM 是怎么挂掉了就没有搞清楚，也没有特殊日志打印，我花了半天时间定位了问题。<br><a id="more"></a></p>
+<h3 id="1-_JVM_为什么挂掉了？">1. JVM 为什么挂掉了？</h3><p>正常来说，JVM 挂了要么会生成内存 dump ，要么直接生成 core 文件，我的机器什么都没有产生。于是乎只能借助系统工具了，如下命令能够捕获进程信号：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">strace </span>-e trace<span class="label">=signal</span> -o /home/admin/<span class="keyword">strace.log </span>-p [PID]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>等了几个小时后，有 JVM 挂了，日志输出如下：</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">+</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">killed</span> <span class="comment">by</span> <span class="comment">SIGKILL</span> <span class="literal">+</span><span class="literal">+</span><span class="literal">+</span></span><br></pre></td></tr></table></figure>
+<p><a href="http://man7.org/linux/man-pages/man7/signal.7.html" target="_blank" rel="external">signal - overview of signals</a> 这里可以看到，SIGKILL 就是 kill -9，进程不会做任何处理直接退出。看到这个我以为咱们的 OS 部署了监控进程，会用来 kill 掉耗资源的进程，咨询运维人员后，没有这样的程序部署，排除他方的因素，自身程序有问题可能性较大。</p>
+<p>从信号上看不出什么端倪，就只能从系统日志上面来找了，通过以下命令发现 JVM 挂掉的原因：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dmesg | egrep -i -B100 'killed process'</span><br><span class="line">[<span class="number">5673702.66</span>5338] [20189]   <span class="number">522 20189</span>     1017       22   2       0             0 sleep</span><br><span class="line">[<span class="number">5673702.66</span>5338] [20308]     <span class="number">0 20308</span>    47967    20414   3       0             0 puppet</span><br><span class="line">[<span class="number">5673702.66</span>5338] [20536]     <span class="number">0 20536</span>    47969    20419   1       0             0 puppet</span><br><span class="line">[<span class="number">5673702.66</span>5338] Out of memory: Kill process 29953 (java) score 431 or sacrifice child</span><br><span class="line">[<span class="number">5673702.66</span>5338] Killed process 29953, UID 500, (java) total-vm:<span class="number">9805316</span>kB, anon-rss:<span class="number">2344496</span>kB, file-rss:128kB</span><br></pre></td></tr></table></figure>
+<p>是由于 Out of memory 导致 JVM 被直接 kill 掉，这也是较为常见的 OOM Killer 了，关于 OOM Killer 网上有篇不错的解析文章，摘抄见后文。</p>
+<blockquote>
+<p>定位 OOM 具体问题，除了 dump 内存分析之外，还有一些较为简单快捷的方式对整个内存进行一次摸底。<br>  pmap -x [PID]: 能查看进程的内存映射;<br>  jmap -heap [PID]: 快速查看 JVM 各内存区域的使用情况。</p></blockquote><p></p>
+
+<h3 id="2-_理解和配置_Linux_下的_OOM_Killer">2. 理解和配置 Linux 下的 OOM Killer</h3><p>最近有位 VPS 客户抱怨 MySQL 无缘无故挂掉，还有位客户抱怨 VPS 经常死机，登陆到终端看了一下，都是常见的 Out of memory 问题。这通常是因为某时刻应用程序大量请求内存导致系统内存不足造成的，这通常会触发 Linux 内核里的 Out of Memory (OOM) killer，OOM killer 会杀掉某个进程以腾出内存留给系统用，不致于让系统立刻崩溃。如果检查相关的日志文件（<code>/var/log/messages</code>）就会看到下面类似的 <code>Out of memory: Kill process</code> 信息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Out of memory: Kill process <span class="number">9682</span> (mysqld) score <span class="number">9</span> or sacrifice child</span><br><span class="line">Killed process <span class="number">9682</span>, UID <span class="number">27</span>, (mysqld) total-vm:<span class="number">47388</span>kB, anon-rss:<span class="number">3744</span>kB, file-rss:<span class="number">80</span>kB</span><br><span class="line">httpd invoked oom-killer: gfp_mask=<span class="number">0x201da</span>, order=<span class="number">0</span>, oom_adj=<span class="number">0</span>, oom_score_adj=<span class="number">0</span></span><br><span class="line">httpd cpuset=/ mems_allowed=<span class="number">0</span></span><br><span class="line">Pid: <span class="number">8911</span>, comm: httpd Not tainted <span class="number">2.6</span><span class="number">.32</span>-<span class="number">279.1</span><span class="number">.1</span>.el6.i686 <span class="preprocessor">#<span class="number">1</span></span></span><br><span class="line">...</span><br><span class="line"><span class="number">21556</span> total pagecache pages</span><br><span class="line"><span class="number">21049</span> pages in swap cache</span><br><span class="line">Swap cache stats: add <span class="number">12819103</span>, <span class="keyword">delete</span> <span class="number">12798054</span>, find <span class="number">3188096</span>/<span class="number">4634617</span></span><br><span class="line">Free swap  = <span class="number">0</span>kB</span><br><span class="line">Total swap = <span class="number">524280</span>kB</span><br><span class="line"><span class="number">131071</span> pages RAM</span><br><span class="line"><span class="number">0</span> pages HighMem</span><br><span class="line"><span class="number">3673</span> pages reserved</span><br><span class="line"><span class="number">67960</span> pages shared</span><br><span class="line"><span class="number">124940</span> pages non-shared</span><br></pre></td></tr></table></figure>
+<p>Linux 内核根据应用程序的要求分配内存，通常来说应用程序分配了内存但是并没有实际全部使用，为了提高性能，这部分没用的内存可以留作它用，这部分内存是属于每个进程的，内核直接回收利用的话比较麻烦，所以内核采用一种过度分配内存（over-commit memory）的办法来间接利用这部分 “空闲” 的内存，提高整体内存的使用效率。一般来说这样做没有问题，但当大多数应用程序都消耗完自己的内存的时候麻烦就来了，因为这些应用程序的内存需求加起来超出了物理内存（包括 swap）的容量，内核（OOM killer）必须杀掉一些进程才能腾出空间保障系统正常运行。用银行的例子来讲可能更容易懂一些，部分人取钱的时候银行不怕，银行有足够的存款应付，当全国人民（或者绝大多数）都取钱而且每个人都想把自己钱取完的时候银行的麻烦就来了，银行实际上是没有这么多钱给大家取的。</p>
+<p>内核检测到系统内存不足、挑选并杀掉某个进程的过程可以参考内核源代码 [linux/mm/oom_kill.c] (<a href="https://github.com/torvalds/linux/blob/master/mm/oom_kill.c)，当系统内存不足的时候，`out_of_memory()`" target="_blank" rel="external">https://github.com/torvalds/linux/blob/master/mm/oom_kill.c)，当系统内存不足的时候，`out_of_memory()`</a> 被触发，然后调用 <code>select_bad_process()</code> 选择一个 “bad” 进程杀掉，如何判断和选择一个 “bad” 进程呢，总不能随机选吧？挑选的过程由 <code>oom_badness()</code> 决定，挑选的算法和想法都很简单很朴实：最 bad 的那个进程就是那个最占用内存的进程。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line"> * oom_badness - heuristic function to determine which candidate task to kill</span><br><span class="line"> * @p: task struct of which task we should calculate</span><br><span class="line"> * @totalpages: total present RAM allowed for page allocation</span><br><span class="line"> *</span><br><span class="line"> * The heuristic for determining which task to kill is made to be as simple and</span><br><span class="line"> * predictable as possible.  The goal is to return the highest value for the</span><br><span class="line"> * task consuming the most memory to avoid subsequent oom failures.</span><br><span class="line"> */</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">oom_badness</span><span class="params">(<span class="keyword">struct</span> task_struct *p, <span class="keyword">struct</span> mem_cgroup *memcg,</span><br><span class="line">			  <span class="keyword">const</span> nodemask_t *nodemask, <span class="keyword">unsigned</span> <span class="keyword">long</span> totalpages)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	<span class="keyword">long</span> points;</span><br><span class="line">	<span class="keyword">long</span> adj;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (oom_unkillable_task(p, memcg, nodemask))</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	p = find_lock_task_mm(p);</span><br><span class="line">	<span class="keyword">if</span> (!p)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	adj = (<span class="keyword">long</span>)p-&amp;gt;signal-&amp;gt;oom_score_adj;</span><br><span class="line">	<span class="keyword">if</span> (adj == OOM_SCORE_ADJ_MIN) &#123;</span><br><span class="line">		task_unlock(p);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span><br><span class="line">	 * The baseline for the badness score is the proportion of RAM that each</span><br><span class="line">	 * task's rss, pagetable and swap space use.</span><br><span class="line">	 */</span></span><br><span class="line">	points = get_mm_rss(p-&amp;gt;mm) + p-&amp;gt;mm-&amp;gt;nr_ptes +</span><br><span class="line">		 get_mm_counter(p-&amp;gt;mm, MM_SWAPENTS);</span><br><span class="line">	task_unlock(p);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span><br><span class="line">	 * Root processes get 3% bonus, just like the __vm_enough_memory()</span><br><span class="line">	 * implementation used by LSMs.</span><br><span class="line">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (has_capability_noaudit(p, CAP_SYS_ADMIN))</span><br><span class="line">		adj -= <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Normalize to oom_score_adj units */</span></span><br><span class="line">	adj *= totalpages / <span class="number">1000</span>;</span><br><span class="line">	points += adj;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span><br><span class="line">	 * Never return 0 for an eligible task regardless of the root bonus and</span><br><span class="line">	 * oom_score_adj (oom_score_adj can't be OOM_SCORE_ADJ_MIN here).</span><br><span class="line">	 */</span></span><br><span class="line">	<span class="keyword">return</span> points &amp;gt; <span class="number">0</span> ? points : <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码里的注释写的很明白，理解了这个算法我们就理解了为啥 MySQL 躺着也能中枪了，因为它的体积总是最大（一般来说它在系统上占用内存最多），所以如果 Out of Memeory (OOM) 的话总是不幸第一个被 kill 掉。解决这个问题最简单的办法就是增加内存，或者<a href="http://www.vpsee.com/2009/06/64mb-vps-optimize-mysql/" target="_blank" rel="external">想办法优化 MySQL 使其占用更少的内存</a>，除了优化 MySQL 外还可以优化系统（<a href="http://www.vpsee.com/2009/06/64mb-vps-optimize-debian5/" target="_blank" rel="external">优化 Debian 5</a>，<a href="http://www.vpsee.com/2009/06/128mb-vps-optimize-centos5/" target="_blank" rel="external">优化 CentOS 5.x</a>），让系统尽可能使用少的内存以便应用程序（如 MySQL) 能使用更多的内存，还有一个临时的办法就是调整内核参数，让 MySQL 进程不容易被 OOM killer 发现。</p>
+<h4 id="2-1_配置_OOM_killer">2.1 配置 OOM killer</h4><p>我们可以通过一些内核参数来调整 OOM killer 的行为，避免系统在那里不停的杀进程。比如我们可以在触发 OOM 后立刻触发 kernel panic，kernel panic 10秒后自动重启系统。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># sysctl -w vm.panic_on_oom=<span class="number">1</span></span></span><br><span class="line">vm.panic_on_oom = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># sysctl -w kernel.panic=<span class="number">10</span></span></span><br><span class="line">kernel.panic = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># echo <span class="string">"vm.panic_on_oom=1"</span> &amp;gt;&amp;gt; /etc/sysctl.conf</span></span><br><span class="line"><span class="preprocessor"># echo <span class="string">"kernel.panic=10"</span> &amp;gt;&amp;gt; /etc/sysctl.conf</span></span><br></pre></td></tr></table></figure>
+<p>从上面的 oom_kill.c 代码里可以看到 <code>oom_badness()</code> 给每个进程打分，根据 points 的高低来决定杀哪个进程，这个 points 可以根据 adj 调节，root 权限的进程通常被认为很重要，不应该被轻易杀掉，所以打分的时候可以得到 3% 的优惠（adj -= 30; 分数越低越不容易被杀掉）。我们可以在用户空间通过操作每个进程的 oom_adj 内核参数来决定哪些进程不这么容易被 OOM killer 选中杀掉。比如，如果不想 MySQL 进程被轻易杀掉的话可以找到 MySQL 运行的进程号后，调整 oom_score_adj 为 -15（注意 points 越小越不容易被杀）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># ps aux | grep mysqld</span></span><br><span class="line">mysql    <span class="number">2196</span>  <span class="number">1.6</span>  <span class="number">2.1</span> <span class="number">623800</span> <span class="number">44876</span> ?        Ssl  <span class="number">09</span>:<span class="number">42</span>   <span class="number">0</span>:<span class="number">00</span> /usr/sbin/mysqld</span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># cat /proc/<span class="number">2196</span>/oom_score_adj</span></span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="preprocessor"># echo -<span class="number">15</span> &amp;gt; /proc/<span class="number">2196</span>/oom_score_adj</span></span><br></pre></td></tr></table></figure>
+<p>当然，如果需要的话可以完全关闭 OOM killer（不推荐用在生产环境）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># sysctl -w vm.overcommit_memory=<span class="number">2</span></span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># echo <span class="string">"vm.overcommit_memory=2"</span> &amp;gt;&amp;gt; /etc/sysctl.conf</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-2_找出最有可能被_OOM_Killer_杀掉的进程">2.2 找出最有可能被 OOM Killer 杀掉的进程</h4><p>我们知道了在用户空间可以通过操作每个进程的 oom_adj 内核参数来调整进程的分数，这个分数也可以通过 oom_score 这个内核参数看到，比如查看进程号为981的 omm_score，这个分数被上面提到的 omm_score_adj 参数调整后（－15），就变成了3：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># cat /proc/<span class="number">981</span>/oom_score</span></span><br><span class="line"><span class="number">18</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># echo -<span class="number">15</span> &amp;gt; /proc/<span class="number">981</span>/oom_score_adj</span></span><br><span class="line"><span class="preprocessor"># cat /proc/<span class="number">981</span>/oom_score</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>下面这个 bash 脚本可用来打印当前系统上 oom_score 分数最高（最容易被 OOM Killer 杀掉）的进程：</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># vi oomscore.sh</span></span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">proc</span> <span class="keyword">in</span> $(find /<span class="keyword">proc</span> -maxdepth <span class="number">1</span> -regex '/<span class="keyword">proc</span>/[<span class="number">0</span>-<span class="number">9</span>]+'); <span class="keyword">do</span></span><br><span class="line">    printf <span class="string">"%2d %5d %s\n"</span> \</span><br><span class="line">        <span class="string">"$(cat $proc/oom_score)"</span> \</span><br><span class="line">        <span class="string">"$(basename $proc)"</span> \</span><br><span class="line">        <span class="string">"$(cat $proc/cmdline | tr '\0' ' ' | head -c 50)"</span></span><br><span class="line">done <span class="number">2</span>&amp;gt;/dev/null | sort -nr | head -n <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># chmod +x oomscore.sh</span></span><br><span class="line"><span class="comment"># ./oomscore.sh</span></span><br><span class="line"><span class="number">18</span>   <span class="number">981</span> /usr/sbin/mysqld</span><br><span class="line"> <span class="number">4</span> <span class="number">31359</span> -bash</span><br><span class="line"> <span class="number">4</span> <span class="number">31056</span> -bash</span><br><span class="line"> <span class="number">1</span> <span class="number">31358</span> sshd: root@pts/<span class="number">6</span></span><br><span class="line"> <span class="number">1</span> <span class="number">31244</span> sshd: vpsee [priv]</span><br><span class="line"> <span class="number">1</span> <span class="number">31159</span> -bash</span><br><span class="line"> <span class="number">1</span> <span class="number">31158</span> sudo -i</span><br><span class="line"> <span class="number">1</span> <span class="number">31055</span> sshd: root@pts/<span class="number">3</span></span><br><span class="line"> <span class="number">1</span> <span class="number">30912</span> sshd: vpsee [priv]</span><br><span class="line"> <span class="number">1</span> <span class="number">29547</span> /usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>原文链接：<a href="http://www.vpsee.com/2013/10/how-to-configure-the-linux-oom-killer/" target="_blank" rel="external">http://www.vpsee.com/2013/10/how-to-configure-the-linux-oom-killer/</a></p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这两天为了节省服务器资源，讲多个不同的 JVM 部署到了同一个 VM 上，想着应该没什么事，大不了处理速度慢一点而已，但是没想到确出现了意想不到的状况：各个 VM 上的 JVM 不约而同的挂了。挂了没事，解决 Bug 嘛，但是问题在于 JVM 是怎么挂掉了就没有搞清楚，也没有特殊日志打印，我花了半天时间定位了问题。<br>]]>
+    
+    </summary>
+    
+      <category term="JVM" scheme="http://hongweiyi.com/tags/JVM/"/>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="OOM Killer" scheme="http://hongweiyi.com/tags/OOM-Killer/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[我现在就要答案 《REMOTE》]]></title>
+    <link href="http://hongweiyi.com/2014/10/i-need-an-answer-now-from-remote/"/>
+    <id>http://hongweiyi.com/2014/10/i-need-an-answer-now-from-remote/</id>
+    <published>2014-10-21T15:23:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>人人都在办公室坐着的时候，你很容易就会养成一种坏习惯：不管大事小事，不管什么时间，也不管是否会打断对方的工作，只要想起来，就会打扰对方。为何有那么多人在传统的办公室里工作效率低下，这就是关键原因。习惯了这种工作模式之后，你很难设想一个无法立即得到反馈的世界是什么模样——无论事情有多小。可是，这样的世界是存在的，而且适宜人类居住。<a id="more"></a></p>
+<p>首先，你需要认识到，并不是每个问题都需要立即得到解答。没有什么能比拿着一个无须立即得到答案的问题去打扰别人更傲慢的行为了。这意味着你要明白，并不是所有的事情都同样重要。</p>
+<p>一旦明白了这个道理，你就踏上醒悟和高效之路了。可以过几个小时再得到回答的问题，可以发邮件解决。几分钟内需要知道答案的问题，可以用即时消息。至于那些如天塌下来一般、不能等的急事儿，你可以使用一种老式的发明：电话。</p>
+<p>想清楚这些，你就会很快意识到，你的问题中有80%都是不着急的，而且发邮件往往比走到某人办公室前更合适。更妙的是，你得到的回答是写下来的，还能留着日后备查。</p>
+<p>接下来的50%的问题可以用即时通信工具来解决，绝大多数人懒得打那么多字，所以大家基本上都直奔主题。本来有可能耗时15分钟的工作中断，如今变成了3分钟的速战速决。</p>
+<p>最后余下5%的问题可以打电话。的确，打电话的时候看不见对方的身体语言，可以，除非你是要炒掉谁，或是主持一个棘手的面试，否则身体语言的作用没你想的那么大。</p>
+<p>想要戒掉你和其他人的“立即回复”上瘾症，肯定会遇到点阻碍。最初几天，你得头脑处在适应阶段，还在判断什么问题改用什么媒介，这时候你会有点泄气。你还要抗拒的一个诱惑是，对你选择的沟通媒介有不切实际的要求。要是别人10分钟之内没回复你的邮件，你就会冒火，那么你没法用电子邮件来处理80%的问题。</p>
+<p>然而，一旦从“立即回复”上瘾症中解脱出来，你就会对之前的工作方式感到惊讶无比：在连续不断的干扰下，你是怎么干活的啊。放开手，别抓狂，等到对方准备好协助你的时候，回答自然会朝你走来——这里面几乎蕴含着一种禅意。运用这种镇定气度，更加高效的工作吧。</p>
+<blockquote>
+<p>摘抄自：《REMOTE》</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>人人都在办公室坐着的时候，你很容易就会养成一种坏习惯：不管大事小事，不管什么时间，也不管是否会打断对方的工作，只要想起来，就会打扰对方。为何有那么多人在传统的办公室里工作效率低下，这就是关键原因。习惯了这种工作模式之后，你很难设想一个无法立即得到反馈的世界是什么模样——无论事情有多小。可是，这样的世界是存在的，而且适宜人类居住。]]>
+    
+    </summary>
+    
+      <category term="Remote, 书摘, 生活" scheme="http://hongweiyi.com/tags/Remote-%E4%B9%A6%E6%91%98-%E7%94%9F%E6%B4%BB/"/>
+    
+      <category term="生活点滴" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E7%82%B9%E6%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[netty-mina深入学习与对比（二）]]></title>
+    <link href="http://hongweiyi.com/2014/05/netty-mina-in-depth-2/"/>
+    <id>http://hongweiyi.com/2014/05/netty-mina-in-depth-2/</id>
+    <published>2014-05-17T14:03:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。</p>
+<a id="more"></a>
+<h3 id="1-_数据是如何write出去的">1. 数据是如何write出去的</h3><p>java nio如果是non-blocking的话，在每次write(bytes[N])的时候，并不会将N字节全部write出去，每次write仅一部分（具体大小和<code>tcp_write_buffer</code>有关）。那么，mina和netty是怎么处理这种情况的呢？</p>
+<h4 id="1-1_代码">1.1 代码</h4><ul>
+<li><code>mina-1.1.7</code>: SocketIoProcessor.doFlush</li>
+<li><code>mina-2.0.4</code>: AbstractPollingIoProcessor.flushNow</li>
+<li><code>mina-3.0.0.M3-SNAPSHOT</code>: AbstractNioSession.processWrite</li>
+<li><code>netty-3.5.8.Final</code>: AbstractNioWorker.write0</li>
+<li><code>netty-4.0.6.Final</code>: AbstractNioByteChannel.doWrite</li>
+</ul>
+<h4 id="1-2_分析">1.2 分析</h4><p>mina1、2，netty3的方式基本一致。 在发送端每个session均有一个writeBufferQueue，有这样一个队列，可以保证写入与写出均有序。在真正write时，大致逻辑均是一一将队列中的writeBuffer取出，写入socket。但有一些不同的是，mina1是每次peek一次，当该buffer全部写出之后再poll（mina3也是这种机制）；而mina2、netty3则是直接poll第一个，将其存为currentWriteRequest，直到currentWriteRequest全部写出之后，才会再poll下一个。这样的做法是为了省几次peek的时间么？</p>
+<p>同时mina、netty在write时，有一种spin write的机制，即循环write多次。mina1的spin write count为256，写死在代码里了，表示256有点大；mina2这个机制废除但代码保留；netty3则可以配置，默认为16。netty在这里略胜一筹！</p>
+<p>netty4与netty3的机制差不多，但是netty4为这个事情特意写了一个ChannelOutboundBuffer类，输出队列写在了该类的flushed:Object[]成员中，但表示ChannelOutboundBuffer这个类的代码有点长，就暂不深究了。</p>
+<h3 id="2-_数据是如何read进来的">2. 数据是如何read进来的</h3><p>如第三段内容，每次write只是输出了一部分数据，read同理，也有可能只会读入部分数据，这样就是导致读入的数据是残缺的。而mina和netty默认不会理会这种由于nio导致的数据分片，需要由业务层自己额外做配置或者处理。</p>
+<h4 id="2-1_代码">2.1 代码</h4><ul>
+<li><code>nfs-rpc</code>: ProtocolUtils.decode</li>
+<li><code>mina-1.1.7</code>: SocketIoProcessor.read, CumulativeProtocolDecoder.decode</li>
+<li><code>mina-2.0.4</code>: AbstractPollingIoProcessor.read, CumulativeProtocolDecoder.decode</li>
+<li><code>mina-3.0.0.M3-SNAPSHOT</code>: NioSelectorLoop.readBuffer</li>
+<li><code>netty-3.5.8.Final</code>: NioWorker.read, FrameDecoder</li>
+<li><code>netty-4.0.6.Fianl</code>: AbstractNioByteChannel$NioByteUnsafe.read</li>
+</ul>
+<h4 id="2-2_业务层处理">2.2 业务层处理</h4><p>nfs-rpc在协议反序列化的过程中，就会考虑这个的问题，依次读入每个字节，当发现当前字节或者剩余字节数不够时，会将buf的readerIndex设置为初始状态。具体的实现，有兴趣的同学可以学习<code>nfs-rpc：ProtocolUtils.decode</code></p>
+<p>nfs-rpc在decode时，出现错误就会将buf的readerIndex设为0，把readerIndex设置为0就必须要有个前提假设：每次decode时buf是同一个，即该buf是复用的。那么，具体情况是怎样呢？</p>
+<h4 id="2-3_框架层处理">2.3 框架层处理</h4><p>我看读mina与netty这块的代码，发现主要演进与不同的点在两个地方：读buffer的创建与数据分片的处理方式。</p>
+<p><strong>mina:</strong></p>
+<p>mina1、2的读buffer创建方式比较土，在每次read之前，会重新allocate一个新的buf对象，该buf对象的大小是根据读入数据大小动态调整。当本次读入数据等于该buf大小，下一次allocate的buf对象大小会翻倍；当本次读入数据不足该buf大小的二分之一，下一次allocate的buf对象同样会缩小至一半。需要注意的是，*2与/2的代码都可以用位运算，但是mina1竟没用位运算，有意思。</p>
+<p>mina1、2处理数据分片可以继承CumulativeProtocolDecoder，该decoder会在session中存入(BUFFER, cumulativeBuffer)。decode过程为：1）先将message追加至cumulativeBuffer；2）调用具体的decode逻辑；3）判断cumulativeBuffer.hasRemaining()，为true则压缩cumulativeBuffer，为false则直接删除(BUFFER, cumulativeBuffer)。实现业务的decode逻辑可以参考nfs-rpc中MinaProtocolDecoder的代码。</p>
+<p>mina3在处理读buffer的创建与数据分片比较巧妙，它所有的读buffer共用一个buffer对象（默认64kb），每次均会将读入的数据追加至该buffer中，这样即省去了buffer的创建与销毁事件，也省去了cumulativeDecoder的处理逻辑，让代码很清爽啊！</p>
+<p><strong>netty:</strong></p>
+<p>netty3在读buffer创建部分的代码还是挺有意思的，首先，它创建了一个SocketReceiveBufferAllocator的allocate对象，名字为recvBufferPool，但是里面代码完全和pool扯不上关系；其次，它每次创建buffer也会动态修改初始大小的机制，它设计了232个大小档位，最大值为Integer.MAX_VALUE，没有具体考究，这种实现方式似乎比每次大小翻倍优雅一点，具体代码可以参考：<code>AdaptiveReceiveBufferSizePredictor</code>。</p>
+<p>对应mina的CumulativeProtocolDecoder类，在netty中则是FrameDecoder和ReplayingDecoder，没深入只是大致扫了下代码，原理基本一致。BTW，ReplayingDecoder似乎挺强大的，有兴趣的可以看看这两篇：</p>
+<blockquote>
+<p><a href="http://biasedbit.com/netty-tutorial-replaying-decoder" target="_blank" rel="external">High speed custom codecs with ReplayingDecoder</a><br><a href="http://biasedbit.com/an-enhanced-version-of-replayingdecoder-for-netty/" target="_blank" rel="external">An enhanced version of ReplayingDecoder for Netty</a></p>
+</blockquote>
+<p>netty4在读buffer创建部分机制与netty3大同小异，不过由于netty有了ByteBufAllocator的概念，要想每次不重新创建销毁buffer的话，可以采用PooledByteBufAllocator。</p>
+<p>在处理分片上，netty4抽象出了Message这样的概念，我的理解就是，一个Message就是业务可读的数据，转换Message的抽象类：ByteToMessageDecoder，当然也有netty3中的ReplayingDecoder，继承自ByteToMessageDecoder，具体可以研究代码。</p>
+<h3 id="3-_ByteBuffer设计的差异">3. ByteBuffer设计的差异</h3><h4 id="3-1_自建buffer的原因">3.1 自建buffer的原因</h4><p><strong>mina:</strong></p>
+<p>需要说明的是，只有mina1、2才有自己的buffer类，mina3内部只用nio的原生ByteBuffer类（提供了一个组合buffer的代理类-IoBuffer）。mina1、2自建buffer的原因如下：</p>
+<ul>
+<li>It doesn’t provide useful getters and putters such as fill,get/putString, and get/putAsciiInt()enough.</li>
+<li>It is difficult to write variable-length data due to its fixed capacity</li>
+</ul>
+<p>第一条比较好理解，即提供了更为方便的方法用以操作buffer。第二条则是觉得nio的ByteBuffer是定长的，无法自动扩容或者缩容，所以提供了自动扩/缩容的方法：IoBuffer.setAutoExpand, IoBuffer.setAutoShrink。但是扩/缩容的实现，也是基于nio的ByteBuffer，重新ByteBuffer.allocate(capacity)，再把原有的数据拷贝过去。</p>
+<p><strong>netty:</strong></p>
+<p>在我前面的博文（<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">Netty 4.x学习笔记 – ByteBuf</a>）我已经提到这些原因：</p>
+<ul>
+<li>需要的话，可以自定义buffer类型</li>
+<li>通过组合buffer类型，可实现透明的zero-copy</li>
+<li>提供动态的buffer类型，如StringBuffer一样(扩容方式也是每次double)，容量是按需扩展</li>
+<li>无需调用flip()方法</li>
+<li>常常「often」比ByteBuffer快</li>
+</ul>
+<p>以上理由来自netty3的API文档：<a href="http://docs.jboss.org/netty/3.2/api/org/jboss/netty/buffer/package-summary.html" target="_blank" rel="external">Package org.jboss.netty.buffer</a>，netty4没见到官方的说法，但是我觉得还得加上一个更为重要也是最为重要的理由，就是可以实现buffer池化管理。</p>
+<h4 id="3-2_实现的差异">3.2 实现的差异</h4><p><strong>mina:</strong></p>
+<p>mina的实现较为基础，仅仅只是在ByteBuffer上的一些简单封装。</p>
+<p><strong>netty:</strong></p>
+<p>netty3与netty4的实现大致相同（ChannlBuffer -&gt; ByteBuf），具体可以参见：<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">Netty 4.x学习笔记 – ByteBuf</a>，netty4实现了PooledByteBufAllocator，传闻是可以大大减少GC的压力，但是官方不保证没有内存泄露，我自己压测中也出现了内存泄露的警告，建议生产中谨慎使用该功能。</p>
+<blockquote>
+<p>netty5.x有一个更为高级的buffer泄露跟踪机制，PooledByteBufAllocator也已经默认开启，有机会可以尝试使用一下。</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>上文讲了对netty-mina的线程模型以及任务调度粒度的理解，这篇则主要是讲nio编程中的注意事项，netty-mina的对这些注意事项的实现方式的差异，以及业务层会如何处理这些注意事项。</p>]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="Mina" scheme="http://hongweiyi.com/tags/Mina/"/>
+    
+      <category term="Netty" scheme="http://hongweiyi.com/tags/Netty/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[netty-mina深入学习与对比（一）]]></title>
+    <link href="http://hongweiyi.com/2014/05/netty-mina-in-depth-1/"/>
+    <id>http://hongweiyi.com/2014/05/netty-mina-in-depth-1/</id>
+    <published>2014-05-17T13:42:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>这博文的系列主要是为了更好的了解一个完整的nio框架的编程细节以及演进过程，我选了同父（Trustin Lee）的两个框架netty与mina做对比。版本涉及了netty3.x、netty4.x、mina1.x、mina2.x、mina3.x。这里并没有写netty5.x的细节，看了<a href="http://netty.io/wiki/new-and-noteworthy-in-5.x.html" target="_blank" rel="external">netty5的修改文档</a>，似乎有一些比较有意思的改动，准备单独写一篇netty4.x与netty5.x的不同。</p>
+<a id="more"></a>
+<p>netty从twitter发布的这篇<a href="https://blog.twitter.com/2013/netty-4-at-twitter-reduced-gc-overhead" target="_blank" rel="external">Netty 4 at Twitter: Reduced GC Overhead</a>文章让国内Java界为之一振，也小火了一把，同时netty的社区发展也不错，版本迭代非常快，半年不关注大、小版本就发了好几轮了。但是mina就有点淡了，github上面它最后大多数代码最后的修改日期均在2013年，不过我从个人情感上还是挺喜欢mina3的代码，没有太多的用不上的功能（支持各种协议啥的），跑自带的benchmark性能也比netty4好一些。但是如果是生产用的话，就偏向netty多一些了，毕竟社区活跃，版本迭代也快。</p>
+<h3 id="1-_mina、netty的线程模型">1. mina、netty的线程模型</h3><p>mina与netty都是Trustin Lee的作品，所以在很多方面都十分相似，他们线程模型也是基本一致，采用了Reactors in threads模型，即Main Reactor + Sub Reactors的模式。由main reactor处理连接相关的任务：accept、connect等，当连接处理完毕并建立一个socket连接（称之为session）后，给每个session分配一个sub reactor，之后该session的所有IO、业务逻辑处理均交给了该sub reactor。每个reactor均是一个线程，sub reactor中只靠内核调度，没有任何通信且互不打扰。</p>
+<p>在前面的博文：<a href="http://hongweiyi.com/2014/01/netty-4-x-thread-model/">Netty 4.x学习笔记 – 线程模型</a>，对netty的线程模型有一定的介绍。现在来讲讲我对线程模型演进的一些理解：</p>
+<ul>
+<li><strong><code>Thread per Connection</code></strong>: 在没有nio之前，这是传统的java网络编程方案所采用的线程模型。即有一个主循环，socket.accept阻塞等待，当建立连接后，创建新的线程/从线程池中取一个，把该socket连接交由新线程全权处理。这种方案优缺点都很明显，优点即实现简单，缺点则是方案的伸缩性受到线程数的限制。</li>
+<li><strong><code>Reactor in Single Thread</code></strong>: 有了nio后，可以采用IO多路复用机制了。我们抽取出一个单线程版的reactor模型，时序图见下文，该方案只有一个线程，所有的socket连接均注册在了该reactor上，由一个线程全权负责所有的任务。它实现简单，且不受线程数的限制。这种方案受限于使用场景，仅适合于IO密集的应用，不太适合CPU密集的应用，且适合于CPU资源紧张的应用上。</li>
+</ul>
+<center><div style="width: 30%;"><img src="/images/reactor-single-thread.png" alt="Reactor Single Thread"></div></center>
+
+<ul>
+<li><strong><code>Reactor + Thread Pool</code></strong>: 方案2由于受限于使用场景，但为了可以更充分的使用CPU资源，抽取出一个逻辑处理线程池。reactor仅负责IO任务，线程池负责所有其它逻辑的处理。虽然该方案可以充分利用CPU资源，但是这个方案多了进出thread pool的两次上下文切换。</li>
+</ul>
+<center><div style="width: 50%;"><img src="/images/reactor-thread-pool.png" alt="Reactor + Thread Pool"></div></center>
+
+<ul>
+<li><strong><code>Reactors in threads</code></strong>: 基于方案3缺点的考虑，将reactor分成两个部分。main reactor负责连接任务（accept、connect等），sub reactor负责IO、逻辑任务，即mina与netty的线程模型。该方案适应性十分强，可以调整sub reactor的数量适应CPU资源紧张的应用；同时CPU密集型任务时，又可以在业务处理逻辑中将任务交由线程池处理，如方案5。该方案有一个不太明显的缺点，即session没有分优先级，所有session平等对待均分到所有的线程中，这样可能会导致优先级低耗资源的session堵塞高优先级的session，但似乎netty与mina并没有针对这个做优化。</li>
+</ul>
+<center><div style="width: 60%;"><img src="/images/reactors-in-threads.png" alt="Reactors in threads"></div></center>
+
+<ul>
+<li><strong><code>Reactors in threads + Threads pool</code></strong>: 这也是我所在公司应用框架采用的模型，可以更为灵活的适应所有的应用场景：调整reactor数量、调整thread pool大小等。</li>
+</ul>
+<center><div style="width: 70%;"><img src="/images/reactors-in-threads-thread-pool.png" alt="Reactors in threads + Thread pool"></div></center>
+
+<blockquote>
+<p>以上图片及总结参考：《Linux多线程服务端编程》</p>
+</blockquote>
+<h3 id="2-_mina、netty的任务调度粒度">2. mina、netty的任务调度粒度</h3><p>mina、netty在线程模型上并没有太大的差异性，主要的差异还是在任务调度的粒度的不同。任务从逻辑上我给它分为成三种类型：连接相关的任务（bind、connect等）、写任务（write、flush）、调度任务（延迟、定时等），读任务则由selector加循环时间控制了。mina、netty任务调度的趋势是逐渐变小，从session级别的调度 -&gt; 类型级别任务的调度 -&gt; 任务的调度。</p>
+<h4 id="2-1_代码">2.1 代码</h4><ul>
+<li><code>mina-1.1.7</code>: SocketIoProcessor$Worker.run</li>
+<li><code>mina-2.0.4</code>: AbstractPollingIoProcessor$Processor.run</li>
+<li><code>mina-3.0.0.M3-SNAPSHOT</code>: AbstractNioSession.processWrite</li>
+<li><code>netty-3.5.8.Final</code>: AbstractNioSelector.run</li>
+<li><code>netty-4.0.6.Final</code>: NioEventLoop.run</li>
+</ul>
+<h4 id="2-2_分析">2.2 分析</h4><p>mina1、2的任务调度粒度为session。mina会将有IO任务的的session写入队列中，当循环执行任务时，则会轮询所有的session，并依次把session中的所有任务取出来运行。这样粗粒度的调度是不公平调度，会导致某些请求的延迟很高。</p>
+<p>mina3的模型改动比较大，代码相对就比较难看了，我仅是随便扫了一下，它仅提炼出了writeQueue。</p>
+<p>而netty3的调度粒度则是按照IO操作，分成了registerTaskQueue、writeTaskQueue、eventQueue三个队列，当有IO任务时，依次processRegisterTaskQueue、processEventQueue、processWriteTaskQueue、processSelectedKeys(selector.selectedKeys)。</p>
+<p>netty4可能觉得netty3的粒度还是比较粗，将队列细分成了taskQueue和delayedTaskQueue，所有的任务均放在taskQueue中，delayedTaskQueue则是定时调度任务，且netty4可以灵活配置task与selectedKey处理的时间比例。</p>
+<blockquote>
+<p>BTW: netty3.6.0之后，所有的队列均合并成了一个taskQueue</p>
+</blockquote>
+<p>有意思的是，netty4会优先处理selectedKeys，然后再处理任务，netty3则相反。mina1、2则是先处理新建的session，再处理selectedKeys，再处理任务。</p>
+<blockquote>
+<p>难道selectedKeys处理顺序有讲究么？</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这博文的系列主要是为了更好的了解一个完整的nio框架的编程细节以及演进过程，我选了同父（Trustin Lee）的两个框架netty与mina做对比。版本涉及了netty3.x、netty4.x、mina1.x、mina2.x、mina3.x。这里并没有写netty5.x的细节，看了<a href="http://netty.io/wiki/new-and-noteworthy-in-5.x.html">netty5的修改文档</a>，似乎有一些比较有意思的改动，准备单独写一篇netty4.x与netty5.x的不同。</p>]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="Mina" scheme="http://hongweiyi.com/tags/Mina/"/>
+    
+      <category term="Netty" scheme="http://hongweiyi.com/tags/Netty/"/>
+    
+      <category term="线程模型" scheme="http://hongweiyi.com/tags/%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[REWORK - 灵感稍纵即逝]]></title>
+    <link href="http://hongweiyi.com/2014/04/rework-digest/"/>
+    <id>http://hongweiyi.com/2014/04/rework-digest/</id>
+    <published>2014-04-14T13:40:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>昨天在hn上看到37signals，顺带看到《rework》这本书，多看试读了一下，立马亚马逊下单了。怎么说吧，里面的大多数文字都让我产生深深的共鸣，两小时读完，有种恨不得立马去他公司去体验一把的感觉，这感觉是如此奇妙。</p>
+<p>苦于自己不善于文字，就只能在这里把书里最后的总结摘抄上来，与大家分享分享：</p>
+<a id="more"></a>
+<blockquote>
+<p>我们都有想法，想法是不朽的，一直都会存在。</p>
+<p>最不可能长存的就是灵感。灵感就像新鲜水果或牛奶：有一定的保质期。</p>
+<p>如果你想去做一件事，就得马上下手。不能把这事搁置起来过两个月再考虑。不要对自己说『以后再说吧』。以后，你压根儿不会再提起这件事了。</p>
+<p>如果你的灵感是在周五驾临，那就放弃周末，直奔主题。当你为了这个灵感而亢奋时，就能够在24小时内做完两个星期的工作。从这一点来讲，灵感就是时光机。</p>
+<p>灵感是个奇妙的东西，是效率放大器，是推进器。但是它不会停下来等你。灵感转瞬即逝，当它来找你时，要立即把它捕捉住，将其投入工作中去。</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>昨天在hn上看到37signals，顺带看到《rework》这本书，多看试读了一下，立马亚马逊下单了。怎么说吧，里面的大多数文字都让我产生深深的共鸣，两小时读完，有种恨不得立马去他公司去体验一把的感觉，这感觉是如此奇妙。</p>
+<p>苦于自己不善于文字，就只能在这里把书里最后的总结摘抄上来，与大家分享分享：</p>]]>
+    
+    </summary>
+    
+      <category term="REWORK, 37signals, 书摘, 生活" scheme="http://hongweiyi.com/tags/REWORK-37signals-%E4%B9%A6%E6%91%98-%E7%94%9F%E6%B4%BB/"/>
+    
+      <category term="生活点滴" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E7%82%B9%E6%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[有求皆苦、无欲则刚]]></title>
+    <link href="http://hongweiyi.com/2014/04/forget-your-lusts/"/>
+    <id>http://hongweiyi.com/2014/04/forget-your-lusts/</id>
+    <published>2014-04-13T15:48:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>最近会听到不少周围朋友负能量的东西，无外乎是升职、加薪、倒挂之类与经济利益挂钩的事情。当然，也会听到一些情感的负能量，不过这个应该算是占少数吧，毕竟我对这个不太感冒。正如前女友所说：「天底下像你一样的程序员屌丝男真的不多。」「像我哪样了」「不寂寞，不要女朋友的」，忧桑。</p>
+<a id="more"></a>
+<p>最近几周和老同学聚的比较多，可能是同学的缘故，大家也不会藏着掖着，有啥话都会直接说。</p>
+<blockquote>
+<p>「擦，我那老大太变态了，需求一天一个变」<br>「哎，这特么升P又卡住了，还得面试」<br>「你知道那谁不，不到一年老大特批给升了」</p>
+</blockquote>
+<p>嗯，顺带也听了不少坊间八卦。与他们沟通具体情况时，发现公司其他部门情况（主要是业务部门）与我想像中的大相径庭，各种勾心斗角尔虞我诈。但是奇怪的是，我在这里也待了一年了，并没有发现类似的情况出现，一切都是那么的和谐，是我想简单了么？</p>
+<p>不过，在众多负能量中也有一些正能量的出现。有趣的是，在这个正能量的主人身上很少听到负能量的东西：</p>
+<blockquote>
+<p>「老大让我好好准备下5月份的晋升」</p>
+</blockquote>
+<p>所以，我又在想：是他们主动产生了正/负能量，还是客观的正/负能量影响了他们，抑或是相辅相成的，搞不明白了。我一直都会说，计算机艺术相较于人的艺术是那么的简单。看样子不仅仅是简单那么简单了，应该改成：「计算机艺术相较于人的艺术是那么的小儿科」</p>
+<p>对于升职加薪之类的，我确实也挺想的，谁不想呢。但是我会尽可能保持一种「有求皆苦、无欲则刚」的态度，这八个字在去年这个时候我还不太理解，在入职培训的时候，和爱好佛学的@湛然同学请教过这个，能稍微有点参悟。大致对话回忆如下：</p>
+<blockquote>
+<p>「菩萨不是说要救苦救难，普度众生啥的，这不算是欲么？」<br>「就是这样，他才是菩萨。观音菩萨要普度众生，地藏菩萨要地狱没有鬼魂，这都是欲，当无欲了才能称之为佛。佛讲究无欲，并不是无所诉求，而是不会将诉求放在口中、心上。如你努力工作，不把欲望挂在心中，你就会得到你所要的东西」</p>
+</blockquote>
+<p>嗯，希望我也能继续保持这种态度吧，尽可能广/多/快的汲取周边的营养让自己得到快速的成长（这也算欲吧？我还是比较贪的，嗯）。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>最近会听到不少周围朋友负能量的东西，无外乎是升职、加薪、倒挂之类与经济利益挂钩的事情。当然，也会听到一些情感的负能量，不过这个应该算是占少数吧，毕竟我对这个不太感冒。正如前女友所说：「天底下像你一样的程序员屌丝男真的不多。」「像我哪样了」「不寂寞，不要女朋友的」，忧桑。</p>]]>
+    
+    </summary>
+    
+      <category term="价值观, 生活" scheme="http://hongweiyi.com/tags/%E4%BB%B7%E5%80%BC%E8%A7%82-%E7%94%9F%E6%B4%BB/"/>
+    
+      <category term="生活点滴" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E7%82%B9%E6%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Netty 4.x学习笔记 - 线程模型]]></title>
+    <link href="http://hongweiyi.com/2014/01/netty-4-x-thread-model/"/>
+    <id>http://hongweiyi.com/2014/01/netty-4-x-thread-model/</id>
+    <published>2014-01-14T15:25:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>前面两篇学习笔记已经说完了<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">ByteBuf</a>和<a href="http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/">Channel和Pipeline</a>，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。</p>
+<a id="more"></a>
+<h3 id="2、Netty线程模型">2、Netty线程模型</h3><p>将具体代码实现前，先来谈谈Netty的线程模型。正如许多博客所提到的，Netty采用了Reactor模式，但是许多博客也只是提到了而已，同时大家也不会忘记附上几张Doug Lee大神的图，但是并不会深入的解释。为了更好的学习和理解Netty的线程模型，我在这里稍微详细的说一下我对它的理解。</p>
+<p>Reactor模式有多个变种，Netty基于Multiple Reactors模式（如下图）做了一定的修改，Mutilple Reactors模式有多个reactor：mainReactor和subReactor，其中mainReactor负责客户端的连接请求，并将请求转交给subReactor，后由subReactor负责相应通道的IO请求，非IO请求（具体逻辑处理）的任务则会直接写入队列，等待worker threads进行处理。</p>
+<center><div style="width: 80%;"><img src="/images/wpid-Multi-reactors3.png" alt="Multiple Reactors"></div></center>
+
+<p>Netty的线程模型基于Multiple Reactors模式，借用了mainReactor和subReactor的结构，但是从代码里看来，它并没有Thread Pool这个东东。Netty的subReactor与worker thread是同一个线程，采用IO多路复用机制，可以使一个subReactor监听并处理多个channel的IO请求，我给称之为：「Single Thread with many Channel」。我根据代码整理出下面这种Netty线程模型图：</p>
+<center><div style="width: 80%;"><img src="/images/wpid-Netty-thread-model3.png" alt="Netty线程模型"></div></center>
+
+<p>上图中的parentGroup和childGroup是Bootstrap构造方法中传入的两个对象，这两个group均是线程池，childGroup线程池会被各个subReactor充分利用，parentGroup线程池则只是在bind某个端口后，获得其中一个线程作为mainReactor。上图我将subReactor和worker thread合并成了一个个的loop，具体的请求操作均在loop中完成，下文会对loop有个稍微详细的解释。&nbsp;</p>
+<blockquote>
+<p>   以上均是Nio情况下。Oio采用的是Thread per Channel机制，即每个连接均创建一个线程负责该连接的所有事宜。<br>   Doug Lee大神的Reactor介绍：<a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf" target="_blank" rel="external">Scalable IO in Java</a></p>
+</blockquote>
+<h3 id="3、EventLoop和EventExecutor实现">3、EventLoop和EventExecutor实现</h3><p>EventLoop和EventExecutor实现共有4个主要逻辑接口，EventLoop、EventLoopGroup、EventExecutor、EventExecutorGroup，内部实现、继承的逻辑表示无法直视，有种擦边球的感觉。具体的类图如下：</p>
+<center><div style="width: 80%;"><img src="/images/wpid-EventLoopAndEventExecutor3.jpg" alt="EventLoop和EventExecutor类图"></div></center>
+
+<h4 id="3-1_EventLoopGroup:">3.1 EventLoopGroup:</h4><p>主要方法是newChild，我理解为EventLoop的工厂类。<code>**EventLoopGroup.newChild</code>创建<code>**EventLoop</code>对象。OioEventLoopGroup除外，它没有实现newChild方法，调用父类的并创建ThreadPerChannelEventLoop对象。</p>
+<h4 id="3-2_EventLoop:">3.2 EventLoop:</h4><p>主要方法是run()，是整个Netty执行过程的逻辑代码实现，后面细说。</p>
+<h4 id="3-3_EventExecutorGroup:">3.3 EventExecutorGroup:</h4><p>线程池实现，主要成员是children数组，主要方法是next()，获得线程池中的一个线程，由子类调用。由于Oio采用的是Thread per Channel机制，所以没有实现前面两个。</p>
+<h4 id="3-4_EventExecutor:">3.4 EventExecutor:</h4><p>Task的执行类，主要成员是taskQueue以及真正的运行线程对象executor，主要方法是taskQueue操作方法execute、takeTask、addTask等，以及doStartThread方法，后面细说。</p>
+<h3 id="4、NioEventLoopGroup实现">4、NioEventLoopGroup实现</h3><p>这里以常用的NioEventLoopGroup为例。NioEventLoopGroup在Bootstrap初始化时作为参数传入构造方法，由于NioEventLoopGroup涉及的代码较多，就不大篇幅的贴代码了，只写流程性的文字或相应类和方法：</p>
+<h4 id="4-1_mainReactor:">4.1 mainReactor:</h4><p><code>1. Bootstrap.bind(port)</code><br><code>2. Bootstrap.initAndRegister()</code><br><code>2.1 Boostrap.init()</code></p>
+<blockquote>
+<p>初始化Channel，配置Channel参数，以及Pipeline。其中初始化Pipeline中，需要插入ServerBootstrapAcceptor对象用作acceptor接收客户端连接请求，acceptor也是一种ChannelInboundHandlerAdapter。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p.addLast(<span class="keyword">new</span> ChannelInitializer&lt;Channel&gt;() &#123;</span><br><span class="line">  <span class="annotation">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(Channel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    ch.pipeline().addLast(<span class="keyword">new</span> ServerBootstrapAcceptor(currentChildHandler, currentChildOptions,</span><br><span class="line">       currentChildAttrs));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>调用channel的unsafe对象注册selector，具体实现类为AbstractChannel$AbstractUnsafe.register。如下：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(<span class="keyword">final</span> ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (eventLoop.inEventLoop()) &#123;  <span class="comment">// 是否在Channel的loop中</span></span><br><span class="line">    register0(promise);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;  <span class="comment">// 不在</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      eventLoop.execute(<span class="keyword">new</span> Runnable() &#123;  <span class="comment">// EventLoop执行一个任务</span></span><br><span class="line">        <span class="annotation">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          register0(promise);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>eventLoop.execute(runnable);是比较重要的一个方法。在没有启动真正线程时，它会启动线程并将待执行任务放入执行队列里面。启动真正线程(startThread())会判断是否该线程已经启动，如果已经启动则会直接跳过，达到线程复用的目的。启动的线程，主要调用方法是NioEventLoop的run()方法，run()方法在下面有详细介绍：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable task)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(&amp;quot;task&amp;quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">boolean</span> inEventLoop = inEventLoop();</span><br><span class="line">  <span class="keyword">if</span> (inEventLoop) &#123;</span><br><span class="line">    addTask(task);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    startThread();  <span class="comment">// 启动线程</span></span><br><span class="line">    addTask(task);  <span class="comment">// 添加任务队列</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!addTaskWakesUp) &#123;</span><br><span class="line">    wakeup(inEventLoop);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>   2.2 group().register(channel)</p>
+<blockquote>
+<p>将 channel 注册到下一个 EventLoop 中。</p>
+</blockquote>
+<p><code>3. 接收连接请求</code></p>
+<p>由NioEventLoop.run()接收到请求：</p>
+<p><code>3.1 AbstractNioMessageChannel$NioMessageUnsafe.read()</code></p>
+<p><code>3.2 NioServerSocketChannel.doReadMessages()</code></p>
+<blockquote>
+<p>获得childEventLoopGroup中的EventLoop，并依据该loop创建新的SocketChannel对象。</p>
+</blockquote>
+<p><code>3.3 pipeline.fireChannelRead(readBuf.get(i));</code></p>
+<blockquote>
+<p>readBuf.get(i)就是3.2中创建的SocketChannel对象。在2.2初始化Bootstrap的时候，已经将acceptor处理器插入pipeline中，所以理所当然，这个SocketChannel对象由acceptor处理器处理。</p>
+</blockquote>
+<p><code>3.4 ServerBootstrapAcceptor$ServerBootstrapAcceptor.channelRead();</code></p>
+<blockquote>
+<p>该方法流程与2.2、2.3类似，初始化子channel，并注册到相应的selector。注册的时候，也会调用eventLoop.execute用以执行注册任务，execute时，启动子线程。即启动了subReactor。</p>
+</blockquote>
+<h4 id="4-2_subReactor:">4.2 subReactor:</h4><p>subReactor的流程较为简单，主体完全依赖于loop，用以执行read、write还有自定义的NioTask操作，就不深入了，直接跳过解释loop过程。</p>
+<p><strong>loop:</strong></p>
+<p>loop是我自己提出来的组件，仅是代表subReactor的主要运行逻辑。例子可以参考NioEventLoop.run()。</p>
+<p>loop会不断循环一个过程：select -&gt; processSelectedKeys(IO操作) -&gt; runAllTasks(非IO操作)，如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (hasTasks()) &#123; <span class="comment">// 如果队列中仍有任务</span></span><br><span class="line">        selectNow();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        select();</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">long</span> ioStartTime = System.nanoTime();  <span class="comment">// 用以控制IO任务与非IO任务的运行时间比</span></span><br><span class="line">      needsToSelectAgain = <span class="keyword">false</span>;</span><br><span class="line">      <span class="comment">// IO任务</span></span><br><span class="line">      <span class="keyword">if</span> (selectedKeys != <span class="keyword">null</span>) &#123;</span><br><span class="line">        processSelectedKeysOptimized(selectedKeys.flip());</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        processSelectedKeysPlain(selector.selectedKeys());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">long</span> ioTime = System.nanoTime() - ioStartTime;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">final</span> <span class="keyword">int</span> ioRatio = <span class="keyword">this</span>.ioRatio;</span><br><span class="line">      <span class="comment">// 非IO任务</span></span><br><span class="line">      runAllTasks(ioTime * (<span class="number">100</span> - ioRatio) / ioRatio);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (isShuttingDown()) &#123;</span><br><span class="line">        closeAll();</span><br><span class="line">        <span class="keyword">if</span> (confirmShutdown()) &#123;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就目前而言，基本上IO任务都会走processSelectedKeysOptimized方法，该方法即代表使用了优化的SelectedKeys。除非采用了比较特殊的JDK实现，基本都会走该方法。</p>
+<blockquote>
+<ol>
+<li>selectedKeys在openSelector()方法中初始化，Netty通过反射修改了Selector的selectedKeys成员和publicSelectedKeys成员。替换成了自己的实现&mdash;&mdash;SelectedSelectionKeySet。</li>
+<li>从OpenJDK 6/7的SelectorImpl中可以看到，selectedKeys和publicSeletedKeys均采用了HashSet实现。HashSet采用HashMap实现，插入需要计算Hash并解决Hash冲突并挂链，而SelectedSelectionKeySet实现使用了双数组，每次插入尾部，扩展策略为double，调用flip()则返回当前数组并切换到另外一个数据。</li>
+<li>ByteBuf中去掉了flip，在这里是否也可以呢？</li>
+</ol>
+</blockquote>
+<p>processSelectedKeysOptimized主要流程如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Object a = k.attachment();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (a <span class="keyword">instanceof</span> AbstractNioChannel) &#123;</span><br><span class="line">  processSelectedKey(k, (AbstractNioChannel) a);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="annotation">@SuppressWarnings</span>(&amp;quot;unchecked&amp;quot;)</span><br><span class="line">  NioTask&lt;SelectableChannel&gt; task = (NioTask&lt;SelectableChannel&gt;) a;</span><br><span class="line">  processSelectedKey(k, task);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在获得attachment后，判断是Channel呢还是其他，其他则是NioTask。找遍代码并没有发现Netty有注册NioTask的行为，同时也没发现NioTask的实现类。只有在NioEventLoop.register方法中有注册NioTask至selector的行为，便判断该行为是由用户调用，可以针对某个Channel注册自己的NioTask。这里就只讲第一个processSelectdKey(k, (AbstractNioChannel) a)，但代码就不贴了。</p>
+<p>和常规的NIO代码类似，processSelectdKey是判断SeletedKeys的readyOps，并做出相应的操作。操作均是unsafe做的。如read可以参考：AbstractNioByteChannel$NioByteUnsafe.read()。IO操作的流程大致都是：</p>
+<ul>
+<li>获得数据</li>
+<li>调用pipeline的方法，<code>fireChannel***</code></li>
+<li>插入任务队列</li>
+</ul>
+<p>执行完所有IO操作后，开始执行非IO任务（runAllTasks）。Netty会控制IO和非IO任务的比例，ioTime * (100 - ioRatio) / ioRatio，默认ioRatio为50。runAllTasks乃是父类SingleThreadExecutor的方法。方法主体很简单，将任务从TaskQueue拎出来，直接调用任务的run方法即可。</p>
+<blockquote>
+<p>   代码调用的是task.run()，而不是task.start()。即是单线程执行所有任务</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">runAllTasks</span><span class="params">(<span class="keyword">long</span> timeoutNanos)</span> </span>&#123;</span><br><span class="line">  fetchFromDelayedQueue();</span><br><span class="line">  Runnable task = pollTask();</span><br><span class="line">  <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 控制时间</span></span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">long</span> deadline = ScheduledFutureTask.nanoTime() + timeoutNanos;</span><br><span class="line">  <span class="keyword">long</span> runTasks = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">long</span> lastExecutionTime;</span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      task.run();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">      logger.warn(&amp;quot;A task raised an exception.&amp;quot;, t);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    runTasks ++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Check timeout every 64 tasks because nanoTime() is relatively expensive.</span></span><br><span class="line">    <span class="comment">// <span class="doctag">XXX:</span> Hard-coded value - will make it configurable if it is really a problem.</span></span><br><span class="line">    <span class="keyword">if</span> ((runTasks &amp; <span class="number">0x3F</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        lastExecutionTime = ScheduledFutureTask.nanoTime();</span><br><span class="line">      <span class="keyword">if</span> (lastExecutionTime &gt;= deadline) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    task = pollTask();</span><br><span class="line">    <span class="keyword">if</span> (task == <span class="keyword">null</span>) &#123;</span><br><span class="line">     lastExecutionTime = ScheduledFutureTask.nanoTime();</span><br><span class="line">     <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.lastExecutionTime = lastExecutionTime;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5、总结">5、总结</h3><p>以上内容从设计和代码层面总结Netty线程模型的大致内容，中间有很多我的不成熟的思考与理解，请朋友轻拍与指正。</p>
+<p>看源码过程中是比较折磨人的。首先得了解你学习东西的业务价值是哪里？即你学了这个之后能用在哪里，只是不考虑场景仅仅为了看代码而看代码比较难以深入理解其内涵；其次，看代码一定一定得从逻辑、结构层面看，从细节层面看只会越陷越深，有种一叶障目不见泰山的感觉；最后，最好是能够将代码逻辑、结构画出来，或者整理出思维导图啥的，可以用以理清思路。前面两篇文章思维道路较为清晰，线程模型的导图有一些但是比较混乱，就不贴出来了，用作自己参考，有兴趣的可以找我要噢。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>前面两篇学习笔记已经说完了<a href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/">ByteBuf</a>和<a href="http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/">Channel和Pipeline</a>，这篇开始讲讲前面欠的债——线程模型（EventLoop和EventExecutor）。</p>]]>
+    
+    </summary>
+    
+      <category term="Netty" scheme="http://hongweiyi.com/tags/Netty/"/>
+    
+      <category term="线程模型" scheme="http://hongweiyi.com/tags/%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Netty 4.x学习笔记 - Channel和Pipeline]]></title>
+    <link href="http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/"/>
+    <id>http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/</id>
+    <published>2014-01-07T09:51:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>Channel概念与java.nio.channel概念一致，用以连接IO设备（socket、文件等）的纽带。Netty 4.x之后的Channel变化较大，官方的唬人的说法是无法通过简单的关键字替换进行迁移。用得较多应该是：ChannelHandler接口重新设计，换了个较为清晰的名字；write不会主动flush。由于笔者3.x、4.x都没用过，所以也无法深入理解版本的变化了。</p>
+<a id="more"></a>
+<blockquote>
+<p>关于channel 4.x的新变化可以参考这里：new and noteworthy: Channel API changes</p>
+</blockquote>
+<h3 id="2、Channel总览">2、Channel总览</h3><center><div style="width: 80%;"><img src="/images/wpid-Channel.png" alt="Netty Channel整体结构思维导图"></div></center>
+
+<p>Channel的IO类型主要有两种：非阻塞IO（NIO）以及阻塞IO（OIO）；数据传输类型有两种：按事件消息传递（Message）以及按字节传递（Byte）；适用方类型也有两种：服务器（ServerSocket）以及客户端（Socket）。还有一些根据传输协议而制定的的Channel，如：UDT、SCTP等。</p>
+<p>Netty按照类型逐层设计相应的类。最底层的为抽象类AbstractChannel，再以此根据IO类型、数据传输类型、适用方类型实现。类图可以一目了然，如下图所示：</p>
+<center><div style="width: 80%;"><img src="/images/wpid-nio-oio.jpg" alt="Netty Channel类图"></div></center>
+
+<h3 id="3、ChannelPipeline实现分析">3、ChannelPipeline实现分析</h3><p>从AbstractChannel分析，它提供了一些IO操作方法，read、write等，Channel仅仅做了一个封装，方法中将参数直接传递给了Channel的Pipeline成员的相应方法。</p>
+<p>Pipeline则是Channel里面非常重要的概念。从数据结构的角度，它是一个双向链表，每个节点均是DefaultChannelHandlerContext对象；从逻辑的角度，它则是netty的逻辑处理链，每个节点均包含一个逻辑处理器（ChannelHandler），用以实现网络通信的编/解码、处理等功能。</p>
+<p>Pipeline的链表上有两种handler，Inbound Handler和Outbound handler。从Netty内部IO线程接读到IO数据，依次经过N个Handler到达最内部的逻辑处理单元，这种称之为Inbound Handler；从Channel发出IO请求，依次经过M个Handler到达Netty内部IO线程，这种称之为Outbound Handler。内部代码实现流程则是：Head -&gt; Tail (Inbound)，Tail -&gt; Head (Outbound)。下图截取自ChannelPipeline的注释中，简单明了：</p>
+<center><div style="width: 60%;"><img src="/images/wpid-Netty-ChannelPipeline-.png" alt="Netty Pipeline"></div></center>
+
+<h3 id="4、逻辑处理器">4、逻辑处理器</h3><p>ChannelPipeline仅仅只是逻辑处理的流程，真正逻辑处理器则是ChannelHandlerInvoker。在获得链表节点后，节点会调用自己的invoker成员执行(invoke)逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">writeAndFlush</span><span class="params">(Object msg, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    DefaultChannelHandlerContext next = findContextOutbound();</span><br><span class="line">    next.invoker.invokeWriteAndFlush(next, msg, promise);</span><br><span class="line">    <span class="keyword">return</span> promise;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在DefaultChannelHandlerInvoker中只有一个成员(executor)，执行逻辑的过程中，Invoker会先判断当前运行线程是否是executor，如果是则直接运行相应方法，不是则启动子线程运行相应方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">invokeWrite</span><span class="params">(ChannelHandlerContext ctx, Object msg, <span class="keyword">boolean</span> flush, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123; <span class="comment">// 判断是否是当前线程</span></span><br><span class="line">        invokeWriteNow(ctx, msg, promise);</span><br><span class="line">        <span class="keyword">if</span> (flush) &#123;</span><br><span class="line">            invokeFlushNow(ctx);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        AbstractChannel channel = (AbstractChannel) ctx.channel();</span><br><span class="line">        <span class="keyword">int</span> size = channel.estimatorHandle().size(msg);</span><br><span class="line">        <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            ChannelOutboundBuffer buffer = channel.unsafe().outboundBuffer();</span><br><span class="line">            <span class="comment">// Check for null as it may be set to null if the channel is closed already</span></span><br><span class="line">            <span class="keyword">if</span> (buffer != <span class="keyword">null</span>) &#123;</span><br><span class="line">                buffer.incrementPendingOutboundBytes(size);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 创建一个新的WriteTask</span></span><br><span class="line">        <span class="comment">// executor.execute(task);</span></span><br><span class="line">        safeExecuteOutbound(WriteTask.newInstance(ctx, msg, size, flush, promise), promise, msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>executor继承自<a href="http://netty.io/4.0/api/io/netty/util/concurrent/EventExecutor.html" target="_blank" rel="external">EventExecutor</a>，同时，该对象实现类一般而言也是实现<a href="http://netty.io/4.0/api/io/netty/channel/EventLoop.html" target="_blank" rel="external">EventLoop</a>接口。EventLoop的实现体现了Netty 4.x的IO线程模型，非常重要，后面再详细解析。</p>
+<h4 id="5、总结">5、总结</h4><p>至此，上面简单总结了Channel以及Pipeline的处理流程。<code>Channel.write -&gt; ChannelPipeline.write -&gt; ChannelHandlerContext.write -&gt; ChannelHandlerInvoker.write -&gt; ChannelHandler.write</code>。在这个过程中，我也是捡简单的、流程性的代码总结，像EventLoop、EventExecutor这种核心部分并没有深入总结，压后再详细解说。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>Channel概念与java.nio.channel概念一致，用以连接IO设备（socket、文件等）的纽带。Netty 4.x之后的Channel变化较大，官方的唬人的说法是无法通过简单的关键字替换进行迁移。用得较多应该是：ChannelHandler接口重新设计，换了个较为清晰的名字；write不会主动flush。由于笔者3.x、4.x都没用过，所以也无法深入理解版本的变化了。</p>]]>
+    
+    </summary>
+    
+      <category term="Netty" scheme="http://hongweiyi.com/tags/Netty/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Netty 4.x学习笔记 - ByteBuf]]></title>
+    <link href="http://hongweiyi.com/2014/01/netty-4-x-bytebuf/"/>
+    <id>http://hongweiyi.com/2014/01/netty-4-x-bytebuf/</id>
+    <published>2014-01-04T16:00:05.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>程序员喜欢说一句话：「不要重复造轮子」，但是程序员又不太会践行这句话。这倒也不是坏事，程序员一般而言看他人代码都不会太爽，这也可能是导致程序员的世界有各式各样的轮子的原因吧。</p>
+<h3 id="2、ByteBuf与Java_NIO_Buffer">2、ByteBuf与Java NIO Buffer</h3><p>ByteBuf则是Java NIO Buffer的新轮子，官方列出了一些ByteBuf的特性：</p>
+<ul>
+<li>需要的话，可以自定义buffer类型；</li>
+<li>通过组合buffer类型，可实现透明的zero-copy；</li>
+<li>提供动态的buffer类型，如StringBuffer一样，容量是按需扩展；</li>
+<li>无需调用flip()方法；</li>
+<li>常常「often」比ByteBuffer快。</li>
+</ul>
+<blockquote>
+<p> 参考地址：<a href="http://docs.jboss.org/netty/3.1/guide/html/architecture.html#d0e1893" target="_blank" rel="external">Rich Buffer Data Structure</a></p>
+</blockquote>
+<h3 id="3、ByteBuf实现类">3、ByteBuf实现类</h3><p>ByteBuf提供了一些较为丰富的实现类，逻辑上主要分为两种：HeapByteBuf和DirectByteBuf，实现机制则分为两种：PooledByteBuf和UnpooledByteBuf，除了这些之外，Netty还实现了一些衍生ByteBuf（DerivedByteBuf），如：ReadOnlyByteBuf、DuplicatedByteBuf以及SlicedByteBuf。</p>
+<p>ByteBuf实现类的类图如下：</p>
+<center><div style="width: 80%;"><img src="/images/bytebuf-diagram.png" alt="Netty ByteBuf类图"></div></center>
+
+<p>HeapByteBuf和DirectByteBuf区别在于Buffer的管理方式：HeapByteBuf由Heap管理，Heap是Java堆的意思，内部实现直接采用byte[] array；DirectByteBuf使用是堆外内存，Direct应是采用Direct I/O之意，内部实现使用java.nio.DirectByteBuffoer。</p>
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-cn-directio/" target="_blank" rel="external">Direct I/O</a></li>
+<li><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/MappedByteBuffer.html" target="_blank" rel="external">DirectByteBuffer</a></li>
+</ul>
+<p>PooledByteBuf和UnpooledByteBuf，UnpooledByteBuf实现就是普通的ByteBuf了，PooledByteBuf是4.x之后的新特性，稍后再说。</p>
+<p>DerivedByteBuf是ByteBuf衍生类，实现采用装饰器模式对原有的ByteBuf进行了一些封装。ReadOnlyByteBuf是某个ByteBuf的只读引用；DuplicatedByteBuf是某个ByteBuf对象的引用；SlicedByteBuf是某个ByteBuf的部分内容。</p>
+<p>SwappedByteBuf和CompositedByteBuf我觉得也算某种程度的衍生类吧，SwappedByteBuf封装了一个ByteBuf对象和ByteOrder对象，实现某个ByteBuf对象序列的逆转；CompositedByteBuf内部实现了一个ByteBuf列表，称之为组合ByteBuf，由于不懂相关的技术业务，无法理解该类的存在意义（官方解释：A user can save bulk memory copy operations using a composite buffer at the cost of relatively expensive random access.）。这两个类从逻辑上似乎完全可以继承于DerivedByteBuf，Trustin大神为啥如此设计呢？</p>
+<h3 id="4、简要的ByteBuf的实现机制">4、简要的ByteBuf的实现机制</h3><center><div style="width: 80%;"><img src="/images/bytebuf-priciple.png" alt="Netty 实现机制"></div></center>
+
+<p>ByteBuf有两个指针，readerIndex和writerIndex，用以控制buffer数组的读写。读逻辑较为简单，不考虑边界的情况下，就是<code>return array[readerIndex++];</code>。这里简要分析一下HeapByteBuf的读逻辑。</p>
+<ol>
+<li>AbstractByteBuf.ensureWritable(minWritableBytes);</li>
+<li>calculateNewCapacity(writerIndex + minWritableBytes)<br>2.1 判断是否超过可写入容量 maxCapacity – writerIndex<br>2.2 超过则抛异常，否则计算新容量 writerIndex + minWritableBytes<br>2.3 判断是否超过设定阈值(4MB)，超过每次增加按阈值(4MB)递增，否则<br>2.4 初始大小为64字节(newCapacity)，新容量超过newCapacity则翻倍，直到newCapacity大于新容量为止<br>2.5 返回Min(newCapacity, maxCapacity);</li>
+<li>UnpooledHeapByteBuf.capacity(newCapacity);<br>3.1 确保可访问，有一个<code>引用计数</code>的机制，引用计数为0，则抛异常(ensureAccessible)<br>3.2 常规操作：判断是否越界<br>3.3 如果newCapacity比原容量大，则直接创建新数组，并设置。否则<br>3.4 如果readerIndex小于新容量，将readable bytes拷贝至新的数组，反之将readerIndex和writerIndex均设置为newCapacity。</li>
+<li>setByte(writerIndex++, value)<br>4.1 确保可访问<br>4.2 设置</li>
+</ol>
+<h3 id="5、ByteBuf特殊机制">5、ByteBuf特殊机制</h3><h4 id="5-1_Pooled">5.1 Pooled</h4><p>4.x开发了Pooled Buffer，实现了一个高性能的buffer池，分配策略则是结合了buddy allocation和slab allocation的jemalloc变种，代码在io.netty.buffer.PoolArena。暂未深入研读。</p>
+<p>官方说提供了以下优势：</p>
+<ul>
+<li>频繁分配、释放buffer时减少了GC压力；</li>
+<li>在初始化新buffer时减少内存带宽消耗（初始化时不可避免的要给buffer数组赋初始值）；</li>
+<li>及时的释放direct buffer。</li>
+</ul>
+<p>当然，官方也说了不保证没有内存泄露，所以默认情况下还是采用的UnpooledByteBufAllocator。5.x还处于beta版，<del>看它的「new and* noteworthy」文档也没说有啥变化，哈哈哈哈，</del>查看最新的<a href="http://netty.io/wiki/new-and-noteworthy-in-5.0.html" target="_blank" rel="external">「new and noteworthy」</a>文档，PooledByteBufAllocator已经设置为默认的Allocator。</p>
+<h4 id="5-2_Reference_Count">5.2 Reference Count</h4><p>ByteBuf的生命周期管理引入了Reference Count的机制，感觉让我回到了CPP时代。可以通过简单的继承SimpleChannelInboundHandler实现自动释放reference count。SimpleChannelInboundHandler的事件方法如下，在消费完毕msg后，可以AutoRelease之：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> release = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (acceptInboundMessage(msg)) &#123;</span><br><span class="line">            <span class="annotation">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">            I imsg = (I) msg;</span><br><span class="line">            messageReceived(ctx, imsg);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            release = <span class="keyword">false</span>;</span><br><span class="line">            ctx.fireChannelRead(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (autoRelease &amp;&amp; release) &#123;</span><br><span class="line">            ReferenceCountUtil.release(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一小节可以单独拎出来和Pooled放在一起深入研读研读，有兴趣的可以先看看官方文档：<a href="http://netty.io/wiki/reference-counted-objects.html" target="_blank" rel="external">Reference counted objects</a></p>
+<h4 id="5-3_Zero_Copy">5.3 Zero Copy</h4><p>Zero-copy与传统意义的<a href="http://en.wikipedia.org/wiki/Zero-copy" target="_blank" rel="external">zero-copy</a>不太一样。传统的zero-copy是IO传输过程中，数据无需中内核态到用户态、用户态到内核态的数据拷贝，减少拷贝次数。而Netty的zero-copy则是完全在用户态，或者说传输层的zero-copy机制，可以参考下图。由于协议传输过程中，通常会有拆包、合并包的过程，一般的做法就是System.arrayCopy了，但是Netty通过ByteBuf.slice以及Unpooled.wrappedBuffer等方法拆分、合并Buffer无需拷贝数据。</p>
+<p>如何实现zero-copy的呢。slice实现就是创建一个SlicedByteBuf对象，将this对象，以及相应的数据指针传入即可，wrappedBuffer实现机制类似。</p>
+<center><div style="width: 70%;"><img src="/images/bytebuf-combine-slice-buffer.png" alt="Netty Bytebuf"></div></center>
+
+<blockquote>
+<p>参考地址：<a href="http://netty.io/3.5/guide/#architecture.5.4" target="_blank" rel="external">Combining and Slicing ChannelBuffers</a></p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>程序员喜欢说一句话：「不要重复造轮子」，但是程序员又不太会践行这句话。这倒也不是坏事，程序员一般而言看他人代码都不会太爽，这也可能是导致程序员的世界有各式各样的轮子的原因吧。</p>
+<h3 id="2、ByteBuf与Java]]>
+    </summary>
+    
+      <category term="Netty" scheme="http://hongweiyi.com/tags/Netty/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[小菜看双11大促]]></title>
+    <link href="http://hongweiyi.com/2013/11/what-i-think-about-1111/"/>
+    <id>http://hongweiyi.com/2013/11/what-i-think-about-1111/</id>
+    <published>2013-11-17T15:49:49.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p><strong>1、前言</strong></p>
+<p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。<br><a id="more"></a>  </p>
+<p>在这过程虽然对于双11相关的开发事宜了解不是很多，但是或多或少有所耳闻，在这里将我的一些心得体会记录下来。</p>
+<p>&#160;</p>
+<p><strong>2、内部机制</strong></p>
+<p>我面向的这个应用的开发流程和普通的应用开发流程基本一致，提前2-3个月开发完毕，开发周期约1个半月。</p>
+<p>开发需要做的<strong>第一件事</strong>：需要与各个关联应用的owner沟通协商，沟通内容大概就是需求是否能够满足；平均TPS/峰值TPS大约多少；如果需要开发周期多长，我负责的主要数据相关的接口，结果是需求暂时无法满足，得重新开发新接口；TPS似乎有点高，得压测后评估新的服务器容量；半个人月开发一周测试。这个结果也还算okay，基本就是时间的问题，与他们协商好新接口以及联调的时间即可自行开发了。</p>
+<p>开发需要做的<strong>第二件事</strong>：具体开发过程大同小异了，开发完毕后需要进行联调以及测试，同时要对新的接口进行压测，压测完毕后才是重点——服务器容量水位评估，用以评估在当前的水平下，需要多少台机器才能够撑得住预估TPS。具体的评估方法在这里就不细说了，阿里技术嘉年华中有篇PPT，就讲了容量水位的评估，《<a href="http://club.alibabatech.org/resource_detail.htm?topicId=81" target="_blank" rel="external">如何利用应用自己的数据来保证系统的稳定</a>》，和我用的类似但不完全相同。</p>
+<p>开发需要做的<strong>第三件事</strong>：联调完毕，压测完毕，机器扩容也完毕。在我这个小菜看来，我的系统就可以发布了，后经运维再三提醒与要求，给接口加上了服务开发，方便在各个活动中进行服务的升降级。公司内部有自己的分布式资源管理组件，可很方便的实现应用开关，基本的实现思路可以看一下这篇博客：《<a href="http://iamzhongyong.iteye.com/blog/1897694" target="_blank" rel="external">java分布式系统开关功能设计</a>》</p>
+<p>由于接的这个项目并非支付宝关键链路上的系统，所以系统优先级会比较低，我上层的应用做的限流机制也比较轻便。业务方会评估我系统的应用容量，配置报警机制，在超过容量阈值的时候报警，同时人工干预进行系统限流。具体的限流实现也较为简单，分布式资源管理系统推送限流概率，比如说0.9，业务则会通过Random过滤掉约为10%的请求，直接抛弃掉，好像也很弱的样子。当然，这是属于应用级的限流，也有系统级的限流，比如淘宝那边的TMD，支付宝这边的SLA，都没有深入了解，如TMD是nginx的一个组件，应该是在接入层做的限流，如限流控制在500TPS，那么第501个请求则直接抛弃。运维方面，在双11前几天也会提前查看机器状态信息，如负载、请求量、日志情况，针对不同的情况作出不同的调整，比如动态给数据库集群增添机器、修改报警阈值等。</p>
+<p>&#160;</p>
+<p><strong>3、后记</strong></p>
+<p>以上便是我这个双11相关工作周边游荡的编外人员所接触到的双11内部机制，无论是理解还是实践都比较肤浅，不过还有机会深入双11核心工作滴，木哈哈哈！</p>
+<p>&#160;</p>
+<blockquote>
+<p>双11前两天我那系统的请求量还是挺可观的，比平常翻了十翻，但是双11当天请求量却掉回解放前。应该是被限流了，不是关键链路上的就是悲惨啊！！！</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><strong>1、前言</strong></p>
+<p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。<br>]]>
+    
+    </summary>
+    
+      <category term="双11" scheme="http://hongweiyi.com/tags/%E5%8F%8C11/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[我的Macbook小记]]></title>
+    <link href="http://hongweiyi.com/2013/11/my-macbook/"/>
+    <id>http://hongweiyi.com/2013/11/my-macbook/</id>
+    <published>2013-11-06T16:14:10.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<p>上上周在淘宝上下单新款macbook pro retina 15寸，定制版，周二也就是昨天收到货，收货的心情确实非常激动。rMBP也是我想了很久的机器了，一直没狠下心来买，这次买也算是脑子一热吧。不过收货中间曲折种种，让我不得不感叹一下了。</p>
+<a id="more"></a>
+<pre><code><span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>自己本身处在这个电商的中心，所以也一直挺支持自己东家的业务，在淘宝上花销多大也算是比较放心，这次&amp;ldquo;大手笔&amp;rdquo;网上消费，<span class="tag">&lt;/<span class="title">span</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>从选店家到仔细思考中间的时间也不过几个小时。选了同事&amp;ldquo;推荐&amp;rdquo;的一个商家，其实这个同事也就是随便选了一家，觉得应该没问题就推荐给我了。店家吧，现在看来确实没啥问题，但是就是拿到的货好像那个啥了点。<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+
+收货的时候直接给我发了裸机+电源+打印发票，收到货的心情是非常激动，但打开货之后，那个心啊！拔凉拔凉的！那种不爽的感觉简直无法用语言形容。不过机器检查了一下，电池循环次数2次，序列号没问题，初步来说应该是好的，所以就简单的找了下店家的麻烦，店家解释似乎也还合理，顺带还补偿了我￥50。谁知，这才是不爽的开始。
+</code></pre><blockquote>
+<p>店家今天给单独把盒子发过来了，看顺丰价格应该是一日达，赞一个！</p>
+</blockquote>
+<pre><code>使用了半天macbook，觉得屏幕有点闪，开始觉得是屏幕太好了，我眼拙。随便动了动电源调了调亮度，感觉似乎好像是没问题了，继续使用着。晚上的时候，回家慢慢研究，研究研究着就不太对劲了：诶，这不应该啊，这闪得还挺带感啊，非常规律啊！好吧，不爽开始了！！！
+
+最初认为是驱动的问题，想着比较新的Intel Iris Pro加上比较新的Mavericks，应该有点不兼容吧，但也没找到新的驱动，在mac下似乎是没有办法证实这个问题了。好吧，那就装个双系统吧，折腾折腾给装了个双系统Win7，在装的过程中，需要烧录系统盘，中间还格盘格错了，格了一个移动硬盘，1T啊，今天恢复了一天都没恢复过来！！！不小心搞走了我1T的数据不说，最后在Win7下的验证结果是：Win7下，屏幕也在闪！<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>而且装机过程中，发现在option选择磁盘的界面中，屏幕也一如既然的闪烁，仿佛这个世界与她没关一样。<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+
+<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>基于以上种种，我这里基本上认为是硬件问题了。不带这么搞的啊，还没摸热就发现硬件出问题了，还是最值钱最漂亮的屏幕！！！<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+
+唉，接下来的流程就比较常规了，电话客服、旺旺店家、游走维修点。客服告之重置SMC的方法，试之无效，请去维修点检测是否硬件有问题；维修点发现问题后，很委婉的告之无能为力，国内没上市，没检测设备也没有更换设备，请送修香港或等国内上市后再来；店家各种&amp;ldquo;呵呵&amp;rdquo;，但也算比较友好，可单程<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"font-size: 13px;"</span>&gt;</span>保价<span class="tag">&lt;/<span class="title">span</span>&gt;</span>包邮送香港检测。
+
+唉，自己也在纠结，送香港的话，店家不上心加上香港方如果直接给拆解再修好，那不如直接等国内上市了。但如果等国内上市，说不定香港又可以包换呢！纠结来纠结去，最后还是听cc的，送香港吧！希望这个小本能有个好的下场。
+
+以上只是这两天的一下杂乱思路的整理，整理了一下发现还是很杂乱。嗯，就这么着吧！
+</code></pre><blockquote>
+<p>苹果官方的服务很不错，第一次享受到&ldquo;预约&rdquo;。&ldquo;嗯，苹果和我预约了明天早上10:30的电话&rdquo;</p>
+<p>这是拿这台Macbook写的，希望这是她的第一次也是最后一次了，换一台吧，别修了！！！</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>上上周在淘宝上下单新款macbook pro retina 15寸，定制版，周二也就是昨天收到货，收货的心情确实非常激动。rMBP也是我想了很久的机器了，一直没狠下心来买，这次买也算是脑子一热吧。不过收货中间曲折种种，让我不得不感叹一下了。</p>]]>
+    
+    </summary>
+    
+      <category term="Apple" scheme="http://hongweiyi.com/tags/Apple/"/>
+    
+      <category term="Macbook" scheme="http://hongweiyi.com/tags/Macbook/"/>
+    
+      <category term="RBMP" scheme="http://hongweiyi.com/tags/RBMP/"/>
+    
+      <category term="生活分享" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[记一次java性能问题定位]]></title>
+    <link href="http://hongweiyi.com/2013/10/once-java-profiling/"/>
+    <id>http://hongweiyi.com/2013/10/once-java-profiling/</id>
+    <published>2013-10-22T15:21:52.000Z</published>
+    <updated>2015-12-29T15:01:45.000Z</updated>
+    <content type="html"><![CDATA[<p><strong>1、前言</strong></p>
+<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。
+
+<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
+
+<span class="strong">**2、定位流程**</span>
+
+<span class="strong">**2.1 定位问题进程**</span>
+
+top命令可以简单定位进程pid，如下：
+
+[<span class="link_label">![Image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image_thumb.png "Image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image.png</span>)
+
+jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。
+
+<span class="strong">**2.2 查看日志**</span>
+
+常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？
+
+<span class="strong">**2.3 定位问题线程**</span>
+
+既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。
+
+[<span class="link_label">![Image(1)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image1_thumb.png "Image(1</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image1.png)
+
+不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。
+
+<span class="strong">**2.4 Thread dump**</span>
+
+拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。
+
+jstack 15195 &amp;gt; jstack.15195.dump
+
+[<span class="link_label">![Image(2)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image2_thumb.png "Image(2</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image2.png)
+
+快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。
+
+通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。
+
+<span class="strong">**2.5 查看gc状态**</span>
+
+jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：
+
+[<span class="link_label">![Image(3)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image3_thumb.png "Image(3</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image3.png)
+
+[<span class="link_label">![Image(4)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image4_thumb.png "Image(4</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image4.png)
+
+短短几分钟，就FGC了28次！初步定位问题为FGC问题。
+</code></pre><blockquote>
+<p>注：用jstat -gcutil $PID $INTERVAL $TIMES查询可能会更直接，我查到这里应用被停止了，就木有现场了。</p>
+</blockquote>
+<pre><code><span class="strong">**3、问题解决**</span>
+
+现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。
+
+CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。
+
+解决方法有两种：1）提高Perm区大小，-XX:PermSize -XX:MaxPermSize，2）关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled。
+
+这里有关于Perm区GC时机的深入且详细的解释，[<span class="link_label">http://rednaxelafx.iteye.com/blog/1108439</span>](<span class="link_url">http://rednaxelafx.iteye.com/blog/1108439</span>)
+</code></pre><blockquote>
+<p>CMS收集器的使用好像有很多很多的优(jiu)化(shi)点(keng)啊！</p>
+<pre><code>还得深入学习实践一下！
+</code></pre></blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><strong>1、前言</strong></p>
+<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下]]>
+    </summary>
+    
+      <category term="JVM" scheme="http://hongweiyi.com/tags/JVM/"/>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+</feed>
