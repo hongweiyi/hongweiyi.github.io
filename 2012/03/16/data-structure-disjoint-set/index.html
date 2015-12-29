@@ -1,0 +1,685 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="数据结构," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、简介**
+在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="趣味数据结构 - 并查集">
+<meta property="og:url" content="http://hongweiyi.com/2012/03/16/data-structure-disjoint-set/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、简介**
+在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002_thumb.jpg">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003_thumb.jpg">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="趣味数据结构 - 并查集">
+<meta name="twitter:description" content="1**、简介**
+在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 趣味数据结构 - 并查集 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              趣味数据结构 - 并查集
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-03-16T22:45:30+08:00" content="2012-03-16">
+            2012-03-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/03/16/data-structure-disjoint-set/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/03/16/data-structure-disjoint-set/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、简介**</p>
+<p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。<br>  <a id="more"></a></p>
+<p>并查集保持了一组不相交的动态集合，每个集合通过一个代表来识别，代表即集合中的某个成员。哪个成员被选中无所谓iwom关心的是如果寻找某一动态集合的代表两次，并且在两次寻找之间不修改集合，两次得到的答案应该是一样的。</p>
+<p><strong>2**</strong>、基本操作**</p>
+<p>它主要涉及两个基本操作，分别为：</p>
+<p><strong>Union-Set(x, y)：</strong>合并两个不相交集合</p>
+<p><strong>Find-Set(x)：</strong>判断两个元素是否属于同一个集合</p>
+<p>还需要另外一个基本操作，即：</p>
+<p><strong>Make-Set(x)：</strong>新建一个集合，唯一的成员也是代表就是x</p>
+<p><strong>3**</strong>、实现方法**</p>
+<p>现有不相交集合：{1, 3, 7}，{4}，{2, 5, 9, 10}，{6, 8}</p>
+<p><strong>1）用编号最小的元素标记所在集合</strong></p>
+<p>{<strong>1</strong>, 3, 7}，{<strong>4</strong>}，{<strong>2</strong>, 5, 9, 10}，{<strong>6</strong>, 8}</p>
+<p><strong>2）定义一个数组set[1…n]，其中set[i]表示元素i所在集合</strong></p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p><strong>3）find操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>find(x):</p>
+<p>&#160;&#160;&#160;&#160; return set[x];<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p><strong>4）Union操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>union(x, y):</p>
+<p>&#160;&#160;&#160; for k in [0, n): // 遍历所有集合，更新其中一个集合的代表</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (set[k] == find(a)):</p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; set[k] := find(b);<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p><strong>4**</strong>、实现分析**</p>
+<p>上面实现很简单，find操作只需要返回其代表即可，时间复杂为O(1)。但是Union操作则需要修改其中一个集合所有的代表，同时由于是用的数组存的，元素为数组的索引，必须要遍历所有元素才可以修改，时间复杂为O(n)。要优化操作，就必须优化数据结构。</p>
+<p>&#160;</p>
+<p><strong>5**</strong>、优化**</p>
+<p><strong>1）链表</strong></p>
+<p>每个集合建立一个链表，有头尾指针，头结点为代表。所有结点都添加了指向代表的指针。</p>
+<p>很容易知道，find操作时间复杂度为O(1)，合并只需要将较小的集合添加到另一个集合的后尾，再更新代表即可，时间复杂度也为O(n)，与数组相比，在时间上优化了一点点。</p>
+<p><strong>2）有根树</strong></p>
+<p>并查集目前最好的实现是用有根树，即建立一个森林，每棵树是一个集合，树根元素就是代表，每个结点存储指向其父亲结点的指针（而不是指向子结点的指针）。</p>
+<p>可执行三种不相交集合操作：</p>
+<p>a. Make-Set：创建一颗仅包含一个结点的树；</p>
+<p>b. Find-Set：查找可以描述为找两个元素各自的根，判断其是否相等。实现中需要沿着父结点指针一直找下去，直到找到树根为止。（时间复杂度O(n)）</p>
+<p>c. Union-Set：并集可以描述为把一棵树接到另一个棵树的根结点上，并更新某颗树的代表。（时间复杂度O(n)）</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003_thumb.jpg" alt="clip_image003" title="clip_image003"></a></p>
+<p>其实这个与链表来说，性能没有本质上的提高。合并也需要更新结点代表，且如果树构造的时候，构造了一颗线性链的树，查找复杂度也提高了。对其进行优化，有两种策略：</p>
+<p><strong>a. **</strong>按秩合并（union by rank）**</p>
+<p>秩（Rank）就是一颗树的结点数，即使包含较少结点的树根指向包含较多结点的树根。</p>
+<p><strong>b. **</strong>路径压缩**</p>
+<p><strong><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005_thumb.jpg" alt="clip_image005" title="clip_image005"></a></strong></p>
+<p>如上图，使查找路径上的每个结点都直接指向根结点。简单而有效。</p>
+<p>&#160;</p>
+<p><strong>6**</strong>、小结**</p>
+<p>在实现中，并查集均是使用有根树结合按秩合并和路径压缩来实现。按秩合并提高了Union-Set操作效率，而路径压缩提高了Find-Set操作效率。</p>
+<p>空间复杂度为O(N)，建立一个集合的时间复杂度为O(1)， N次合并M查找的时间复杂度为O(M Alpha(N))，这里Alpha是Ackerman函数的某个反函数，在很大的范围内（人类目前观测到的宇宙范围估算有10的80次方个原子，这小于前面所说的范围）这个函数的值可以看成是不大于4的，所以并查集的操作可以看作是线性的。具体证明得参加&lt;算法导论&gt;。</p>
+<p>并查集常作为另一种复杂的数据结构或者算法的存储结构。常见的应用有：求无向图的连通分量个数、最近公共祖先（LCA）、最小生成树等。</p>
+<p>&#160;</p>
+<blockquote>
+<p>参考资料：</p>
+<p>&lt;算法导论&gt;，第二十二章</p>
+<p>董的博客：<a href="http://dongxicheng.org/structure/union-find-set/" target="_blank" rel="external">数据结构之并查集</a></p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag">#数据结构</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/03/26/weibo-analysis/" rel="prev">@小e_鸿伟的微博粗分析</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/03/09/data-structure-skiplists/" rel="next">趣味数据结构 - SkipLists</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/03/16/data-structure-disjoint-set/"
+                   data-title="趣味数据结构 - 并查集" data-url="http://hongweiyi.com/2012/03/16/data-structure-disjoint-set/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

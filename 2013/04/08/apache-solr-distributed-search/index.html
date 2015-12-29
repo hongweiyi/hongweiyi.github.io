@@ -1,0 +1,681 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Solr," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1、前言当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。
+Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Solr —— DistributedSearch">
+<meta property="og:url" content="http://hongweiyi.com/2013/04/08/apache-solr-distributed-search/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1、前言当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。
+Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，">
+<meta property="og:updated_time" content="2015-12-29T13:30:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache Solr —— DistributedSearch">
+<meta name="twitter:description" content="1、前言当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。
+Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Apache Solr —— DistributedSearch | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Apache Solr —— DistributedSearch
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-04-08T18:04:00+08:00" content="2013-04-08">
+            2013-04-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/04/08/apache-solr-distributed-search/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/08/apache-solr-distributed-search/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h3 id="1、前言">1、前言</h3><p>当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。</p>
+<p>Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，这个分布式查询内部是怎么实现的呢？</p>
+<a id="more"></a>
+<h3 id="2、机制解析">2、机制解析</h3><p>一个SearchComponent如果作为Distributed SearchComponent，需要重写以下四个方法：</p>
+<ul>
+<li>distributedProcess()</li>
+<li>modifyRequest()</li>
+<li>handleResponses()</li>
+<li>finishStage()</li>
+</ul>
+<p>同时，Distributed Search主要有4个主要阶段：</p>
+<ul>
+<li><strong>Start</strong>(ResponseBuilder.STAGE_START)</li>
+<li><strong>Query Parse</strong>(ResponseBuilder.STAGE_PARSE_QUERY)</li>
+<li><strong>Execute Query</strong>(ResponseBuilder.STAGE_EXECUTE_QUERY)</li>
+<li><strong>Get Fields</strong>(ResponseBuilder.STAGE_GET_FIELDS)</li>
+<li><strong>Done</strong>(ResponseBuilder.STAGE_DONE)。</li>
+</ul>
+<p>在SearchHandler中，基本的<strong>分布式查询算法</strong>如下：</p>
+<h4 id="1-_如果不在STAGE_DONE的阶段，循环以下流程；">1. 如果不在STAGE_DONE的阶段，循环以下流程；</h4><h4 id="2-_发起分布式处理的组件会不断查询是否需要进行分布式处理。如果有的话（distributedProcess），返回4个阶段中一个状态并创建一个_ShardRequest并将它添加到一个队列（rb-outgoing)中；">2. 发起分布式处理的组件会不断查询是否需要进行分布式处理。如果有的话（distributedProcess），返回4个阶段中一个状态并创建一个 ShardRequest并将它添加到一个队列（rb.outgoing)中；</h4><blockquote>
+<p>Components可以指定一些purpose字段，可以定制一些特殊的请求处理。如下：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleResponses</span><span class="params">(ResponseBuilder rb, ShardRequest sreq)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!rb.doFacets )</span><br><span class="line">     <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ((sreq.purpose &amp; ShardRequest.PURPOSE_GET_FACETS) != <span class="number">0</span>) &#123;</span><br><span class="line">     countFacets(rb, sreq);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((sreq.purpose &amp; ShardRequest.PURPOSE_REFINE_FACETS ) != <span class="number">0</span>) &#123;</span><br><span class="line">     refineFacets(rb, sreq);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>modifyRequest()是用来精简shard请求的，该方法都是加在了ResponseBuilder.addRequest()中，实例可以参考FacetComponent.modifyRequest。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addRequest</span><span class="params">(SearchComponent me, ShardRequest sreq)</span> </span>&#123;</span><br><span class="line">  outgoing.add(sreq);</span><br><span class="line">  <span class="keyword">if</span> ((sreq.purpose &amp; ShardRequest.PURPOSE_PRIVATE)==<span class="number">0</span>) &#123;</span><br><span class="line">   <span class="comment">// if this isn't a private request, let other components modify it.</span></span><br><span class="line">   <span class="keyword">for</span> (SearchComponent component : components) &#123;</span><br><span class="line">      <span class="keyword">if</span> (component != me) &#123;</span><br><span class="line">        component.modifyRequest( <span class="keyword">this</span>, me, sreq);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-_取出队列（rb-outgoing)中所有_ShardRequest，并根据其配置将请求发到相应的_Shards；">3. 取出队列（rb.outgoing)中所有 ShardRequest，并根据其配置将请求发到相应的 Shards；</h4><h4 id="4-_如果队列为空，则等待接收到响应，并处理（handleResponse)；">4. 如果队列为空，则等待接收到响应，并处理（handleResponse)；</h4><blockquote>
+<p>你可以合并文档id神马的。QueryComponent.handleResponse</p>
+</blockquote>
+<h4 id="5-_进入下一轮循环之前，先调用finishStage()">5. 进入下一轮循环之前，先调用finishStage()</h4><blockquote>
+<p>进行该轮的收尾工作，比如说将为null的doc从responseDocs中移除。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SearchHandler.handleRequestBody()</span></span><br><span class="line"><span class="keyword">if</span> (rb.shards == <span class="keyword">null</span>) &#123;</span><br><span class="line">  <span class="comment">// a normal non-distributed request</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// a distributed request</span></span><br><span class="line"></span><br><span class="line">  HttpCommComponent comm = <span class="keyword">new</span> HttpCommComponent();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (rb.outgoing == <span class="keyword">null</span> ) &#123;</span><br><span class="line">    rb.outgoing = <span class="keyword">new</span> LinkedList&lt;ShardRequest&gt;();</span><br><span class="line">  &#125;</span><br><span class="line">  rb.finished = <span class="keyword">new</span> ArrayList&lt;ShardRequest&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> nextStage = <span class="number">0</span>;</span><br><span class="line">  do &#123;</span><br><span class="line">    rb.stage = nextStage;</span><br><span class="line">    nextStage = ResponseBuilder.STAGE_DONE;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// call all components</span></span><br><span class="line">    <span class="keyword">for</span>( SearchComponent c : components ) &#123;</span><br><span class="line">      <span class="comment">// the next stage is the minimum of what all components report</span></span><br><span class="line">      nextStage = Math.min(nextStage, c.distributedProcess(rb));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// check the outgoing queue and send requests</span></span><br><span class="line">    <span class="keyword">while</span> (rb.outgoing.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// submit all current request tasks at once</span></span><br><span class="line">      <span class="keyword">while</span> (rb.outgoing.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        ShardRequest sreq = rb.outgoing.remove(<span class="number">0</span>);</span><br><span class="line">        sreq.actualShards = sreq.shards ;</span><br><span class="line">        <span class="keyword">if</span> (sreq.actualShards ==ShardRequest.ALL_SHARDS) &#123;</span><br><span class="line">          sreq.actualShards = rb.shards ;</span><br><span class="line">        &#125;</span><br><span class="line">        sreq.responses = <span class="keyword">new</span> ArrayList&lt;ShardResponse&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> map from shard to address[]</span></span><br><span class="line">        <span class="keyword">for</span> (String shard : sreq.actualShards ) &#123;</span><br><span class="line">          ModifiableSolrParams params = <span class="keyword">new</span> ModifiableSolrParams(sreq.params );</span><br><span class="line">          params.remove(ShardParams.SHARDS);      <span class="comment">// not a top-level request</span></span><br><span class="line">          params.remove( <span class="string">"indent"</span>);</span><br><span class="line">          params.remove(CommonParams.HEADER_ECHO_PARAMS);</span><br><span class="line">          params.set(ShardParams.IS_SHARD, <span class="keyword">true</span> );  <span class="comment">// a sub (shard) request</span></span><br><span class="line">          String shardHandler = req.getParams().get(ShardParams.SHARDS_QT );</span><br><span class="line">          <span class="keyword">if</span> (shardHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">            params.remove(CommonParams.QT);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            params.set(CommonParams.QT, shardHandler);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// You can see CommonsHttpSolrServer.request.</span></span><br><span class="line">          comm.submit(sreq, shard, params);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="comment">// now wait for replies, but if anyone puts more requests on</span></span><br><span class="line">      <span class="comment">// the outgoing queue, send them out immediately (by exiting</span></span><br><span class="line">      <span class="comment">// this loop)</span></span><br><span class="line">      <span class="keyword">while</span> (rb.outgoing.size() == <span class="number">0</span>) &#123;</span><br><span class="line">        ShardResponse srsp = comm.takeCompletedOrError();</span><br><span class="line">        <span class="keyword">if</span> (srsp == <span class="keyword">null</span>) <span class="keyword">break</span>;  <span class="comment">// no more requests to wait for</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Was there an exception?  If so, abort everything and</span></span><br><span class="line">        <span class="comment">// rethrow</span></span><br><span class="line">        <span class="keyword">if</span> (srsp.getException() != <span class="keyword">null</span>) &#123;</span><br><span class="line">          comm.cancelAll();</span><br><span class="line">          <span class="keyword">if</span> (srsp.getException() <span class="keyword">instanceof</span> SolrException) &#123;</span><br><span class="line">            <span class="keyword">throw</span> (SolrException)srsp.getException();</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SolrException(SolrException.ErrorCode.SERVER_ERROR, srsp.getException());</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        rb.finished.add(srsp.getShardRequest());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// let the components see the responses to the request</span></span><br><span class="line">        <span class="keyword">for</span>(SearchComponent c : components ) &#123;</span><br><span class="line">          c.handleResponses(rb, srsp.getShardRequest());</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(SearchComponent c : components) &#123;</span><br><span class="line">        c.finishStage(rb);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we are done when the next stage is MAX_VALUE</span></span><br><span class="line">    <span class="comment">// BTW ResponseBuilder.STAGE_DONE == Integer.MAX_VALUE</span></span><br><span class="line">  &#125; <span class="keyword">while</span> (nextStage != Integer.MAX_VALUE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、其他">3、其他</h3><p>有意思的是，我从Solr 3.5的reference中看到一句这样的话：</p>
+<blockquote>
+<p>It is up to you to get all your documents indexed on each shard of your server farm. Solr does not include out-of-the-box support for distributed indexing, but your method can be as simple as a round robin technique. Just index each document to the next server in the circle.</p>
+<p>Solr本身并不自带分布式的一些机制，索引如何分块还是靠自己写逻辑（如：轮询、hash取模等）。难怪我测试multicore的时候，shards的地址参数还得自己写，这一阶段对于用户来说不是透明的，所谓的分布式查询，也就是每个查询都要访问多台服务器，之后将多台服务器的结果和合并起来，这样看来，对每台服务器的压力来说感觉都是一样的诶（虽然可以不同业务分响应的小集群）。</p>
+</blockquote>
+<p>不知从哪个版本（好像是4.0）推出了Solr Cloud，官方这样介绍的：</p>
+<blockquote>
+<p>SolrCloud is the name of a set of new distributed capabilities in Solr. Passing parameters to enable these capabilities will enable you to set up a highly available, fault tolerant cluster of Solr servers. Use SolrCloud when you want high scale, fault tolerant, distributed indexing and search capabilities.</p>
+</blockquote>
+<p>似乎这样才算是分布式解决方案，嗯，以后再深入看看Solr Cloud Architecture。</p>
+<blockquote>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://wiki.apache.org/solr/SolrCloud" target="_blank" rel="external">SolrCloud</a></li>
+<li><a href="http://wiki.apache.org/solr/WritingDistributedSearchComponents" target="_blank" rel="external">DistributedSearchComponent</a></li>
+</ul>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Solr/" rel="tag">#Solr</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/04/08/apache-solr-data-structrue-part-2/" rel="prev">Apache Solr —— 常用数据结构（二）</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/27/apache-solr-facet-pivot-implementation-tranplant/" rel="next">Apache Solr —— Facet Pivot实现与低版本移植</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/04/08/apache-solr-distributed-search/"
+                   data-title="Apache Solr —— DistributedSearch" data-url="http://hongweiyi.com/2013/04/08/apache-solr-distributed-search/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、前言"><span class="nav-number">1.</span> <span class="nav-text">1、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、机制解析"><span class="nav-number">2.</span> <span class="nav-text">2、机制解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-_如果不在STAGE_DONE的阶段，循环以下流程；"><span class="nav-number">2.1.</span> <span class="nav-text">1. 如果不在STAGE_DONE的阶段，循环以下流程；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-_发起分布式处理的组件会不断查询是否需要进行分布式处理。如果有的话（distributedProcess），返回4个阶段中一个状态并创建一个_ShardRequest并将它添加到一个队列（rb-outgoing)中；"><span class="nav-number">2.2.</span> <span class="nav-text">2. 发起分布式处理的组件会不断查询是否需要进行分布式处理。如果有的话（distributedProcess），返回4个阶段中一个状态并创建一个 ShardRequest并将它添加到一个队列（rb.outgoing)中；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-_取出队列（rb-outgoing)中所有_ShardRequest，并根据其配置将请求发到相应的_Shards；"><span class="nav-number">2.3.</span> <span class="nav-text">3. 取出队列（rb.outgoing)中所有 ShardRequest，并根据其配置将请求发到相应的 Shards；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-_如果队列为空，则等待接收到响应，并处理（handleResponse)；"><span class="nav-number">2.4.</span> <span class="nav-text">4. 如果队列为空，则等待接收到响应，并处理（handleResponse)；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-_进入下一轮循环之前，先调用finishStage()"><span class="nav-number">2.5.</span> <span class="nav-text">5. 进入下一轮循环之前，先调用finishStage()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、其他"><span class="nav-number">3.</span> <span class="nav-text">3、其他</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

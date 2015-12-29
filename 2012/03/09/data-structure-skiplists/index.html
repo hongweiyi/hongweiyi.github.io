@@ -1,0 +1,680 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="数据结构," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、简介**
+给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="趣味数据结构 - SkipLists">
+<meta property="og:url" content="http://hongweiyi.com/2012/03/09/data-structure-skiplists/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、简介**
+给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb4.png">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb5.png">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="趣味数据结构 - SkipLists">
+<meta name="twitter:description" content="1**、简介**
+给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 趣味数据结构 - SkipLists | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              趣味数据结构 - SkipLists
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-03-09T21:13:11+08:00" content="2012-03-09">
+            2012-03-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/03/09/data-structure-skiplists/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/03/09/data-structure-skiplists/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、简介**</p>
+<p>给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。<br>  <a id="more"></a></p>
+<p>说完上面的，来推荐一个有趣的数据结构，可方便实现上面几个要求，那就是SkipLists（跳表）。我们先来看看SkipList作者William Pugh对它的定义吧：</p>
+<blockquote>
+<p><em>Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent algorithms for balanced trees.(1990)</em>  </p>
+</blockquote>
+<p>SkipLists设计出来就是用来取代平衡树的，SkipList依靠随机的思想，从某种程序上实现了平衡，且插入与删除都比较简单。</p>
+<p><strong>2**</strong>、SkipLists思想**</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image4.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb4.png" alt="image" title="image"></a> 我们先来看看上面的有序链表（例子Copy自文献），需要查找一个节点，我们得获得头节点，再依次遍历下去，时间复杂度为O(n)。</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image5.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb5.png" alt="image" title="image"></a> 如果有上面这种结构，每间隔一个节点添加一个额外指针指向下下个节点。那么每次查找先查下下节点，大于继续查找，小于的话，查找下个节点。这样的话，时间复杂度就降到了O(n/2)。</p>
+<p>这基本上就是跳表的核心思想，即通过“空间来换取时间”的一个算法，通过在每个节点中增加了向前的指针，从而提升查找的效率。</p>
+<p><strong>3**</strong>、构造过程**</p>
+<p>1）给定一个有序的链表；</p>
+<p>2）选择链表最上层的最大、最小节点，然后从其它节点中按照一定算法随机选出一些节点，将这些节点组成有序链表。新链表称之为第一层，原链表称之为下一层；</p>
+<p>3）为刚选出的每个节点添加一个指针域，这个指针指向下一层中相应的节点。Top指针指向首层首节点；</p>
+<p>4）重复2、3步，直到不能选选择出除最大最小节点之外的节点。</p>
+<p>如下图：</p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006_thumb.jpg" alt="clip_image006" title="clip_image006"></a></p>
+<p><strong>4**</strong>、结构特征**</p>
+<p>1）一个SkipList应由多个层组成（Level）；</p>
+<p>2）SkipList的最底层包含所有的节点；</p>
+<p>3）每一层都是一个有序链表；</p>
+<p>4）如果节点X出现在第i层，那么所有&lt;i的层都含有X；</p>
+<p>5）Top指向最高层的首节点；</p>
+<p>6）第i层的节点通过down指针指向下一层相应的节点；</p>
+<p>7）每一层均有全局最大最小值。</p>
+<p><strong>5**</strong>、其它**</p>
+<p><strong>1**</strong>）随机算法**</p>
+<p>调用一个随机函数，该函数返回节点会撑到第几层，伪代码如下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>randomLevel()</p>
+<p>&#160;&#160;&#160; lvl := 1</p>
+<p><em>&#160;&#160;&#160; – random</em>() <em>that returns a random value in </em>[0…1)</p>
+<p><strong>&#160;&#160;&#160; while </strong>random() &lt; p <strong>and </strong>lvl &lt; MaxLevel <strong>do</strong></p>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; lvl := lvl + 1</p>
+<p><strong>&#160;&#160;&#160; return </strong>lvl<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p>一般来说，p为0.5，那么能撑到第i的概率为0.5^i。</p>
+<p><strong>2**</strong>）查找**</p>
+<p>SkipLists查找从Top节点开始，如二分查找一样，大于下一节点就继续，小于则跳到下一层。直到找到节点或者到NULL为止。时间复杂度O(logn)。</p>
+<p><strong>3**</strong>）插入**</p>
+<p>插入也用上面的查找，但是每下一层均要记录转下的那个节点，将其存入update中。待找到插入的位置之后，需要在所有下层插入节点，根据update节点更新。</p>
+<p>同时，插入一个元素也需要调用随机算法，判断是否需要更新链表。使用的随机算法和构造时的算法是一致的。时间复杂度O(logn)。</p>
+<p><strong>4**</strong>）删除**</p>
+<p>删除找到之后，就直接删除了，没什么特别的地方。时间复杂度O(logn)。</p>
+<blockquote>
+<p>参考资料：</p>
+<p>William Pugh：<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.85.9211&amp;rep=rep1&amp;type=pdf" target="_blank" rel="external">Skip lists: a probabilistic alternative to balanced trees</a></p>
+<p>跳表：<a href="http://www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html" target="_blank" rel="external">www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html</a></p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag">#数据结构</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/03/16/data-structure-disjoint-set/" rel="prev">趣味数据结构 - 并查集</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/03/07/redis-data-strutrue/" rel="next">Redis五大数据结构</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/03/09/data-structure-skiplists/"
+                   data-title="趣味数据结构 - SkipLists" data-url="http://hongweiyi.com/2012/03/09/data-structure-skiplists/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

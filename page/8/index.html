@@ -1,0 +1,674 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hexo,next" />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="小e的笔记">
+<meta property="og:url" content="http://hongweiyi.com/page/8/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="小e的笔记">
+<meta name="twitter:description">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column 
+   page-home 
+">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+  <section id="posts" class="posts-expand">
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2013/10/22/once-java-profiling/" itemprop="url">
+                记一次java性能问题定位
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-10-22T23:21:52+08:00" content="2013-10-22">
+            2013-10-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/10/22/once-java-profiling/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/10/22/once-java-profiling/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><p><strong>1、前言</strong></p>
+<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。
+
+<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
+
+<span class="strong">**2、定位流程**</span>
+
+<span class="strong">**2.1 定位问题进程**</span>
+
+top命令可以简单定位进程pid，如下：
+
+[<span class="link_label">![Image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image_thumb.png "Image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image.png</span>)
+
+jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。
+
+<span class="strong">**2.2 查看日志**</span>
+
+常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？
+
+<span class="strong">**2.3 定位问题线程**</span>
+
+既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。
+
+[<span class="link_label">![Image(1)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image1_thumb.png "Image(1</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image1.png)
+
+不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。
+
+<span class="strong">**2.4 Thread dump**</span>
+
+拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。
+
+jstack 15195 &amp;gt; jstack.15195.dump
+
+[<span class="link_label">![Image(2)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image2_thumb.png "Image(2</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image2.png)
+
+快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。
+
+通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。
+
+<span class="strong">**2.5 查看gc状态**</span>
+
+jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：
+
+[<span class="link_label">![Image(3)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image3_thumb.png "Image(3</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image3.png)
+
+[<span class="link_label">![Image(4)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image4_thumb.png "Image(4</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image4.png)
+
+短短几分钟，就FGC了28次！初步定位问题为FGC问题。
+</code></pre><blockquote>
+<p>注：用jstat -gcutil $PID $INTERVAL $TIMES查询可能会更直接，我查到这里应用被停止了，就木有现场了。</p>
+</blockquote>
+<pre><code><span class="strong">**3、问题解决**</span>
+
+现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。
+
+CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。
+
+解决方法有两种：1）提高Perm区大小，-XX:PermSize -XX:MaxPermSize，2）关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled。
+
+这里有关于Perm区GC时机的深入且详细的解释，[<span class="link_label">http://rednaxelafx.iteye.com/blog/1108439</span>](<span class="link_url">http://rednaxelafx.iteye.com/blog/1108439</span>)
+</code></pre><blockquote>
+<p>CMS收集器的使用好像有很多很多的优(jiu)化(shi)点(keng)啊！</p>
+<pre><code>还得深入学习实践一下！
+</code></pre></blockquote>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2013/08/31/solr-switch-query-parser/" itemprop="url">
+                Solr Query Parser学习有感
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-08-31T10:55:12+08:00" content="2013-08-31">
+            2013-08-31
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/08/31/solr-switch-query-parser/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/08/31/solr-switch-query-parser/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1、前言</strong></p>
+<pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2013/08/31/solr-switch-query-parser/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2013/05/28/multi-columns-group-by/" itemprop="url">
+                多列group-by及其应用场景
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-05-28T23:31:56+08:00" content="2013-05-28">
+            2013-05-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/05/28/multi-columns-group-by/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/05/28/multi-columns-group-by/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><strong>1、前言</strong></p>
+<p>一直以来都对多列group by没什么感觉，也不知道它到底要干嘛。这篇文章就粗略的讲一下什么是多列groupby，以及它的应用场景简例，没有什么深度，仅作为自己的知识笔记。</p>
+<blockquote>
+<p><strong>BTW: </strong>没感觉应该是因为一直没怎么接触数据库吧，罪过罪过(- -)
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2013/05/28/multi-columns-group-by/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/7/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/9/">&raquo;</a>
+  </nav>
+
+ </div>
+
+        
+
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

@@ -1,0 +1,726 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Solr," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1、什么是Faceted SearchFacet[&amp;#39;fæsɪt]很难翻译，只能靠例子来理解了。Solr作者Yonik Seeley也给出更为直接的名字：导航（Guided Navigation）、参数化查询（Paramatic Search）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Solr —— Facet介绍">
+<meta property="og:url" content="http://hongweiyi.com/2013/03/23/apache-solr-facet-introduction/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1、什么是Faceted SearchFacet[&amp;#39;fæsɪt]很难翻译，只能靠例子来理解了。Solr作者Yonik Seeley也给出更为直接的名字：导航（Guided Navigation）、参数化查询（Paramatic Search）。">
+<meta property="og:image" content="http://hongweiyi.com/images/facet-1.png">
+<meta property="og:updated_time" content="2015-12-29T13:30:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache Solr —— Facet介绍">
+<meta name="twitter:description" content="1、什么是Faceted SearchFacet[&amp;#39;fæsɪt]很难翻译，只能靠例子来理解了。Solr作者Yonik Seeley也给出更为直接的名字：导航（Guided Navigation）、参数化查询（Paramatic Search）。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Apache Solr —— Facet介绍 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Apache Solr —— Facet介绍
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-03-23T14:31:00+08:00" content="2013-03-23">
+            2013-03-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/03/23/apache-solr-facet-introduction/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/03/23/apache-solr-facet-introduction/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h3 id="1、什么是Faceted_Search">1、什么是Faceted Search</h3><p><code>Facet[&#39;fæsɪt]</code>很难翻译，只能靠例子来理解了。Solr作者Yonik Seeley也给出更为直接的名字：导航（Guided Navigation）、参数化查询（Paramatic Search）。</p>
+<a id="more"></a>
+<center><div style="width: 80%;"><img src="/images/facet-1.png" alt="facet-1"></div></center>
+
+<p>上面是比较直接的Faceted Search例子，品牌、产品特征、卖家，均是Facet。而Apple、Lenovo等品牌，就是Facet values或者说Constraints，而Facet values所带的统计值就是Facet count/Constraint count。</p>
+<h3 id="2、Facet使用">2、Facet使用</h3><blockquote>
+<p>q = 超级本<br>facet = true<br>facet.field = 产品特性<br>facet.field = 品牌<br>facet.field = 卖家<br><code>http://.../select?q=超级本&amp;facet=true&amp;wt=json&amp;facet.field=品牌&amp;facet.field=产品特性&amp;facet.field=卖家</code></p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"facet_counts"</span>: &#123;</span><br><span class="line"><span class="string">"facet_fields"</span>: &#123;</span><br><span class="line">  <span class="string">"品牌"</span>: [</span><br><span class="line">    <span class="string">"Apple"</span>, <span class="number">4</span>,</span><br><span class="line">    <span class="string">"Lenovo"</span>, <span class="number">39</span></span><br><span class="line">      …]</span><br><span class="line">  <span class="string">"产品特性"</span>: [</span><br><span class="line">    <span class="string">"显卡"</span>, <span class="number">42</span>,</span><br><span class="line">    <span class="string">"酷睿"</span>, <span class="number">38</span></span><br><span class="line">      …]</span><br><span class="line"></span><br><span class="line">  …&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以提交查询条件，设置fq(filter query)。</p>
+<blockquote>
+<p>q = 电脑<br>facet = true<br>fq = 价格:[8000 TO *]<br>facet.mincount = 1 // fq将不符合的字段过滤后，会显示count为0<br>facet.field = 产品特性<br>facet.field = 品牌<br>facet.field = 卖家</p></blockquote><br>`<a href="http://.../select?q=超级本&amp;facet=true&amp;wt=json&amp;fq=价格:[8000" target="_blank" rel="external">http://.../select?q=超级本&amp;facet=true&amp;wt=json&amp;fq=价格:[8000</a> TO *]&amp;facet.mincount=1&amp;facet.field=品牌&amp;facet.field=产品特性&amp;facet.field=卖家<p></p>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">"facet_counts": &#123;</span><br><span class="line">"facet_fields": &#123;</span><br><span class="line">  "品牌": [</span><br><span class="line">    "Apple", 4,</span><br><span class="line">    "Lenovo", 10</span><br><span class="line">      …]</span><br><span class="line">  "产品特性": [</span><br><span class="line">    "显卡", 11,</span><br><span class="line">    "酷睿", 20</span><br><span class="line">      …]</span><br><span class="line"></span><br><span class="line">  …&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>如果用户选择了Apple这个分类，查询条件中需要添加另外一个fq查询条件，并移除Apple所在的facet.field。</p>
+<blockquote>
+<p><code>http://.../select?q=超级本&amp;facet=true&amp;wt=json&amp;fq=价格:[8000 TO *]&amp;fq=品牌:Apple&amp;facet.mincount=1 &amp;facet.field=产品特性&amp;facet.field=卖家</code></p>
+</blockquote>
+<h3 id="3、Facet参数">3、Facet参数</h3><ul>
+<li><strong>facet.prefix</strong>: 限制constaints的前缀</li>
+<li><strong>facet.mincount=0</strong>: 限制constants count的最小返回值，默认为0</li>
+<li><strong>facet.sort=count</strong>: 排序的方式，根据count或者index</li>
+<li><strong>facet.offset=0</strong>: 表示在当前排序情况下的偏移，可以做分页</li>
+<li><strong>facet.limit=100</strong>: constraints返回的数目</li>
+<li><strong>facet.missing=false</strong>: 是否返回没有值的field</li>
+<li><strong>facet.date</strong>: Deprecated, use facet.range</li>
+<li><strong>facet.query</strong>: 指定一个查询字符串作为Facet Constraint</li>
+</ul>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">facet.query = rank:[* <span class="keyword">TO</span> <span class="number">20</span>]</span><br><span class="line">facet.query = rank:[<span class="number">21</span> <span class="keyword">TO</span> *]</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="title">result</span> <span class="attribute">numFound</span>=<span class="value">"27"</span> <span class="attribute">...</span> /&gt;</span></span><br><span class="line"> ...</span><br><span class="line"> <span class="tag">&lt;<span class="title">lst</span> <span class="attribute">name</span>=<span class="value">"facet_counts"</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="title">lst</span> <span class="attribute">name</span>=<span class="value">"facet_queries"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">int</span> <span class="attribute">name</span>=<span class="value">"rank:[* TO 20]"</span>&gt;</span>2<span class="tag">&lt;/<span class="title">int</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">int</span> <span class="attribute">name</span>=<span class="value">"rank:[21 TO *]"</span>&gt;</span>15<span class="tag">&lt;/<span class="title">int</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">lst</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<ul>
+<li>**facet.range:</li>
+</ul>
+<p><code>http://.../select?&amp;facet=true&amp;facet.range=price&amp;facet.range.start=5000&amp;facet.range.end=8000&amp;facet.range.gap=1000</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">"facet_counts":&#123;</span><br><span class="line"> "facet_ranges":&#123;</span><br><span class="line">   "price":&#123;</span><br><span class="line">     "counts”:[</span><br><span class="line">       "5000.0”,5,</span><br><span class="line">       "6000.0”,2,</span><br><span class="line">       "7000.0”,3,],</span><br><span class="line">     "gap":1000.0,</span><br><span class="line">     "start":5000.0,</span><br><span class="line">     "end":8000.0&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>WARNING:</strong></p>
+<p>range范围是左闭右开，<code>[start, end)</code></p>
+</blockquote>
+<ul>
+<li><strong>facet.pivot</strong></li>
+</ul>
+<p>这个是Solr 4.0的新特性，pivot和facet一样难理解，还是用例子来讲吧。</p>
+<blockquote>
+<p><strong>Syntax:</strong> facet.pivot=field1,field2,field3…<br><strong>e.g.:</strong> facet.pivot=comment_user, grade</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#docs</th>
+<th>#docs grade:好</th>
+<th>#docs 等级:中</th>
+<th>#docs 等级:差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>comment_user:1</td>
+<td>10</td>
+<td>8</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>comment_user:2</td>
+<td>20</td>
+<td>18</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>comment_user:3</td>
+<td>15</td>
+<td>12</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>comment_user:4</td>
+<td>18</td>
+<td>15</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"facet_counts"</span>:&#123;</span><br><span class="line"><span class="string">"facet_pivot"</span>:&#123;</span><br><span class="line"> <span class="string">"comment_user, grade "</span>:[&#123;</span><br><span class="line">   <span class="string">"field"</span>:<span class="string">"comment_user"</span>,</span><br><span class="line">   <span class="string">"value"</span>:<span class="string">"1"</span>,</span><br><span class="line">   <span class="string">"count"</span>:<span class="number">10</span>,</span><br><span class="line">   <span class="string">"pivot"</span>:[&#123;</span><br><span class="line">     <span class="string">"field"</span>:<span class="string">"grade"</span>,</span><br><span class="line">     <span class="string">"value"</span>:<span class="string">"好"</span>,</span><br><span class="line">     <span class="string">"count"</span>:<span class="number">8</span>&#125;, &#123;</span><br><span class="line">     <span class="string">"field"</span>:<span class="string">"grade"</span>,</span><br><span class="line">     <span class="string">"value"</span>:<span class="string">"中"</span>,</span><br><span class="line">     <span class="string">"count"</span>:<span class="number">1</span>&#125;, &#123;</span><br><span class="line">     <span class="string">"field"</span>:<span class="string">"grade"</span>,</span><br><span class="line">     <span class="string">"value"</span>:<span class="string">"差"</span>,</span><br><span class="line">     <span class="string">"count"</span>:<span class="number">1</span>&#125;]</span><br><span class="line">   &#125;, &#123;</span><br><span class="line">     <span class="string">"field"</span>:<span class="string">" comment_user "</span>,</span><br><span class="line">     <span class="string">"value"</span>:<span class="string">"2"</span>,</span><br><span class="line">     <span class="string">"count"</span>:<span class="number">20</span>,</span><br><span class="line">     <span class="string">"pivot"</span>:[&#123;</span><br><span class="line">     ...</span><br></pre></td></tr></table></figure>
+<p>没有pivot机制的话，要做到上面那点可能需要多次查询：</p>
+<blockquote>
+<p><code>http://...q=comment&amp;fq=grade:好&amp;facet=true&amp;facet.field=comment_user</code><br><code>http://...q=comment&amp;fq=grade:中&amp;facet=true&amp;facet.field=comment_user</code><br><code>http://...q=comment&amp;fq=grade:差&amp;facet=true&amp;facet.field=comment_user</code></p>
+<p>Facet.pivot - Computes a Matrix of Constraint Counts across multiple Facet Fields. by Yonik Seeley.<br>上面那个解释很不错，只能理解不能翻译。</p>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://2011.lucene-eurocon.org/attachments/0002/8835/Seeley_Eurocon_SolrFacets_1_.pdf" target="_blank" rel="external">The Many Facets of Apache Solr</a></li>
+<li><a href="http://wiki.apache.org/solr/SimpleFacetParameters" target="_blank" rel="external">SimpleFacetParameters Wiki</a></li>
+</ul>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Solr/" rel="tag">#Solr</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/03/27/apache-solr-facet-pivot-implementation-tranplant/" rel="prev">Apache Solr —— Facet Pivot实现与低版本移植</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/03/21/re-equip-my-little-black/" rel="next">小黑改装流水记</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/03/23/apache-solr-facet-introduction/"
+                   data-title="Apache Solr —— Facet介绍" data-url="http://hongweiyi.com/2013/03/23/apache-solr-facet-introduction/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、什么是Faceted_Search"><span class="nav-number">1.</span> <span class="nav-text">1、什么是Faceted Search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、Facet使用"><span class="nav-number">2.</span> <span class="nav-text">2、Facet使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、Facet参数"><span class="nav-number">3.</span> <span class="nav-text">3、Facet参数</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

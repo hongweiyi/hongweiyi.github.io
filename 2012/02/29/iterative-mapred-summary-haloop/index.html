@@ -1,0 +1,675 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hadoop,Haloop,MapReduce," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、前言**
+前面两篇（一）（二）解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迭代式MapReduce解决方案（三）">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/29/iterative-mapred-summary-haloop/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、前言**
+前面两篇（一）（二）解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb4.jpg">
+<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb3.jpg">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="迭代式MapReduce解决方案（三）">
+<meta name="twitter:description" content="1**、前言**
+前面两篇（一）（二）解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 迭代式MapReduce解决方案（三） | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              迭代式MapReduce解决方案（三）
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-29T23:14:46+08:00" content="2012-02-29">
+            2012-02-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/29/iterative-mapred-summary-haloop/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/29/iterative-mapred-summary-haloop/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、前言**</p>
+<p>前面两篇<a href="http://www.hongweiyi.com/2012/02/mapred-optimize/" target="_blank" rel="external">（一）</a><a href="http://www.hongweiyi.com/2012/02/iterative-mapred-distcache/" target="_blank" rel="external">（二）</a>解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。</p>
+<a id="more"></a>
+<p><strong>2**</strong>、现存框架的缺陷&amp;我的方案**</p>
+<p>Haloop发布的文献中，说了两个缺陷，再加上董的一个，共仨：</p>
+<p>1）动静态数据无法分离，浪费大量资源（磁盘IO，网络带宽，CPU时间），Haloop原文：The first problem is that even though much of the data may be unchanged from iteration to iteration, the data must be re-loaded and re-processed at each iteration, wasting I/O, network bandwidth, and CPU resources。</p>
+<p>我的解决方案：利用分布式缓存来缓存动态数据，可以有效的减少临时数据大小，大量的减少网络带宽压力（10G-&gt;0.25G）。但是，通过我的方案，磁盘IO虽然有所下降，但是仍然有待加强的地方，因磁盘IO主要集中在了map task的read阶段，而在坏的情况下，有可能会从其它node远程读取。Haloop修改了一下这种方式，我待会儿说方法。</p>
+<p>2）没有一个客观的停止迭代的标准，Haloop原文：The second problem is that the termination condition may involve detecting when a fixpoint has been reached。</p>
+<p>我的解决方案：这个方案没有写成博客，因为觉得太普通了。和大多数应用一样，开启一个新的任务，来计算两次迭代之间的差别，Pagerank计算两次迭代过程之间所有页面PR差之和，SSSP计算所有点的状态。但是需要注意的是，由于一个文件就会开启一个map task，所以需要动脑筋思考一下如何“合并”起来。</p>
+<p>3）每次迭代，如果所有task重复重新创建，代价将非常高。怎样重用task以提高效率（task pool）。这个缺陷是<a href="http://dongxicheng.org/mapreduce/iterative-mapreduce-intro/" target="_blank" rel="external">董的博客</a>提出的，这个虽然没有在Haloop中单独提出，但是实现中已经考虑到了。这个在现有框架下，基本是上没可能了，迭代式Mapreduce需要解决的是Job复用的问题，整个task pool就得修改框架了。</p>
+<p><strong>3**</strong>、Haloop解决方案**</p>
+<p><strong><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0024.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb4.jpg" alt="clip_image002" title="clip_image002"></a></strong></p>
+<p><em>Haloop__框架图</em></p>
+<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0043.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb3.jpg" alt="clip_image004" title="clip_image004"></a></p>
+<p><em>Haloop__计算流程图</em></p>
+<p>Haloop进行的改进有：</p>
+<p><strong>1**</strong>）提供了一套新的编程接口，以方便用户进行迭代式程序开发**</p>
+<p>Haloop提供了一些有用的方法，如下：</p>
+<blockquote>
+<p>SetFixedPointThreshold：设置两次迭代的终止条件，即距离差是否达到某一个阈值</p>
+<p>ResultDistance：计算两次距离的方法</p>
+<p>setMaxNumOfIterations：设置迭代次数</p>
+<p>setIterationInput：设置变化的输入数据</p>
+<p>AddInvariantTable：设置不变的输入数据  </p>
+</blockquote>
+<p>有了上面的方法，整个迭代式MR过程很清晰，确实提供了很大的方便。</p>
+<p><strong>2**</strong>） master node（jobtracker）包含一个循环控制模块，它不断的启动map-reduce计算知道满足迭代终止条件**</p>
+<p>从Haloop计算流程图可以看出，Haloop基本实现了job“复用”，只有一个job就可以了，它可以开启多个map/reduce对，而传统的每次迭代过程都需要开启一个job，且一个job只有一个map/reduce对。且迭代终止条件控制在job内部，无需再启新job来计算。</p>
+<p><strong>3**</strong>）设计了新的Task Scheduler，以便更好的利用data locality特性**</p>
+<p>Haloop有一个Loop-aware 任务调度机制。Haloop在首次迭代时会将不变的输入数据保存到相应计算节点上，以后每次调度task，尽量放在固定的那些节点上（locality）。这样，每次迭代，不变的数据就不必重复传输了。</p>
+<p><strong>4**</strong>）数据在各个task tracker会被缓存（cache）和建索引（index）**</p>
+<p>Map task的输入与输出，Reduce task的输出都会被建索引和缓存，以加快数据处理速度。这个部分在论文中占的大量份额，所以我也没有仔细看，整体来说就是和分布式缓存有异曲同工之妙。需要说明的是，缓存是指数据被写到本次磁盘，以供下一轮循环迭代时直接使用，Haloop也并没有完全存入内存，应该是担心内存不够使的。</p>
+<p><strong>4**</strong>、总结**</p>
+<p>迭代式Mapreduce还有待继续研究，按照董的说法，haloop模型抽象还不够高，支持计算模型有限，而现有的解决方案都不是最优的。我所提出的方案只是在不修改源码的情况下，最大限度的优化计算过程，还是不够优！不过Yahoo!要推出下一代的Mapreduce，从它发表的文章来看，解决迭代式问题好似有戏，可以参考这里：<a href="http://developer.yahoo.com/blogs/hadoop/posts/2011/02/mapreduce-nextgen/" target="_blank" rel="external">The Next Generation of Apache Hadoop MapReduce</a>。</p>
+<blockquote>
+<p><strong>参考资料</strong></p>
+<p>1. Haloop主页：<a href="http://code.google.com/p/haloop/" target="_blank" rel="external">http://code.google.com/p/haloop/</a></p>
+<p>2. 董的博客：<a href="http://dongxicheng.org/mapreduce/iterative-mapreduce-intro/" target="_blank" rel="external">http://dongxicheng.org/mapreduce/iterative-mapreduce-intro/</a></p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag">#Hadoop</a>
+          
+            <a href="/tags/Haloop/" rel="tag">#Haloop</a>
+          
+            <a href="/tags/MapReduce/" rel="tag">#MapReduce</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/03/04/java-boxing/" rel="prev">Java装箱/拆箱技术</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/27/hadoop-ipc-server/" rel="next">Hadoop源码 - ipc.Server</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/29/iterative-mapred-summary-haloop/"
+                   data-title="迭代式MapReduce解决方案（三）" data-url="http://hongweiyi.com/2012/02/29/iterative-mapred-summary-haloop/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

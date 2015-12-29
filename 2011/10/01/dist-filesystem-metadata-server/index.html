@@ -1,0 +1,649 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="分布式," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="随着非结构化数据的爆炸，分布式文件系统进入了发展的黄金时期，从高性能计算到数据中心，从数据共享到互联网应用，已经渗透到数据应用的各方各面。对于大多数分布式文件系统(或集群文件系统，或并行文件系统)而言，通常将元数据与数据两者独立开来，即控制流与数据流进行分离，从而获得更高的系统扩展性和I/O并发性。因而，元数据管理模型显得至关重要，直接影响到系统的扩展性、性能、可靠性和稳定性等。存储系统要具有很高">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式文件系统元数据服务器模型">
+<meta property="og:url" content="http://hongweiyi.com/2011/10/01/dist-filesystem-metadata-server/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="随着非结构化数据的爆炸，分布式文件系统进入了发展的黄金时期，从高性能计算到数据中心，从数据共享到互联网应用，已经渗透到数据应用的各方各面。对于大多数分布式文件系统(或集群文件系统，或并行文件系统)而言，通常将元数据与数据两者独立开来，即控制流与数据流进行分离，从而获得更高的系统扩展性和I/O并发性。因而，元数据管理模型显得至关重要，直接影响到系统的扩展性、性能、可靠性和稳定性等。存储系统要具有很高">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式文件系统元数据服务器模型">
+<meta name="twitter:description" content="随着非结构化数据的爆炸，分布式文件系统进入了发展的黄金时期，从高性能计算到数据中心，从数据共享到互联网应用，已经渗透到数据应用的各方各面。对于大多数分布式文件系统(或集群文件系统，或并行文件系统)而言，通常将元数据与数据两者独立开来，即控制流与数据流进行分离，从而获得更高的系统扩展性和I/O并发性。因而，元数据管理模型显得至关重要，直接影响到系统的扩展性、性能、可靠性和稳定性等。存储系统要具有很高">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> 分布式文件系统元数据服务器模型 | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              分布式文件系统元数据服务器模型
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2011-10-01T10:21:35+08:00" content="2011-10-01">
+            2011-10-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2011/10/01/dist-filesystem-metadata-server/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/10/01/dist-filesystem-metadata-server/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>随着非结构化数据的爆炸，分布式文件系统进入了发展的黄金时期，从高性能计算到数据中心，从数据共享到互联网应用，已经渗透到数据应用的各方各面。对于大多数分布式文件系统(或集群文件系统，或并行文件系统)而言，通常将元数据与数据两者独立开来，即控制流与数据流进行分离，从而获得更高的系统扩展性和I/O并发性。因而，元数据管理模型显得至关重要，直接影响到系统的扩展性、性能、可靠性和稳定性等。存储系统要具有很高的Scale-Out特性，最大的挑战之一就是记录数据逻辑与物理位置的映像关系即数据元数据，还包括诸如属性和访问权限等信息。特别是对于海量小文件的应用，元数据问题是个非常大的挑战。总体来说，分布式文件系统的元数据管理方式大致可以分为三种模型，即集中式元数据服务模型、分布式元数据服务模型和无元数据服务模型。在学术界和工业界，这三种模型一直存在争议，各有优势和不足之处，实际系统实现中也难分优劣。实际上，设计出一个能够适用各种数据应用负载的通用分布式文件系统，这种想法本来就是不现实的。从这个意义上看，这三种元数据服务模型都有各自存在的理由，至少是在它适用的数据存储应用领域之内。</p>
+<a id="more"></a>
+<p><strong>集中式元数据服务模型</strong></p>
+<p>分布式文件系统中，数据和I/O访问负载被分散到多个物理独立的存储和计算节点，从而实现系统的高扩展性和高性能。对于一组文件，如果以文件为单位进行调度，则不同的文件会存储在不同的节点上；或者以Stripe方式进行存储，则一个文件会分成多个部分存放在多个节点。显然，我们面临的一个关键问题就是如何确保对数据进行正确定位和访问，元数据服务正是用来解决这个问题的。元数据服务记录数据逻辑名字与物理信息的映射关系，包含文件访问控制所需要的所有元数据，对文件进行访问时，先向元数据服务请求查询对应的元数据，然后通过获得的元数据进行后续的文件读写等I/O操作。</p>
+<p>出于简化系统设计复杂性的考虑，并且由于大量的历史遗留系统等原因，大多数分布式文件系统采用了集中式的元数据服务，如Lustre, PVFS, StorNext, GFS等。集中式元数据服务模型，通常提供一个中央元数据服务器负责元数据的存储和客户端查询请求，它提供统一的文件系统命名空间，并处理名字解析和数据定位等访问控制功能。传统的NAS系统中，I/O数据流需要经过服务器，而分布式文件系统中，I/O数据流不需要经过元数据服务器，由客户端与存储节点直接交互。这个架构上的变革，使得控制流与数据流分离开来，元数据服务器和存储服务器各司其职，系统扩展性和性能上获得了极大的提升。显而易见，集中式元数据服务模型的最大优点就是设计实现简单，本质上相当于设计一个单机应用程序，对外提供网络访问接口即可，如Socket, RPC, HTTP REST或SOAP等。元数据服务设计实现的关键是OPS吞吐量，即单位时间处理的操作数，这对集中式元数据服务模型尤其关键，因为会受到系统Scale-Up方面的限制。为了优化OPS，该模型对CPU、内存、磁盘要求较高，条件允许的情况下尽量使用高性能CPU、大内存和高速磁盘，甚至后端存储可考虑使用高端磁盘阵列或SSD。在软件架构方面设计，应该考虑多进程/线程(池)、异步通信、Cache、事件驱动等实现机制。至于分布式文件系统名字空间的设计实现，请参考“<a href="http://blog.csdn.net/liuben/article/details/5993604" target="_blank" rel="external">分布式文件系统名字空间实现研究</a>”一文，这里不再讨论。实际上，集中式元数据服务模型的缺点同样突出，其中两个最为关键的是性能瓶颈和单点故障问题。</p>
+<p>性能瓶颈，这种模型下元数据服务器在负载不断增大时将很快成为整个系统性能的瓶颈。根据Amdahl定律，系统性能加速比最终受制于串行部分的比重，这决定了系统使用并行手段所能改进性能的潜力。这里，元数据服务器就是串行的部分，它直接决定着系统的扩展规模和性能。文件元数据的基本特性要求它必须同步地进行维护和更新，任何时候对文件数据或元数据进行操作时，都需要同步更新元数据。例如，文件的访问时间，即使是读操作或列目录都需要对它进行更新。客户端访问分布式文件系统时，都需要先与元数据服务器进行交互，这包括命名空间解析、数据定位、访问控制等，然后才直接与存储节点进行I/O交互。随着系统规模不断扩大，存储节点、磁盘数量、文件数量、客户端数据、文件操作数量等都将急剧增加，而运行元数据服务器的物理服务器性能毕竟终究有限，因此集中式元数据服务器将最终成为性能瓶颈。对于众所周知的LOSF(Lots of Small Files)应用，文件数量众多而且文件很小，通常都是几KB至几十KB的小文件，比如CDN和生命科学DNA数据应用，集中式元数据服务模型的性能瓶颈问题更加严重。LOSF应用主要是大量的元数据操作，元数据服务器一旦出现性能问题，直接导致极低的OPS和I/O吞吐量。目前，以这种模型实现的分布式文件系统都不适合LOSF应用，比如Lustre, PVFS, GFS。</p>
+<p>实际上，性能瓶颈问题没有想像中的那么严重，Lustre, StorNext, GFS等在大文件应用下性能极高，StorNext甚至在小文件应该下性能也表现良好。一方面，首先应该尽量避免应用于LOSF，除非对性能要求极低。其次，对于大文件应用，更加强调I/O数据吞吐量，元数据操作所占比例非常小。文件很大时，元数据数量将显著降低，而且系统更多时间是在进行数据传输，元数据服务器压力大幅下降。这种情形下，基本上不存在性能瓶颈问题了。再者，如果出现性能瓶颈问题，在系统可以承载的最大负载前提下，可以对元数据服务器进行性能优化。优化最为直接的方法是升级硬件，比如CPU、内存、存储、网络，摩尔定律目前仍然是有效的。系统级优化通常也是有效的，包括OS裁剪和参数优化，这方面有很大提升空间。元数据服务器设计本身的优化才是最为关键的，它可以帮助用户节约成本、简化维护和管理，优化的方法主要包括数据局部性、Cache、异步I/O等，旨在提高并发性、减少磁盘I/O访问、降低请求处理时间。因此，在非常多的数据应用下，集中式元数据服务器的性能并不是大问题，或者通过性能优化可以解决的。</p>
+<p>单点故障(SPOF，Single Point of Failure)，这个问题看上去要比性能瓶颈更加严重。整个系统严重依赖于元数据服务器，一旦出现问题，系统将变得完全不可用，直接导致应用 中断并影响业务连续性。物理服务器所涉及的网络、计算和存储部件以及软件都有可能发生故障，因此单点故障问题潜在的，采用更优的硬件和软件只能降低发生的概率而无法避免。目前，SPOF问题主要是采用HA机制来解决，根据可用性要求的高低，镜像一个或多个元数据服务器(逻辑的或物理的均可)，构成一个元数据服务HA集群。集群中一台作为主元数据服务器，接受和处理来自客户端的请求，并与其他服务器保持同步。当主元数据服务器发生问题时，自动选择一台可用服务器作为新的主服务器，这一过程对上层应用是透明的，不会产生业务中断。HA机制能够解决SPOF问题，但同时增加了成本开销，只有主服务器是活动的，其他服务器均处于非活动状态，对性能提升没有任何帮助。</p>
+<p><strong>分布式元数据服务模型</strong></p>
+<p>自然地有人提出了分布式元数据服务模型，顾名思义就是使用多台服务器构成集群协同为分布式文件系统提供元数据服务，从而消除集中式元数据服务模型的性能瓶颈和单点故障问题。这种模型可以细分为两类，一为全对等模式，即集群中的每个元数据服务器是完全对等的，每个都可以独立对外提供元数据服务，然后集群内部进行元数据同步，保持数据一致性，比如ISILON、LoongStore、CZSS等。另一类为全分布模式，集群中的每个元数据服务器负责部分元数据服务(分区可以重叠)，共同构成完整的元数据服务，比如PanFS, GPFS, Ceph等。分布式元数据服务模型，将负载分散到多台服务器解决了性能瓶颈问题，利用对等的服务器或冗余元数据服务分区解决了单点故障问题。分布式看似非常完善，然而它大大增加了设计实现上的复杂性，同时可能会引入了新的问题，即性能开销和数据一致性问题。</p>
+<p>性能开销，分布式系统通常会引由于节点之间的数据同步而引入额外开销，这是因为同步过程中需要使用各种锁和同步机制，以保证数据一致性。如果节点同步问题处理不当，性能开销将对系统扩展性和性能产生较大影响，和集中式元数据模型一样形成性能瓶颈，这就对分布式元数据服务器的设计提出了更高的要求。这种性能开销会抵消一部分采用分布式所带来的性能提升，而且随着元数据服务器数量、文件数量、文件操作、存储系统规模、磁盘数量、文件大小变小、I/O操作随机性等增加而加剧。另外，元数据服务器规模较大时，高并发性元数据访问会导致同步性能开销更加显著。目前，一些分布式文件系统采用高性能网络(如InfiniBand, GibE等)、SSD固态硬盘或SAN磁盘阵列、分布式共享内存(SMP或ccNUMA)等技术进行集群内部的元数据同步和通信。这的确可以明显提高系统性能以抵消同步开销，不过成本方面也徒然增加许多。</p>
+<p>数据一致性，这是分布式系统必须面对的难题。分布式元数据服务模型同样面临潜在的系统发生错误的风险，虽然一部分元数据节点发生故障不会致使整个系统宕机，但却可能影响整个系统正常运行或出现访问错误。为了保证高可用性，元数据会被复制到多个节点位置，维护多个副本之间的同步具有很高的风险。如果元数据没有及时同步或者遭受意外破坏，同一个文件的元数据就会出现不一致，从而导致访问文件数据的不一致，直接影响到上层数据应用的正确性。这种风险发生的概率随着系统规模的扩大而大幅增加，因此分布式元数据的同步和并发访问是个巨大的挑战。使用同步方法对元数据进行同步，再结合事务或日志，自然可以解决数据一致性问题，然而这大大降低了系统的并发性，违背了分布式系统的设计初衷。在保证元数据一致性的前提下，尽可能地提高并发性，这就对同步机制和算法设计方面提出了严格要求，复杂性和挑战性不言而喻。</p>
+<p><strong>无元数据服务模型</strong></p>
+<p>既然集中式或分布式元数据服务模型都不能彻底地解决问题，那么直接去掉元数据服务器，是否就可以避免这些问题呢？理论上，无元数据服务模型是完全可行的，寻找到元数据查询定位的替代方法即可。理想情况下，这种模型消除了元数据的性能瓶颈、单点故障、数据一致性等一系列相关问题，系统扩展性显著提高，系统并发性和性能将实现线性扩展增长。目前，基于无元数据服务模型的分布式文件系统可谓凤毛麟角，Glusterfs是其中最为典型的代表。</p>
+<p>对于分布式系统而言，元数据处理是决定系统扩展性、性能以及稳定性的关键。GlusterFS另辟蹊径，彻底摒弃了元数据服务，使用弹性哈希算法代替传统分布式文件系统中的集中或分布式元数据服务。这根本性解决了元数据这一难题，从而获得了接近线性的高扩展性，同时也提高了系统性能和可靠性。GlusterFS使用算法进行数据定位，集群中的任何服务器和客户端只需根据路径和文件名就可以对数据进行定位和读写访问。换句话说，GlusterFS不需要将元数据与数据进行分离，因为文件定位可独立并行化进行。GlusterFS独特地采用无元数据服务的设计，取而代之使用算法来定位文件，元数据和数据没有分离而是一起存储。集群中的所有存储系统服务器都可以智能地对文件数据分片进行定位，仅仅根据文件名和路径并运用算法即可，而不需要查询索引或者其他服务器。这使得数据访问完全并行化，从而实现真正的线性性能扩展。无元数据服务器极大提高了GlusterFS的性能、可靠性和稳定性。(Glusterfs更深入地分析请参考“<a href="http://blog.csdn.net/liuben/article/details/6284551" target="_blank" rel="external">Glusterfs集群文件系统研究</a>”一文)。</p>
+<p>无元数据服务器设计的好处是没有单点故障和性能瓶颈问题，可提高系统扩展性、性能、可靠性和稳定性。对于海量小文件应用，这种设计能够有效解决元数据的难点问题。它的负面影响是，数据一致问题更加复杂，文件目录遍历操作效率低下，缺乏全局监控管理功能。同时也导致客户端承担了更多的职能，比如文件定位、名字空间缓存、逻辑卷视图维护等等，这些都增加了客户端的负载，占用相当的CPU和内存。</p>
+<p><strong>三种元数据服务模型比较</strong></p>
+<p>对Scale-Out存储系统而言，最大的挑战之一就是记录数据逻辑与物理位置的映像关系，即数据元数据。传统分布式存储系统使用集中式或布式元数据服务来维护元数据，集中式元数据服务会导致单点故障和性能瓶颈问题，而分布式元数据服务存在性能开销、元数据同步一致性和设计复杂性等问题。无元数据服务模型，消除了元数据访问问题，但同时增加了数据本身管理的复杂性，缺乏全局监控管理功能，并增加了客户端的负载。由此可见，这三种模型都不是完美的，分别有各自的优点和不足，没有绝对的优劣与好坏之分，实际选型要根据具体情况选择合适的模型，并想方设法完善其不足之处，从而提高分布式文件系统的扩展性、高性能、可用性等特性。集中式元数据服务模型的代表是Lustre, StorNext, GFS等，分布式元数据服务模型的典型案例有ISILON, GPFS, Ceph等，Glustrefs是无元数据服务模型的经典。以上这些都是非常强大的分布式文件系统，它们是非常好的设计典范。这也足以说明，架构固然非常关键，但具体实现技术却往往决定最后的结局。</p>
+<p><strong>补充阅读</strong><br>[1] Ceph, <a href="http://www.ibm.com/developerworks/cn/linux/l-ceph/index.html?ca=drs-" target="_blank" rel="external">http://www.ibm.com/developerworks/cn/linux/l-ceph/index.html?ca=drs-</a><br>[2] Glusterfs, <a href="http://blog.csdn.net/liuben/article/details/6284551" target="_blank" rel="external">http://blog.csdn.net/liuben/article/details/6284551</a><br>[3] 集群NAS技术架构，<a href="http://blog.csdn.net/liuben/article/details/6422700" target="_blank" rel="external">http://blog.csdn.net/liuben/article/details/6422700</a></p>
+<blockquote>
+<p><strong>转载：</strong><a href="http://blog.csdn.net/liuben/article/details/6749188" target="_blank" rel="external"><strong>刘爱贵的专栏</strong></a></p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag">#分布式</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2011/11/12/hello-sae/" rel="prev">Sina APP Engine初试</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2011/09/01/single-lens-paraxonic/" rel="next">单反相机与旁轴相机分别是什么</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2011/10/01/dist-filesystem-metadata-server/"
+                   data-title="分布式文件系统元数据服务器模型" data-url="http://hongweiyi.com/2011/10/01/dist-filesystem-metadata-server/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>

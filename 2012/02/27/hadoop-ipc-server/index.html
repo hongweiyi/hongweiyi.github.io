@@ -1,0 +1,884 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="Hadoop,RPC," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="1**、前言**
+昨天分析了ipc包下的RPC、Client类，今天来分析下ipc.Server。Server类因为是Hadoop自己使用，所以代码结构以及流程都很清晰，可以清楚的看到实例化、停止、运行等过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop源码 - ipc.Server">
+<meta property="og:url" content="http://hongweiyi.com/2012/02/27/hadoop-ipc-server/index.html">
+<meta property="og:site_name" content="小e的笔记">
+<meta property="og:description" content="1**、前言**
+昨天分析了ipc包下的RPC、Client类，今天来分析下ipc.Server。Server类因为是Hadoop自己使用，所以代码结构以及流程都很清晰，可以清楚的看到实例化、停止、运行等过程。">
+<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hadoop源码 - ipc.Server">
+<meta name="twitter:description" content="1**、前言**
+昨天分析了ipc包下的RPC、Client类，今天来分析下ipc.Server。Server类因为是Hadoop自己使用，所以代码结构以及流程都很清晰，可以清楚的看到实例化、停止、运行等过程。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+  <title> Hadoop源码 - ipc.Server | 小e的笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-66911097-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">小e的笔记</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Hadoop源码 - ipc.Server
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2012-02-27T12:57:25+08:00" content="2012-02-27">
+            2012-02-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2012/02/27/hadoop-ipc-server/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2012/02/27/hadoop-ipc-server/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>1**</strong>、前言**</p>
+<p>昨天分析了ipc包下的RPC、Client类，今天来分析下ipc.Server。Server类因为是Hadoop自己使用，所以代码结构以及流程都很清晰，可以清楚的看到实例化、停止、运行等过程。</p>
+<a id="more"></a>
+<p><strong>2**</strong>、Server类结构**</p>
+<p>上面是Server的五个内部类，分别介绍一下：</p>
+<p><strong>1**</strong>）Call**</p>
+<p>用以存储客户端发来的请求，这个请求会放入一个BlockQueue中；</p>
+<p><strong>2**</strong>）Listener**</p>
+<p>监听类，用以监听客户端发来的请求。同时Listener下面还有一个静态类，Listener.Reader，当监听器监听到用户请求，便用让Reader读取用户请求。</p>
+<p><strong>3**</strong>）Responder**</p>
+<p>响应RPC请求类，请求处理完毕，由Responder发送给请求客户端。</p>
+<p><strong>4**</strong>）Connection**</p>
+<p>连接类，真正的客户端请求读取逻辑在这个类中。</p>
+<p><strong>5**</strong>）Handler**</p>
+<p>请求（blockQueueCall）处理类，会循环阻塞读取callQueue中的call对象，并对其进行操作。</p>
+<p><strong>3**</strong>、Server初始化**</p>
+<p>第一篇<a href="http://www.hongweiyi.com/2012/02/hadoop-ipc-rpc/" target="_blank" rel="external">博客</a>说了，Server的初始化入口在RPC.getServer中，getServer其实是调用的RPC.Server静态类中的构造方法，我们看看Namenode创建RPCServer的方法和RPC.Server构造方法代码：     <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">private</span><span>&#160;</span><span class="keyword">void</span><span> initialize(Configuration conf) </span><span class="keyword">throws</span><span> IOException {&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.serviceRpcServer = RPC.getServer(</span><span class="keyword">this</span><span>, dnSocketAddr.getHostName(),&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; dnSocketAddr.getPort(), serviceHandlerCount,&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">false</span><span>, conf, namesystem.getDelegationTokenSecretManager());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.serviceRpcServer.start(); </span><span class="comment">// 运行服务器 </span><span>&#160; </span></li>
+<li><p><span>}&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="keyword">public</span><span> Server(Object instance, Configuration conf, String bindAddress,&#160; </span><span class="keyword">int</span><span> port,&#160;&#160; </span></span></p>
+</li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> numHandlers, </span><span class="keyword">boolean</span><span> verbose,&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; SecretManager&lt;? </span><span class="keyword">extends</span><span> TokenIdentifier&gt; secretManager)&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">throws</span><span> IOException {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">super</span><span>(bindAddress, port, Invocation.</span><span class="keyword">class</span><span>, numHandlers, conf,&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; classNameBase(instance.getClass().getName()), secretManager);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.instance = instance;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.verbose = verbose;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span>                       <p><pre><code><span class="tag">&lt;/td&gt;</span>       <span class="tag">&lt;/tr&gt;</span>     <span class="tag">&lt;/tbody&gt;</span><span class="tag">&lt;/table&gt;</span> <span class="tag">&lt;/p&gt;</span>  
+</code></pre></p></li>
+</ol>
+<p>该方法调用了父类的构造方法，如下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">protected</span><span> Server(String bindAddress, </span><span class="keyword">int</span><span> port,&#160;&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Class&lt;? </span><span class="keyword">extends</span><span> Writable&gt; paramClass, </span><span class="keyword">int</span><span> handlerCount,&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Configuration conf, String serverName, SecretManager&lt;? </span><span class="keyword">extends</span><span> TokenIdentifier&gt; secretManager)&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">throws</span><span> IOException {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.bindAddress = bindAddress;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.conf = conf;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.port = port;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.paramClass = paramClass;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.handlerCount = handlerCount;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.socketSendBufferSize = </span><span class="number">0</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.maxQueueSize = handlerCount * conf.getInt(&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IPC_SERVER_HANDLER_QUEUE_SIZE_KEY,&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IPC_SERVER_HANDLER_QUEUE_SIZE_DEFAULT);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.maxRespSize = conf.getInt(IPC_SERVER_RPC_MAX_RESPONSE_SIZE_KEY,&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IPC_SERVER_RPC_MAX_RESPONSE_SIZE_DEFAULT);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.readThreads = conf.getInt(&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; IPC_SERVER_RPC_READ_THREADS_KEY,&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; IPC_SERVER_RPC_READ_THREADS_DEFAULT);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.callQueue&#160; = </span><span class="keyword">new</span><span> LinkedBlockingQueue&lt;Call&gt;(maxQueueSize);&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.maxIdleTime = </span><span class="number">2</span><span>*conf.getInt(</span><span class="string">&quot;ipc.client.connection.maxidletime&quot;</span><span>, </span><span class="number">1000</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.maxConnectionsToNuke = conf.getInt(</span><span class="string">&quot;ipc.client.kill.max&quot;</span><span>, </span><span class="number">10</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.thresholdIdleConnections = conf.getInt(</span><span class="string">&quot;ipc.client.idlethreshold&quot;</span><span>, </span><span class="number">4000</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.secretManager = (SecretManager&lt;TokenIdentifier&gt;) secretManager;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.authorize =&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; conf.getBoolean(HADOOP_SECURITY_AUTHORIZATION, </span><span class="keyword">false</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.isSecurityEnabled = UserGroupInformation.isSecurityEnabled();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="comment">// Start the listener here and let it bind to the port </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160; listener = </span><span class="keyword">new</span><span> Listener();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.port = listener.getAddress().getPort();&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.rpcMetrics = RpcInstrumentation.create(serverName, </span><span class="keyword">this</span><span>.port);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">this</span><span>.tcpNoDelay = conf.getBoolean(</span><span class="string">&quot;ipc.server.tcpnodelay&quot;</span><span>, </span><span class="keyword">false</span><span>);&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="comment">// Create the responder here </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160; responder = </span><span class="keyword">new</span><span> Responder();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">if</span><span> (isSecurityEnabled) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; SaslRpcServer.init(conf);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span>                                 </li>
+</ol>
+<p>不难看出，父类的构造方法就初始化了一些配置和变量。</p>
+<p><strong>4、Server运行</strong></p>
+<p>在上面第一段代码中，还有一句RpcServer.start()的方法，在调用构造函数初始化一些变量之后，Server就可以正式运行起来了：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">public</span><span>&#160;</span><span class="keyword">synchronized</span><span>&#160;</span><span class="keyword">void</span><span> start() {&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160; responder.start();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; listener.start();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; handlers = </span><span class="keyword">new</span><span> Handler[handlerCount];&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; </span><span class="keyword">for</span><span> (</span><span class="keyword">int</span><span> i = </span><span class="number">0</span><span>; i &lt; handlerCount; i++) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; handlers[i] = </span><span class="keyword">new</span><span> Handler(i);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; handlers[i].start();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160; }&#160;&#160; </span>                                 </li>
+</ol>
+<p>responder、listener、handlers三个对象的线程均阻塞了，前两个阻塞在selector.select()方法上，handler阻塞在callQueue.take()方法，都在等待客户端请求。Responder设置了超时时间，为15分钟。而listener还开启了Reader线程，该线程也阻塞了。</p>
+<p><strong>4、Server接受请求流程</strong></p>
+<p><strong>1**</strong>）监听到请求**</p>
+<p>Listener监听到请求，获得所有请求的SelectionKey，执行doAccept(key)方法，该方法将所有的连接对象放入list中，并将connection对象与key绑定，以供reader使用。初始化玩所有的conne对象之后，就可以激活Reader线程了。    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">void</span><span> doAccept(SelectionKey key) </span><span class="keyword">throws</span><span> IOException,&#160; OutOfMemoryError {&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; Connection c = </span><span class="keyword">null</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; ServerSocketChannel server = (ServerSocketChannel) key.channel();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; SocketChannel channel;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">while</span><span> ((channel = server.accept()) != </span><span class="keyword">null</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; channel.configureBlocking(</span><span class="keyword">false</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; channel.socket().setTcpNoDelay(tcpNoDelay);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; Reader reader = getReader();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; reader.startAdd();&#160; </span><span class="comment">// 激活readSelector，设置adding为true </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; SelectionKey readKey = reader.registerChannel(channel);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; c = </span><span class="keyword">new</span><span> Connection(readKey, channel, System.currentTimeMillis());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; readKey.attach(c);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">synchronized</span><span> (connectionList) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; connectionList.add(numConnections, c);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; numConnections++;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">finally</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; reader.finishAdd(); </span><span class="comment">// add完毕，设置adding为false，Reader开始工作 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>}&#160;&#160; </span>                                 </li>
+</ol>
+<p><strong>2**</strong>）接收请求**</p>
+<p>Reader的run方法和Listener基本一致，也是获得所有的SelectionKey，再执行doRead(key)方法。该方法获得key中绑定的connection，并执行conection的readAndProcess()方法：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">void</span><span> doRead(SelectionKey key) </span><span class="keyword">throws</span><span> InterruptedException {&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> count = </span><span class="number">0</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; Connection c = (Connection)key.attachment(); </span><span class="comment">// 获得连接对象 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (c == </span><span class="keyword">null</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span>;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; c.setLastContact(System.currentTimeMillis());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; count = c.readAndProcess(); </span><span class="comment">// 接受并处理请求 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">catch</span><span> (InterruptedException ieo) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (count &lt; </span><span class="number">0</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; closeConnection(c);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; c = </span><span class="keyword">null</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">else</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; c.setLastContact(System.currentTimeMillis());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
+</li>
+<li><p><span><span class="keyword">public</span><span>&#160;</span><span class="keyword">int</span><span> readAndProcess() </span><span class="keyword">throws</span><span> IOException, InterruptedException {&#160;&#160; </span></span></p>
+</li>
+<li><span></span><span class="comment">// 一次最多读取一次RPC请求，如果头没读完，继续迭代直到 </span><span>&#160; </span></li>
+<li><span></span><span class="comment">// 读完所有请求数据&#160;&#160; </span><span>&#160; </span></li>
+<li><span></span><span class="keyword">while</span><span> (</span><span class="keyword">true</span><span>) {&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> count = -</span><span class="number">1</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (dataLengthBuffer.remaining() &gt; </span><span class="number">0</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; count = channelRead(channel, dataLengthBuffer);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (!rpcHeaderRead) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">//读取请求头. </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (rpcHeaderBuffer == </span><span class="keyword">null</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; rpcHeaderBuffer = ByteBuffer.allocate(</span><span class="number">2</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; count = channelRead(channel, rpcHeaderBuffer);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (count &lt; </span><span class="number">0</span><span> || rpcHeaderBuffer.remaining() &gt; </span><span class="number">0</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> count;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 读取请求版本号 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> version = rpcHeaderBuffer.get(</span><span class="number">0</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">byte</span><span>[] method = </span><span class="keyword">new</span><span>&#160;</span><span class="keyword">byte</span><span>[] {rpcHeaderBuffer.get(</span><span class="number">1</span><span>)};&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; authMethod = AuthMethod.read(</span><span class="keyword">new</span><span> DataInputStream(&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">new</span><span> ByteArrayInputStream(method)));&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; dataLengthBuffer.flip();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; dataLengthBuffer.clear();&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; rpcHeaderBuffer = </span><span class="keyword">null</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; rpcHeaderRead = </span><span class="keyword">true</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">continue</span><span>;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; data = ByteBuffer.allocate(dataLength);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 读取请求 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; count = channelRead(channel, data);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (data.remaining() == </span><span class="number">0</span><span>) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (useSasl) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; saslReadAndProcess(data.array());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">else</span><span> {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 执行RPC请求，先解析header请求，下次循环解析param请求 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; processOneRpc(data.array());&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> count;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span>                                 </li>
+</ol>
+<p><strong>3**</strong>）获得call请求**</p>
+<p>在Connection中解析param请求中，解析了请求数据，并构造Call对象，将其加入callQueue。    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">private</span><span>&#160;</span><span class="keyword">void</span><span> processData(</span><span class="keyword">byte</span><span>[] buf) </span><span class="keyword">throws</span><span>&#160; IOException, InterruptedException {&#160;&#160; </span></span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; DataInputStream dis =&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">new</span><span> DataInputStream(</span><span class="keyword">new</span><span> ByteArrayInputStream(buf));&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> id = dis.readInt();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 读取请求id </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; Writable param = ReflectionUtils.newInstance(paramClass, conf);</span><span class="comment">// 获取参数，paramClass是参数的实体类，在构造Server对象的时候传入 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; param.readFields(dis);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; Call call = </span><span class="keyword">new</span><span> Call(id, param, </span><span class="keyword">this</span><span>);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; callQueue.put(call);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 添加进阻塞队列，不过队列有max限制，有可能也会阻塞 </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160; incRpcCount();&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160; }&#160;&#160; </span>                                 </li>
+</ol>
+<p><strong>4**</strong>）处理call对象**</p>
+<p>Connection给callQueue添加了call对象，阻塞的Handler可以继续运行了，拿出一个call对象，并调用RPC.Call方法    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="comment">// 关键代码 </span><span>&#160; </span></span></li>
+<li><span></span><span class="keyword">while</span><span> (running) {&#160;&#160; </span></li>
+<li><span></span><span class="keyword">final</span><span> Call call = callQueue.take(); </span><span class="comment">// 弹出call对象 </span><span>&#160; </span></li>
+<li><span>CurCall.set(call);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; value = call(call.connection.protocol, call.param,&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.timestamp); </span><span class="comment">// 调用RPC.Server中的call </span><span>&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; CurCall.set(</span><span class="keyword">null</span><span>);&#160;&#160; </span></li>
+<li><span>&#160; </span></li>
+<li><span></span><span class="keyword">synchronized</span><span> (call.connection.responseQueue) {&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; setupResponse(buf, call,&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; (error == </span><span class="keyword">null</span><span>) ? Status.SUCCESS : Status.ERROR,&#160;&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; value, errorClass, error);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; responder.doRespond(call);&#160;&#160; </span></li>
+<li><span>&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
+<li><span>}&#160;&#160; </span>                                 </li>
+</ol>
+<p><strong>5）响应请求</strong></p>
+<p>上面代码中的setupResponse将call的id和状态发送回去，再设置了call中的response:ByteBuffer，之后就开始responder.doRespond(call)了，processResponse以及Responder.run()没太弄明白，就先不说了。    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
+<ol>
+<li><span><span class="keyword">void</span><span> doRespond(Call call) </span><span class="keyword">throws</span><span> IOException {&#160;&#160; </span></span>2.  <span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">synchronized</span><span> (call.connection.responseQueue) {&#160;&#160; </span>3.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 这行没懂 </span><span>&#160; </span>4.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.connection.responseQueue.addLast(call);&#160;&#160; </span>5.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (call.connection.responseQueue.size() == </span><span class="number">1</span><span>) {&#160;&#160; </span>6.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 返回响应结果，并激活writeSelector </span><span>&#160; </span>7.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; processResponse(call.connection.responseQueue, </span><span class="keyword">true</span><span>);&#160;&#160; </span>8.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span>9.  <span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span>10.  <span>&#160;&#160;&#160; }&#160;&#160; </span>                                 </li>
+</ol>
+<p><strong>6、总结</strong></p>
+<p>Server用的标准的Java TCP/IP NIO通信，同时请求的超时使用基于BlockingQueue以及wait/notify机制实现。使用的模式是reactor模式，关于nio和reactor可以参考这个<strong><a href="http://www.cnblogs.com/ericchen/archive/2011/05/08/2036993.html" target="_blank" rel="external">博客</a></strong>。</p>
+<p>对于服务器端接收多个连接请求的需求，Server采用Listener来监听连接的事件，并用Listener.Reader来监听网络流读以及Responder监听写的事件，当有实际的网络流读写时间发生之后，解析了请求Call之后，添加进阻塞队列，并交由多个Handlers来处理请求。</p>
+<p>这个方法比TCP/IP BIO好处就是可接受很多的连接，而这些连接只在真实的请求时才会创建线程处理，称之为一请求一处理。但是，连接上的请求发送非常频繁时，TCP/IP NIO的方法并不会带来太大的优势。</p>
+<p>但是Hadoop实际场景中，通常是服务器端支持大量的连接数（Namenode连上几千个Datanode），但是连接发送的请求并不会太多（heartbeat、blockreport都有较长间隔）。这样就造成了Hadoop不适合实时的、多请求的运算，带来的代价是模型、实现简单，但是这也为以后的扩展埋下了祸根。</p>
+<p>P.S.: 以上分析基于稳定版0.20.203.0rc1。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag">#Hadoop</a>
+          
+            <a href="/tags/RPC/" rel="tag">#RPC</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/02/29/iterative-mapred-summary-haloop/" rel="prev">迭代式MapReduce解决方案（三）</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/02/25/hadoop-ipc-client/" rel="next">Hadoop源码 - ipc.Client</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2012/02/27/hadoop-ipc-server/"
+                   data-title="Hadoop源码 - ipc.Server" data-url="http://hongweiyi.com/2012/02/27/hadoop-ipc-server/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/hongweiyi.jpg" alt="Hongwei Yi" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Hongwei Yi</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">99</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hongwei Yi</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"yihongwei"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://github.com/hongweiyi"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
