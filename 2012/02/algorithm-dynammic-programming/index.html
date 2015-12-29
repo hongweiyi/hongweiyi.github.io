@@ -43,7 +43,7 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="一、定义说明
 动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="算法设计 - 动态规划">
 <meta name="twitter:description" content="一、定义说明
@@ -285,7 +285,7 @@ V[<span class="link_label">i</span>][<span class="link_reference">w</span>] = MA
 
 求两数组相同的最长子序列，子序列可以不连续的。状态转移方程：
 
-[<span class="link_label">![clip_image002</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb1.jpg "clip_image002"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0021.jpg</span>)
+[<span class="link_label">![clip_image002</span>](<span class="link_url">/images/2012/02/clip_image002_thumb1.jpg "clip_image002"</span>)](<span class="link_url">/images/2012/02/clip_image0021.jpg</span>)
 
 c[<span class="link_label">i</span>][<span class="link_reference">j</span>]表示在字符串x的i位前与字符串y的j位前最长公共子序列。很容易理解，如果一个x[<span class="link_label">i</span>]、y[<span class="link_label">j</span>]相等，c[<span class="link_label">i-1</span>][<span class="link_reference">j-1</span>]加1，不等的话，c[<span class="link_label">i</span>][<span class="link_reference">j</span>]等于c[<span class="link_label">i-1</span>][<span class="link_reference">j</span>]、c[<span class="link_label">i</span>][<span class="link_reference">j-1</span>]中较大的数。
 

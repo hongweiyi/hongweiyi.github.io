@@ -45,7 +45,7 @@
 <meta property="og:description" content="1**、DistributedCache In Hadoop**
 此篇文章主要是前一篇的后续，主要讲Hadoop的分布式缓存机制的原理与运用。
 分布式缓存在MapReduce中称之为DistributedCache，它可以方便map task之间或者reduce task之间共享一些信息，同时也可以将第三方包添加到其classpath路径中去。Hadoop会将缓存数据分发到集群的所有准备启动的节点">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="迭代式MapReduce解决方案（二） DistributedCache">
 <meta name="twitter:description" content="1**、DistributedCache In Hadoop**
@@ -257,7 +257,7 @@
 <li><span>}&#160; </span>                                 <p></p>  </li>
 </ol>
 <p>在使用symlink之前，需要告知hadoop，如下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>conf.set(&quot;mapred.create.symlink&quot;, &quot;yes&quot;); // 是yes，不是true<br>         </p></td>       </tr>        <tr>         <td valign="top" width="568">           </td></tr></tbody></table></p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/DistributedCache.html" target="_blank" rel="external">DistributedCache.createSymlink(Configuration)</a><br>                      </p>  <p></p>
+<p><a href="/images/2012/02/DistributedCache.html">DistributedCache.createSymlink(Configuration)</a><br>                      </p>  <p></p>
 <p><strong>4、注意事项</strong></p>
 <p>1）缓存文件（数据、三方库）需上传至HDFS，方能使用；</p>
 <p>2）缓存较小的情况下，建议将数据全部读入相应节点内存，提高访问速度；</p>

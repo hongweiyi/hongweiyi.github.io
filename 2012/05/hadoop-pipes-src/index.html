@@ -45,9 +45,9 @@ Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写�
 <meta property="og:description" content="1**、前言**
 Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写了，C++与Java是通过Socket通信，但是具体的运行机制是什么还是得参考源码。
 这篇博文主要从源码角度来讲解Hadoop Pipes运行机制以及设计原理，实际的Hadoop Pipes编程请参见：Hadoop Pipes编程">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/05/image_thumb.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/05/image_thumb1.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/05/image_thumb.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/05/image_thumb1.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop Pipes运行机制">
 <meta name="twitter:description" content="1**、前言**
@@ -225,11 +225,11 @@ Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写�
 <p>这篇博文主要从源码角度来讲解Hadoop Pipes运行机制以及设计原理，实际的Hadoop Pipes编程请参见：<strong><a href="http://www.hongweiyi.com/2012/05/hadoop-pipes/" target="_blank" rel="external">Hadoop Pipes编程</a></strong></p>
 <a id="more"></a>
 <p><strong>2**</strong>、Hadoop Pipes<strong>**运行图解</strong></p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/05/image.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/05/image_thumb.png" alt="image" title="image"></a> </p>
+<p><a href="/images/2012/05/image.png"><img src="/images/2012/05/image_thumb.png" alt="image" title="image"></a> </p>
 <p><strong>3**</strong>、Hadoop<strong>**运行机制</strong></p>
 <p>Hadoop端主要类均在org.apache.hadoop.mapred.pipes包下，见下图。</p>
 <p>其中，Application是JVM中主要运行程序，PipesMapRunner、PipesReducer、PipesPartitioner、PipesNonJavaInputFormat分别对应C++版的Mapper、Reducer、Partitioner、RecordReader，由于重写RecordWriter后，C++会直接写文件，这里就没有对应的类了。DownwardProtocol/BinaryProtocol、UpwardProtocol/OutputProtocol是Java与C++交互的接口代理类。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/05/image1.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/05/image_thumb1.png" alt="image" title="image"></a></p>
+<p><a href="/images/2012/05/image1.png"><img src="/images/2012/05/image_thumb1.png" alt="image" title="image"></a></p>
 <p>开发者通过$HADOOP_HOME/bin/hadoop pipes将作业提交到了包下的Submitter类。运行过程就直接贴文字了，可以结合代码一起看：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1 解析命令行参数</p>
 <p>2 setupPipes(job)</p>
 <p>2.1 设置Mapper，Partitioner，Reducer，RecordWriter，如果不是java编写的，则用PipesMapRunner，PipesPartitioner，PipesReducer，NullOutputFormat（所有输出均输出到/dev/null中）；</p>

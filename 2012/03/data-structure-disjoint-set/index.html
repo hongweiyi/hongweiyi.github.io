@@ -43,10 +43,10 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1**、简介**
 在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002_thumb.jpg">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003_thumb.jpg">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005_thumb.jpg">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/clip_image002_thumb.jpg">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/clip_image003_thumb.jpg">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/clip_image005_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="趣味数据结构 - 并查集">
 <meta name="twitter:description" content="1**、简介**
@@ -232,7 +232,7 @@
 <p><strong>1）用编号最小的元素标记所在集合</strong></p>
 <p>{<strong>1</strong>, 3, 7}，{<strong>4</strong>}，{<strong>2</strong>, 5, 9, 10}，{<strong>6</strong>, 8}</p>
 <p><strong>2）定义一个数组set[1…n]，其中set[i]表示元素i所在集合</strong></p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p><a href="/images/2012/03/clip_image002.jpg"><img src="/images/2012/03/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
 <p><strong>3）find操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>find(x):</p>
 <p>&#160;&#160;&#160;&#160; return set[x];<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
 <p><strong>4）Union操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>union(x, y):</p>
@@ -252,12 +252,12 @@
 <p>a. Make-Set：创建一颗仅包含一个结点的树；</p>
 <p>b. Find-Set：查找可以描述为找两个元素各自的根，判断其是否相等。实现中需要沿着父结点指针一直找下去，直到找到树根为止。（时间复杂度O(n)）</p>
 <p>c. Union-Set：并集可以描述为把一棵树接到另一个棵树的根结点上，并更新某颗树的代表。（时间复杂度O(n)）</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image003_thumb.jpg" alt="clip_image003" title="clip_image003"></a></p>
+<p><a href="/images/2012/03/clip_image003.jpg"><img src="/images/2012/03/clip_image003_thumb.jpg" alt="clip_image003" title="clip_image003"></a></p>
 <p>其实这个与链表来说，性能没有本质上的提高。合并也需要更新结点代表，且如果树构造的时候，构造了一颗线性链的树，查找复杂度也提高了。对其进行优化，有两种策略：</p>
 <p><strong>a. **</strong>按秩合并（union by rank）**</p>
 <p>秩（Rank）就是一颗树的结点数，即使包含较少结点的树根指向包含较多结点的树根。</p>
 <p><strong>b. **</strong>路径压缩**</p>
-<p><strong><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image005_thumb.jpg" alt="clip_image005" title="clip_image005"></a></strong></p>
+<p><strong><a href="/images/2012/03/clip_image005.jpg"><img src="/images/2012/03/clip_image005_thumb.jpg" alt="clip_image005" title="clip_image005"></a></strong></p>
 <p>如上图，使查找路径上的每个结点都直接指向根结点。简单而有效。</p>
 <p>&#160;</p>
 <p><strong>6**</strong>、小结**</p>

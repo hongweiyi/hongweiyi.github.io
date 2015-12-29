@@ -529,7 +529,8 @@ chmod(change mode), chown(change owner)
 <p><strong>WARNING: </strong>需要注意gzip压缩解压缩非常耗时且耗cpu</p>
 <pre><code><span class="keyword">*</span><span class="keyword">*</span>TIPS: <span class="keyword">*</span><span class="keyword">*</span>在远程拷贝（scp）文件的时候，如果文件非常大，需要考虑拷贝中断所带来的痛苦。所以适当的将文件裁剪成多个再scp，拷贝中断带来的痛苦系数会大大减小。
 </code></pre></blockquote>
-<table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ split –help<br><br>                    &nbsp; Usage: split [OPTION] [INPUT [PREFIX]]<br><br>                    &nbsp; &gt;&gt; $ split -b 1024b(k)(m) filename (splited_filename)&nbsp;&nbsp; # 按大小裁剪<br><br>                    &nbsp; &gt;&gt; $ split -l 1000 filename (splited_filename)&nbsp;&nbsp; # 按行数裁剪<br><br>                    &nbsp; &gt;&gt; $ cat splited_filename* &gt; filename&nbsp;&nbsp; # 合并被裁剪文件<br><br>            </td><br>        </tr><br>    </tbody><br></table></span>
+<table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ split –help<br><br>                    &nbsp; Usage: split [OPTION] [INPUT [PREFIX]]<br><br>                    &nbsp; &gt;&gt; $ split -b 1024b(k)(m) filename (splited_filename)&nbsp;&nbsp; # 按大小裁剪<br><br>                    &nbsp; &gt;&gt; $ split -l 1000 filename (splited_filename)&nbsp;&nbsp; # 按行数裁剪<br><br>                    &nbsp; &gt;&gt; $ cat splited_filename* &gt; filename&nbsp;&nbsp; # 合并被裁剪文件<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+</span>
         
       
     </div>

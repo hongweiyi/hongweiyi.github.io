@@ -41,9 +41,9 @@
 <meta property="og:url" content="http://hongweiyi.com/2012/03/java-boxing/index.html">
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="今天群里提出了一个有趣的问题：">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb1.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb1.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java装箱/拆箱技术">
 <meta name="twitter:description" content="今天群里提出了一个有趣的问题：">
@@ -237,9 +237,9 @@
 <p>乍一看，好似是常量池的题目，但是运行一遍结果之后，好像有些迷糊，结果只有第一个输出为false，其它地方均为true。</p>
 <p>（num3==num4）以及（num7==num8）这个倒是没什么，常量池基本知识。</p>
 <p>Integer与int比较，以及Integer内部比较是怎么样的呢？这就涉及到自动装箱/拆箱技术了，一般来说，具有包装类的语言都有这种技术，如Objective-C、Java等，该技术只是编译器给用户提供的一些方便（编译器糖：Compiler Sugar），那么我们来看看Java是怎么实现的吧。附上字节码：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb.png" alt="image" title="image"></a> </p>
+<p><a href="/images/2012/03/image.png"><img src="/images/2012/03/image_thumb.png" alt="image" title="image"></a> </p>
 <p>Java的自动装箱直接调用了Integer的静态方法Integer.valueOf，实质上还是创建了一个Integer对象。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image1.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb1.png" alt="image" title="image"></a> 而拆箱呢，有人说是将int变量先装箱，再比较。但是字节码说明了，是获得对象的值，再比较。</p>
+<p><a href="/images/2012/03/image1.png"><img src="/images/2012/03/image_thumb1.png" alt="image" title="image"></a> 而拆箱呢，有人说是将int变量先装箱，再比较。但是字节码说明了，是获得对象的值，再比较。</p>
 <p>还有一个疑问，为什么在128的时候num1 != num2，而改一个常量12就等于了呢？需要说明的是，在自动装箱时对于值从[–128, 127]之间的值，它们被装箱为Integer对象后，会在内存中被重用（装箱对象池？）。即如果创建时值位于界内，它会先判断是否存在该对象，有的话直接指向地址。如果不位于界内，则会直接创建新对象。</p>
 <p>这样的功能嘛，还是推荐使用标准的格式（=new Integer(value);），自个明白呢，以后的人也明白。不过自个私底下研究研究还是很开脑的。</p>
 <blockquote>

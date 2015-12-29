@@ -43,10 +43,10 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1**、简介**
 给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb4.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb5.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006_thumb.jpg">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb4.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb5.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/clip_image006_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="趣味数据结构 - SkipLists">
 <meta name="twitter:description" content="1**、简介**
@@ -226,8 +226,8 @@
 </blockquote>
 <p>SkipLists设计出来就是用来取代平衡树的，SkipList依靠随机的思想，从某种程序上实现了平衡，且插入与删除都比较简单。</p>
 <p><strong>2**</strong>、SkipLists思想**</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image4.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb4.png" alt="image" title="image"></a> 我们先来看看上面的有序链表（例子Copy自文献），需要查找一个节点，我们得获得头节点，再依次遍历下去，时间复杂度为O(n)。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image5.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb5.png" alt="image" title="image"></a> 如果有上面这种结构，每间隔一个节点添加一个额外指针指向下下个节点。那么每次查找先查下下节点，大于继续查找，小于的话，查找下个节点。这样的话，时间复杂度就降到了O(n/2)。</p>
+<p><a href="/images/2012/03/image4.png"><img src="/images/2012/03/image_thumb4.png" alt="image" title="image"></a> 我们先来看看上面的有序链表（例子Copy自文献），需要查找一个节点，我们得获得头节点，再依次遍历下去，时间复杂度为O(n)。</p>
+<p><a href="/images/2012/03/image5.png"><img src="/images/2012/03/image_thumb5.png" alt="image" title="image"></a> 如果有上面这种结构，每间隔一个节点添加一个额外指针指向下下个节点。那么每次查找先查下下节点，大于继续查找，小于的话，查找下个节点。这样的话，时间复杂度就降到了O(n/2)。</p>
 <p>这基本上就是跳表的核心思想，即通过“空间来换取时间”的一个算法，通过在每个节点中增加了向前的指针，从而提升查找的效率。</p>
 <p><strong>3**</strong>、构造过程**</p>
 <p>1）给定一个有序的链表；</p>
@@ -235,7 +235,7 @@
 <p>3）为刚选出的每个节点添加一个指针域，这个指针指向下一层中相应的节点。Top指针指向首层首节点；</p>
 <p>4）重复2、3步，直到不能选选择出除最大最小节点之外的节点。</p>
 <p>如下图：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/clip_image006_thumb.jpg" alt="clip_image006" title="clip_image006"></a></p>
+<p><a href="/images/2012/03/clip_image006.jpg"><img src="/images/2012/03/clip_image006_thumb.jpg" alt="clip_image006" title="clip_image006"></a></p>
 <p><strong>4**</strong>、结构特征**</p>
 <p>1）一个SkipList应由多个层组成（Level）；</p>
 <p>2）SkipList的最底层包含所有的节点；</p>

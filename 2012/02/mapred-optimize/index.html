@@ -43,8 +43,8 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="一、概述
 这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb.jpg">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image002_thumb.jpg">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MapReduce优化（一）">
 <meta name="twitter:description" content="一、概述
@@ -254,7 +254,7 @@
 <p>但需要注意的是，时间与空间永远是矛盾的，若要获得大的压缩比就会降低一些时间效率。通常来说，想要达到cpu和磁盘压缩比的平衡取舍，LzoCodec比较适合。不过由于GPL许可的原因，该库没有包含在Apache的发行版中，需要单独从<strong><a href="http://code.google.com/p/hadoop-gpl-compression" target="_blank" rel="external">Google Code</a></strong>或<strong><a href="https://github.com/kevinweil/hadoop-lzo" target="_blank" rel="external">GitHub</a></strong>下载，其中后者包含有修正的软件错误及其它一些工具。</p>
 <p>本文使用的是默认的压缩方式DefaultCodec，压缩比约为29%。</p>
 <p><strong>3**</strong>、查看临时文件内部，具体情况具体分析**</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p><a href="/images/2012/02/clip_image002.jpg"><img src="/images/2012/02/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
 <p>上面的文件就是我的临时文件内部格式， value在内存中为DoubleWritable，没有考虑精度问题。一个value数据输出后，就会占20字节，我们是否需要这么高的精度呢？</p>
 <p>我觉得是不需要，不需要的话，就是将输出数据精度降低，实验中将double精度降至6位，“压缩”比约为59%。这个例子很实在，即对于每个任务来说，不仅仅是job conf需要优化，其自身算法或者说数据格式都还有很大的优化空间。没有最好，只有更好！</p>
 <p><strong>四、总结</strong></p>

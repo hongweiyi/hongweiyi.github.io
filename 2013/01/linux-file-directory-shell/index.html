@@ -49,7 +49,7 @@ ls(list), cd(change directory), rm(remove), touch, mkdir(make directory), rmdir(
 
 TIPS: cd - 可以返回上次所处目录。
 **WARNING:** 慎用rm -rf *，想当年某同学就rm掉了工作目录，不">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Shell常用命令 文件/目录操作篇">
 <meta name="twitter:description" content="2.1 **基本操作**
@@ -291,7 +291,8 @@ chmod(change mode), chown(change owner)
 <p><strong>WARNING: </strong>需要注意gzip压缩解压缩非常耗时且耗cpu</p>
 <pre><code><span class="keyword">*</span><span class="keyword">*</span>TIPS: <span class="keyword">*</span><span class="keyword">*</span>在远程拷贝（scp）文件的时候，如果文件非常大，需要考虑拷贝中断所带来的痛苦。所以适当的将文件裁剪成多个再scp，拷贝中断带来的痛苦系数会大大减小。
 </code></pre></blockquote>
-<table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ split –help<br><br>                    &nbsp; Usage: split [OPTION] [INPUT [PREFIX]]<br><br>                    &nbsp; &gt;&gt; $ split -b 1024b(k)(m) filename (splited_filename)&nbsp;&nbsp; # 按大小裁剪<br><br>                    &nbsp; &gt;&gt; $ split -l 1000 filename (splited_filename)&nbsp;&nbsp; # 按行数裁剪<br><br>                    &nbsp; &gt;&gt; $ cat splited_filename* &gt; filename&nbsp;&nbsp; # 合并被裁剪文件<br><br>            </td><br>        </tr><br>    </tbody><br></table></span>
+<table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ split –help<br><br>                    &nbsp; Usage: split [OPTION] [INPUT [PREFIX]]<br><br>                    &nbsp; &gt;&gt; $ split -b 1024b(k)(m) filename (splited_filename)&nbsp;&nbsp; # 按大小裁剪<br><br>                    &nbsp; &gt;&gt; $ split -l 1000 filename (splited_filename)&nbsp;&nbsp; # 按行数裁剪<br><br>                    &nbsp; &gt;&gt; $ cat splited_filename* &gt; filename&nbsp;&nbsp; # 合并被裁剪文件<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+</span>
       
     </div>
 

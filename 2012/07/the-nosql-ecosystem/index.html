@@ -43,9 +43,9 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="躺在床上看到这篇文章就有一种“垂死病中惊坐起”的感觉。忍不住就给转过来了，顺带附上HTML、PDF以及原版。转载自NoSQLFan，这网站最贱的一句话就是“据说看到好文章不转的人，服务器容易宕机！”，不过虽然贱，但是我喜欢……
 ［HTML**版**］［PDF版］[ 原版 ] [ 转载处 ]">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/07/ADistributedHashTableRing_thumb.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/07/BigTablebasedRangePartitioning_thumb.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/07/ADistributedHashTableRing_thumb.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/07/BigTablebasedRangePartitioning_thumb.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="转 - NoSQL生态系统">
 <meta name="twitter:description" content="躺在床上看到这篇文章就有一种“垂死病中惊坐起”的感觉。忍不住就给转过来了，顺带附上HTML、PDF以及原版。转载自NoSQLFan，这网站最贱的一句话就是“据说看到好文章不转的人，服务器容易宕机！”，不过虽然贱，但是我喜欢……
@@ -321,7 +321,7 @@
 <p><strong>13.4.3 **</strong>一致性hash环算法**</p>
 <p>好的hash算法可以使数据保持比较均匀的分布。这使得我们可以按这种分布将数据保存布多台机器上。一致性hash是一种被广泛应用的技术，其最早在一个叫distributed hash tables (DHTs)的系统中进行使用。那些类Dynamo的应用，比如Cassandra、Voldemort和Riak，基本上都使用了一致性hash算法。</p>
 <p><strong>Hash**</strong>环图**</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/07/ADistributedHashTableRing.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/07/ADistributedHashTableRing_thumb.png" alt="A-Distributed-Hash-Table-Ring" title="A-Distributed-Hash-Table-Ring"></a> </p>
+<p><a href="/images/2012/07/ADistributedHashTableRing.png"><img src="/images/2012/07/ADistributedHashTableRing_thumb.png" alt="A-Distributed-Hash-Table-Ring" title="A-Distributed-Hash-Table-Ring"></a> </p>
 <p>一致性hash算法的工作原理如下：首先我们有一个hash函数H，可以通过数据的key值计算出一个数字型的hash值。然后我们将整个hash环的范围定义为［1，L］这个区间，我们将刚才算出的hash值对L进行取余，就能算出一个key值在这个环上的位置。而每一台真实服务器结点就会负责［1-L］之间的某个区间的数据。如上图，就是一个五个结点的hash环。</p>
 <p>上面hash环的L值为1000，然后我们对ABCDE 5个点分别进行hash运算，H(A) mod L = 7, H(B) mod L = 234, H(C) mod L = 447, H(D) mod L = 660, and H(E) mod L = 875 ，这样，hash值在7-233之间的所有数据，我们都让它保存在A节点上。在实际动作中，我们对数据进行hash，算出其应该在哪个节点存储即可，例：H(‘employee30′) mod L = 899 那么它应该在E节点上，H(‘employee31′) mod L = 234 那么这个数据应该在B节点上。</p>
 <p><strong>备份数据</strong></p>
@@ -336,7 +336,7 @@
 <p><strong>BigTable**</strong>的处理方式**</p>
 <p>Google BigTable 论文中描述了一种范围分区方式，它将数据切分成一个个的tablet数据块。每个tablet保存一定数量的键值对。然后每个Tablet 服务器会存储多个tablet块，具体每个Tablet服务器保存的tablet数据块数，则是由服务器压力来决定的。</p>
 <p>每个tablet大概100-200MB大。如果tablet的尺寸变小，那么两个tablet可能会合并成一个tablet，同样的如果一个tablet过大，它也会被分裂成两个tablet，以保持每个tablet的大小在一定范围内。在整个系统中有一个master机器，会根据tablet的大小、负载情况以及机器的负载能力等因素动态地调整tablet在各个机器上的分布。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/07/BigTablebasedRangePartitioning.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/07/BigTablebasedRangePartitioning_thumb.png" alt="BigTable-based-Range-Partitioning" title="BigTable-based-Range-Partitioning"></a><br>master服务器会把 tablet 的归属关系存在元数据表里。当数据量非常大时，这个元数据表实际也会变得非常大，所以归属关系表实际上也是被切分成一个个的tablet保存在tablet服务器中的。这样整个数据存储就被分成了如上图的三层模型。</p>
+<p><a href="/images/2012/07/BigTablebasedRangePartitioning.png"><img src="/images/2012/07/BigTablebasedRangePartitioning_thumb.png" alt="BigTable-based-Range-Partitioning" title="BigTable-based-Range-Partitioning"></a><br>master服务器会把 tablet 的归属关系存在元数据表里。当数据量非常大时，这个元数据表实际也会变得非常大，所以归属关系表实际上也是被切分成一个个的tablet保存在tablet服务器中的。这样整个数据存储就被分成了如上图的三层模型。</p>
 <p>下面我们解释一下上面图中的例子。当某个客户端要从BigTable系统中获取key值为900的数据时，首先他会到第一级元数据服务器A（METADATA0）去查询，第一级元数据服务器查询自己的元数据表，500-1500这个区间中的所有元数据都存在B服务器中，于是会返回客户端说去B服务器查询，客户端再到B服务器中进行查询，B服务器判断到850-950这个区间中的数据都存在tablet服务器C中，于是会告知客户端到具体的tablet服务器C去查询。然后客户端再发起一次向C服务器的请求，就能获取到900对应的数据了。然后，客户端会把这个查询结果进行缓存，以避免对元数据服务器的频繁请求。在这样的三层架构下，只需要128MB的元数据存储，就能定位234 个tablet数据块了（按128MB一个数据块算，是261bytes的数据）。</p>
 <p><strong>故障处理</strong></p>
 <p>在BigTable中，master机器是一个故障单点，不过系统可以容忍短时间的master故障。另一方面，如果tablet 服务器故障，那么master可以把对其上tablet的所有请求分配到其它机器节点。</p>

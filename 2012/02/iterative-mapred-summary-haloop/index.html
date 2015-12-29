@@ -43,9 +43,9 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1**、前言**
 前面两篇（一）（二）解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb4.jpg">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb3.jpg">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image002_thumb4.jpg">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image004_thumb3.jpg">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="迭代式MapReduce解决方案（三）">
 <meta name="twitter:description" content="1**、前言**
@@ -228,9 +228,9 @@
 <p>我的解决方案：这个方案没有写成博客，因为觉得太普通了。和大多数应用一样，开启一个新的任务，来计算两次迭代之间的差别，Pagerank计算两次迭代过程之间所有页面PR差之和，SSSP计算所有点的状态。但是需要注意的是，由于一个文件就会开启一个map task，所以需要动脑筋思考一下如何“合并”起来。</p>
 <p>3）每次迭代，如果所有task重复重新创建，代价将非常高。怎样重用task以提高效率（task pool）。这个缺陷是<a href="http://dongxicheng.org/mapreduce/iterative-mapreduce-intro/" target="_blank" rel="external">董的博客</a>提出的，这个虽然没有在Haloop中单独提出，但是实现中已经考虑到了。这个在现有框架下，基本是上没可能了，迭代式Mapreduce需要解决的是Job复用的问题，整个task pool就得修改框架了。</p>
 <p><strong>3**</strong>、Haloop解决方案**</p>
-<p><strong><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0024.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb4.jpg" alt="clip_image002" title="clip_image002"></a></strong></p>
+<p><strong><a href="/images/2012/02/clip_image0024.jpg"><img src="/images/2012/02/clip_image002_thumb4.jpg" alt="clip_image002" title="clip_image002"></a></strong></p>
 <p><em>Haloop__框架图</em></p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0043.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb3.jpg" alt="clip_image004" title="clip_image004"></a></p>
+<p><a href="/images/2012/02/clip_image0043.jpg"><img src="/images/2012/02/clip_image004_thumb3.jpg" alt="clip_image004" title="clip_image004"></a></p>
 <p><em>Haloop__计算流程图</em></p>
 <p>Haloop进行的改进有：</p>
 <p><strong>1**</strong>）提供了一套新的编程接口，以方便用户进行迭代式程序开发**</p>

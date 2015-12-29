@@ -43,9 +43,9 @@ Bit-Map被译为位图，和人讨论的时候，常常会与.BMP搞混，这个
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1**、什么是Bit-Map**
 Bit-Map被译为位图，和人讨论的时候，常常会与.BMP搞混，这个Map我觉得翻译成映射更为合适，Bit-Map也算是Hash的一直极致运用吧。Bit-Map会用Bit来标记某个元素对应的value，如何标记的呢，见下例：">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb2.png">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb3.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb2.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/03/image_thumb3.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="趣味数据结构 - BitMap">
 <meta name="twitter:description" content="1**、什么是Bit-Map**
@@ -230,7 +230,7 @@ Bit-Map被译为位图，和人讨论的时候，常常会与.BMP搞混，这个
 <p>有了上面的例子之后，不知道对Bit-Map是否有了一个感性的认识。下面说下Bit-Map的建立过程。</p>
 <p><strong>1**</strong>）开辟定长数组**</p>
 <p>Bit-Map会声明一个定长的byte/int数组，之后将数组内元素的所有Bit位均置为0，如下图：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image2.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb2.png" alt="image" title="image"></a> </p>
+<p><a href="/images/2012/03/image2.png"><img src="/images/2012/03/image_thumb2.png" alt="image" title="image"></a> </p>
 <p><strong>2**</strong>）遍历数据，并插入Bit-Map**</p>
 <p>上例来说，就会遍历array{1, 2, 5, 8, 10}，并将所有的元素均插入Bit-Map中。Bit-Map是Hash的极致，那么key即为array[i]/8，value即在byte中的位置array[i]%8。而实际中为了效率，hash函数可能会有些出入。如下：   <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>Byte: MASK = 0X07; SHIFT = 3; Integer: MASK = 0X1F; SHIFT = 5; </p>
 <p>// i&gt;&gt; SHIFT =&gt; i/8; i &amp; MASK =&gt; i%8</p>
@@ -238,7 +238,7 @@ Bit-Map被译为位图，和人讨论的时候，常常会与.BMP搞混，这个
 <p>// return 0: not exist</p>
 <p>isExist(i) : return array[i&gt;&gt;SHIFT] &amp; (1 &lt;&lt; (i &amp; MASK);<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
 <p>遍历插入之后的数据应该是这样的：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/03/image3.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/03/image_thumb3.png" alt="image" title="image"></a> </p>
+<p><a href="/images/2012/03/image3.png"><img src="/images/2012/03/image_thumb3.png" alt="image" title="image"></a> </p>
 <p><strong>3**</strong>、Bit-Map应用**</p>
 <p>建立了Bit-Map之后，就可以方便的使用了。一般来说Bit-Map可作为数据的查找、去重、排序等操作。</p>
 <p>如上面提及的10,000,000个数据存储问题，用Integer存储，耗费4G内存。改成Bit-Map，耗费125MB内存。但是实际中，可能由于数据中最大最小值相差太大，如{1,2 99999}，只有三个数，但是最大最小相差悬殊，该方法就不适用了。</p>

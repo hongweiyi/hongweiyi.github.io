@@ -43,8 +43,8 @@
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="一、迭代式Mapreduce简介
 普通的MapReduce任务是将一个任务分割成map与reduce两个阶段。map阶段负责过滤、筛选、检查输入数据，并将处理后的结果写入本地磁盘中；reduce阶段则负责远程读入map的本地输出结果，对数据进行归并、分析等处理，之后再将结果写入HDFS中。其数据流过程如下：">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/image_thumb.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="迭代式MapReduce解决方案（一）">
 <meta name="twitter:description" content="一、迭代式Mapreduce简介
@@ -251,7 +251,7 @@
 <p>迭代式作业的缺点很突出，在<a href="http://dongxicheng.org/mapreduce/iterative-mapreduce-intro/" target="_blank" rel="external">这篇博客</a>有详细的介绍，本篇主要需要解决的问题是：<strong>如何减少不必要的数据传输与读写</strong>。</p>
 <p>正如前面所示，PageRank的计算数据分为了两种：PR值表以及网页链接关系表。其中PR值是随着迭代而不断变化，称之为动态数据；而网页链接关系，在计算中，不会有任何的改变，称之为静态数据。</p>
 <p>我现在能想到的，再参考了<a href="http://blog.xebia.com/2011/09/27/wiki-pagerank-with-hadoop/" target="_blank" rel="external">网上</a>的实现方式，基本上都是将静态数据与动态数据合并成一个文件，同时读入(mapper)-&gt;写出(mapper)-&gt;传输(reducer)-&gt;写出(reducer)。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/image.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/image_thumb.png" alt="image" title="image"></a>&#160;</p>
+<p><a href="/images/2012/02/image.png"><img src="/images/2012/02/image_thumb.png" alt="image" title="image"></a>&#160;</p>
 <p>我们可以来估算一下时间，先不考虑磁盘IO，仅算静态数据传输时间一项。其中模拟实验数据为：100w个链接地址；随机生成最多1000个外链；结果数据3.22G（动态数据8.5M）；实验环境网络带宽100M；迭代次数20次。</p>
 <p>单轮迭代，3.22G的数据会从mapper中读入再全部写入到本地磁盘，reducer再从mapper中将3.22G的临时数据传输到相应的taskTracker上。100M带宽的网络，传输速率约为10M/s，计算公式即为：3.22G×1024 / 10 = 330s = 5.5min。迭代20次，5.5×20 = 110min = 1.8h。简单的估算一下，3G左右的数据，在百兆带宽的网络环境，仅静态数据传输这一项就会占去近两小时（这是最坏情况，不考虑数据在本地的情况）！而网页数据远远不止3.22G，如果到了TB乃至PB级的话，耗时应该就不是开发者所能接受的了。</p>
 <p><strong>三、问题解决方法</strong></p>

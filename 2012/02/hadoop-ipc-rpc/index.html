@@ -43,9 +43,9 @@ Hadoop是典型的单元数据服务器模型，它将控制流与数据流分�
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1、前言
 Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：百度百科。">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb3.jpg">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb2.jpg">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image002_thumb3.jpg">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image004_thumb2.jpg">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop源码 - ipc.RPC">
 <meta name="twitter:description" content="1、前言
@@ -228,7 +228,7 @@ Hadoop是典型的单元数据服务器模型，它将控制流与数据流分�
 <p><strong>2、通信发生在？</strong></p>
 <p>Hadoop是master-slave模型，master只会接受请求并相应，slave在发送请求的同时，也有可能会接受其它请求，其它请求来自slave伙伴或者client。</p>
 <p>VersionedProtocol说了，所有要使用RPC服务的类都要实现该接口，我们可以来看一下有哪些接口继承了该接口。</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0023.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb3.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p><a href="/images/2012/02/clip_image0023.jpg"><img src="/images/2012/02/clip_image002_thumb3.jpg" alt="clip_image002" title="clip_image002"></a></p>
 <p><strong>1**</strong>）HDFS相关**</p>
 <p><strong>ClientDatanodeProtocol</strong>：client与datanode交互的接口，操作不多，只有一个block恢复的方法。那么，其它数据请求的方法呢？client与datanode主要交互是通过流式的socket实现，源码在DataXceiver，在这里先不说了；</p>
 <p><strong>ClientProtocol</strong>：client与Namenode交互的接口，所有控制流的请求均在这里，如：创建文件、删除文件等；</p>
@@ -244,7 +244,7 @@ Hadoop是典型的单元数据服务器模型，它将控制流与数据流分�
 <p><strong>RefreshAuthorizationPolicyProtocol**</strong>，RefreshUserMappingsProtocol：**暂不明白。</p>
 <p><strong>3**</strong>、RPC方法**</p>
 <p>RPC提供了一个简单的RPC机制，提供以下几种静态方法：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0042.jpg" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb2.jpg" alt="clip_image004" title="clip_image004"></a></p>
+<p><a href="/images/2012/02/clip_image0042.jpg"><img src="/images/2012/02/clip_image004_thumb2.jpg" alt="clip_image004" title="clip_image004"></a></p>
 <p><strong>1）*</strong>Proxy**</p>
 <p>waitForProxy、getProxy、stopProxy均是与代理有关的方法，其中wait需要保证namenode启动正常且连接正常，主要由SecondayNode、Datanode、JobTracker使用。</p>
 <p>stop方法即停止代理。</p>

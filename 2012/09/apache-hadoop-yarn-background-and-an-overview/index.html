@@ -41,8 +41,8 @@
 <meta property="og:url" content="http://hongweiyi.com/2012/09/apache-hadoop-yarn-background-and-an-overview/index.html">
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="虽然yahoo!关于YARN作为下一代（Next-gen）MapReduce框架的文章（点这里）去年就看过了，但是那个看到是“下一代”，竟然以为只是一个设想，没想到早就发布了版本，导致对于Hadoop的认识还停留在0.20×版本上，真是罪过罪过。由于最近比较忙，闲暇时间扫了扫国内外博客，发现0.23、1.×，以及最近发布的2.×，hadoop的变化非常之大。比如说HDFS Federation（联">
-<meta property="og:image" content="http://www.hongweiyi.com/wp-content/uploads/2012/09/YARNArch_thumb.png">
-<meta property="og:updated_time" content="2015-12-29T13:31:03.000Z">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/09/YARNArch_thumb.png">
+<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Apache Hadoop YARN - 背景及概述">
 <meta name="twitter:description" content="虽然yahoo!关于YARN作为下一代（Next-gen）MapReduce框架的文章（点这里）去年就看过了，但是那个看到是“下一代”，竟然以为只是一个设想，没想到早就发布了版本，导致对于Hadoop的认识还停留在0.20×版本上，真是罪过罪过。由于最近比较忙，闲暇时间扫了扫国内外博客，发现0.23、1.×，以及最近发布的2.×，hadoop的变化非常之大。比如说HDFS Federation（联">
@@ -245,7 +245,7 @@
 <p>NodeManager有点类似于TaskTracker，它负责启动应用程序Container（类似于JVM），并监控container的资源（CPU、内存、磁盘、网络等），并将信息上报给ResouceManager。需要注意的是，调度器就是根据应用程序的Container进行调度的。</p>
 <p>ApplicationMaster负责向调度器请求合适的container，并监控container的状态以及任务进程。</p>
 <p>下图是YARN的架构图：</p>
-<p><a href="http://www.hongweiyi.com/wp-content/uploads/2012/09/YARNArch.png" target="_blank" rel="external"><img src="http://www.hongweiyi.com/wp-content/uploads/2012/09/YARNArch_thumb.png" alt="YARNArch" title="YARNArch"></a></p>
+<p><a href="/images/2012/09/YARNArch.png"><img src="/images/2012/09/YARNArch_thumb.png" alt="YARNArch" title="YARNArch"></a></p>
 <p>新YARN系统比较重要的一条就是复用了原有的MapReduce框架，而并不需要大的改动，这对现有的MR应用以及用户来说，是非常重要的，具体是怎么复用的，以后再细说。</p>
 <p>接下来，Hadoop开发者会深入架构细节，继续提高系统的可扩展性，并让其支持更多的数据处理框架（graph, MPI）并提高集群可用性。</p>
 <p>以Hortonworks’ Arun Murthy（YARN开发者）的一段话做结尾吧：</p>

@@ -406,7 +406,7 @@
 
 经典回溯的例子是求n个元素的幂集，幂集简单点说就是n个元素的全组合再加上空集，它的解空间树（状态树）如下：
 
-[<span class="link_label">![clip_image002</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image002_thumb2.jpg "clip_image002"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0022.jpg</span>)
+[<span class="link_label">![clip_image002</span>](<span class="link_url">/images/2012/02/clip_image002_thumb2.jpg "clip_image002"</span>)](<span class="link_url">/images/2012/02/clip_image0022.jpg</span>)
 
 上面的树是一颗满二叉树，树中每个结点的状态都是求解过程中可能出现的状态（即解）。递归过程可以简单理解为对n个元素的0、1取舍，伪代码如下：
 </code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def powerset(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i &gt; n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 取第i个元素（1）; powerset(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 舍第i个元素（0）; powerset(i+1);<br><br>            </td><br>        </tr><br>    </tbody><br></table>
@@ -419,7 +419,7 @@
 
 以四皇后问题为例，剪支后的状态树如下：
 
-[<span class="link_label">![clip_image004</span>](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image004_thumb1.jpg "clip_image004"</span>)](<span class="link_url">http://www.hongweiyi.com/wp-content/uploads/2012/02/clip_image0041.jpg</span>)
+[<span class="link_label">![clip_image004</span>](<span class="link_url">/images/2012/02/clip_image004_thumb1.jpg "clip_image004"</span>)](<span class="link_url">/images/2012/02/clip_image0041.jpg</span>)
 
 伪代码如下：
 </code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def trial(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i&gt;n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for j in [0, n):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在(i, j)处放置棋子;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if 布局合法 Then: trail(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 拿走(i, j)处的棋子<br><br>            </td><br>        </tr><br>    </tbody><br></table>
