@@ -35,31 +35,18 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="一、定义说明
-回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。
-
-&amp;lt;!--more--&amp;gt;
-
-回溯法是设计递归过程的一种重要方法，它的求解过程实质上">
+<meta name="description" content="一、定义说明回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="算法设计 - 回溯法到搜索浅谈">
 <meta property="og:url" content="http://hongweiyi.com/2012/02/algorithm-search/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="一、定义说明
-回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。
-
-&amp;lt;!--more--&amp;gt;
-
-回溯法是设计递归过程的一种重要方法，它的求解过程实质上">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="一、定义说明回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image0022.jpg">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image0041.jpg">
+<meta property="og:updated_time" content="2015-12-29T15:33:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="算法设计 - 回溯法到搜索浅谈">
-<meta name="twitter:description" content="一、定义说明
-回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。
-
-&amp;lt;!--more--&amp;gt;
-
-回溯法是设计递归过程的一种重要方法，它的求解过程实质上">
+<meta name="twitter:description" content="一、定义说明回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -227,57 +214,27 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>一、定义说明</strong></p>
-<pre><code>回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。
-
-<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
-
-回溯法是设计递归过程的一种重要方法，它的求解过程实质上是一个先序遍历一颗&amp;ldquo;状态树&amp;rdquo;的过程，只是这一棵树不是遍历前预先建立的，而是隐含在遍历过程中。
-
-<span class="strong">**二、简单示例**</span>
-
-经典回溯的例子是求n个元素的幂集，幂集简单点说就是n个元素的全组合再加上空集，它的解空间树（状态树）如下：
-
-[<span class="link_label">![clip_image002</span>](<span class="link_url">/images/2012/02/clip_image002_thumb2.jpg "clip_image002"</span>)](<span class="link_url">/images/2012/02/clip_image0022.jpg</span>)
-
-上面的树是一颗满二叉树，树中每个结点的状态都是求解过程中可能出现的状态（即解）。递归过程可以简单理解为对n个元素的0、1取舍，伪代码如下：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def powerset(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i &gt; n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 取第i个元素（1）; powerset(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 舍第i个元素（0）; powerset(i+1);<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code>&amp;nbsp;
-
-<span class="strong">**三、问题说明**</span>
-
-很多问题用回溯法求解时，描述过程的树不是一颗满二叉树，这类问题在求解之前需要确定问题的约束函数：&amp;ldquo;约束函数是根据题意定出的，通过描述合法解的一般特征用于去除不合法的解（剪支），从而避免继续搜索出这个不合法解的剩余部分。因此，约束函数是对于任何状态空间树上的节点都有效、等价的。&amp;rdquo;
-
-以四皇后问题为例，剪支后的状态树如下：
-
-[<span class="link_label">![clip_image004</span>](<span class="link_url">/images/2012/02/clip_image004_thumb1.jpg "clip_image004"</span>)](<span class="link_url">/images/2012/02/clip_image0041.jpg</span>)
-
-伪代码如下：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    def trial(i : int):<br><br>                    &nbsp;&nbsp;&nbsp; if i&gt;n Then: print<br><br>                    &nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for j in [0, n):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在(i, j)处放置棋子;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if 布局合法 Then: trail(i+1);<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 拿走(i, j)处的棋子<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code>&amp;nbsp;
-
-<span class="strong">**4、浅谈搜索**</span>
-
-上面所说的回溯法在&amp;lt;算法导论&amp;gt;中没有提到，觉着有些奇怪，但是仔细一想，好像又不那么奇怪。毕竟，回溯法是一种建立查找树、遍历树的递归应用算法，这些基础的知识在&amp;lt;算法导论&amp;gt;中均有详细解释，书中没单独辟章说明也不足为奇了。
-
-和友人[<span class="link_label">@烟雨华年</span>](<span class="link_url">http://weibo.com/liangke723</span>)讨论这个的时候，他提到：&amp;ldquo;将整个搜索状态树中的每一个结点看作一种状态，搜索一般是求一种状态到指定状态有没有可行的变化，或者最佳的变化。&amp;rdquo;个人觉得这句概括得还是挺到位的，大部分搜索都是检索从初始状态（状态树的根）到某个状态的变化，而可行的变化即验证是否存在解，最佳的变化即求最优解。
-
-说到这里又不得不说搜索两种最基本的方式，深度优先搜索（DFS）和广度优先搜索（BFS），网络上都是简单的描述一些，并没对它们的运用有一个很好的解释，那么这两种方式如何更好的运用呢？
-
-简单点说，就是验证最优解用DFS，搜索最优解&amp;amp;&amp;amp;解空间小用BFS。
-
-1）DFS有着内存需要相对较少的优点，可以利用栈在有限的空间内遍历所有的解，如前面提到的回溯法；
-
-2）BFS类似于树的分层遍历，有限空间的情况下无法使用。但是由于它分层的特性，可以保证当前搜索到的解都是最优解，可以不用完全遍历完解空间的情况下，找到最优解。如最短路径算法。
-
-网上还有一个有趣的说法：&amp;ldquo;一个行不通就用另外一个！&amp;rdquo;哈哈，想图省事的话，找一些模拟数据来跑一圈，是驴是马很快就可以见分晓啦！
-
-<span class="strong">**五、结束语**</span>
-
-搜索，算法中最重要的一个环节，以上仅是对它的粗浅认识，对其理解还有待进一步的深入&amp;hellip;&amp;hellip;
-</code></pre></span>
+        <span itemprop="articleBody"><h3 id="一、定义说明">一、定义说明</h3><p>回溯法是一个即带有系统性又带有跳跃性的搜索算法，它在问题的解空间树中，按深度优先搜索策略，从根结点出发搜索解空间树。算法搜索至解空间树的任一结点时，先判断该结点是否包含问题的解。如果肯定不包含，则跳过对该结点为根的子树的搜索，逐层向其祖先结点回溯；否则，进入该子树，继续按深度优先策略搜索。</p>
+<a id="more"></a>
+<p>回溯法是设计递归过程的一种重要方法，它的求解过程实质上是一个先序遍历一颗状态树的过程，只是这一棵树不是遍历前预先建立的，而是隐含在遍历过程中。</p>
+<h3 id="二、简单示例">二、简单示例</h3><p>经典回溯的例子是求n个元素的幂集，幂集简单点说就是n个元素的全组合再加上空集，它的解空间树（状态树）如下：</p>
+<p><img src="/images/2012/02/clip_image0022.jpg" alt="clip_image002"></p>
+<p>上面的树是一颗满二叉树，树中每个结点的状态都是求解过程中可能出现的状态（即解）。递归过程可以简单理解为对n个元素的0、1取舍，伪代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">powerset</span><span class="params">(i : int)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> i &gt; n Then: <span class="keyword">print</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        取第i个元素（<span class="number">1</span>）; powerset(i+<span class="number">1</span>);</span><br><span class="line">        舍第i个元素（<span class="number">0</span>）; powerset(i+<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="三、问题说明">三、问题说明</h3><p>很多问题用回溯法求解时，描述过程的树不是一颗满二叉树，这类问题在求解之前需要确定问题的约束函数：&ldquo;约束函数是根据题意定出的，通过描述合法解的一般特征用于去除不合法的解（剪支），从而避免继续搜索出这个不合法解的剩余部分。因此，约束函数是对于任何状态空间树上的节点都有效、等价的。&rdquo;</p>
+<p>以四皇后问题为例，剪支后的状态树如下：</p>
+<p><img src="/images/2012/02/clip_image0041.jpg" alt="clip_image004"></p>
+<p>伪代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">trial</span><span class="params">(i : int)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> i&gt;n Then: <span class="keyword">print</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> [<span class="number">0</span>, n):</span><br><span class="line">            在(i, j)处放置棋子;</span><br><span class="line">            <span class="keyword">if</span> 布局合法 Then: trail(i+<span class="number">1</span>);</span><br><span class="line">            拿走(i, j)处的棋子</span><br></pre></td></tr></table></figure>
+<h3 id="4、浅谈搜索">4、浅谈搜索</h3><p>上面所说的回溯法在算法导论中没有提到，觉着有些奇怪，但是仔细一想，好像又不那么奇怪。毕竟，回溯法是一种建立查找树、遍历树的递归应用算法，这些基础的知识在算法导论中均有详细解释，书中没单独辟章说明也不足为奇了。</p>
+<p>和朋友<a href="http://weibo.com/liangke723" target="_blank" rel="external">@烟雨华年</a>讨论这个的时候，他提到：将整个搜索状态树中的每一个结点看作一种状态，搜索一般是求一种状态到指定状态有没有可行的变化，或者最佳的变化。个人觉得这句概括得还是挺到位的，大部分搜索都是检索从初始状态（状态树的根）到某个状态的变化，而可行的变化即验证是否存在解，最佳的变化即求最优解。</p>
+<p>说到这里又不得不说搜索两种最基本的方式，深度优先搜索（DFS）和广度优先搜索（BFS），网络上都是简单的描述一些，并没对它们的运用有一个很好的解释，那么这两种方式如何更好的运用呢？</p>
+<p>简单点说，就是验证最优解用DFS，搜索最优解——解空间小用BFS。</p>
+<p>1）DFS有着内存需要相对较少的优点，可以利用栈在有限的空间内遍历所有的解，如前面提到的回溯法；</p>
+<p>2）BFS类似于树的分层遍历，有限空间的情况下无法使用。但是由于它分层的特性，可以保证当前搜索到的解都是最优解，可以不用完全遍历完解空间的情况下，找到最优解。如最短路径算法。</p>
+<p>网上还有一个有趣的说法：一个行不通就用另外一个！哈哈，想图省事的话，找一些模拟数据来跑一圈，是驴是马很快就可以见分晓啦！</p>
+<h3 id="五、结束语">五、结束语</h3><p>搜索，算法中最重要的一个环节，以上仅是对它的粗浅认识，对其理解还有待进一步的深入。</p>
+</span>
       
     </div>
 
@@ -366,21 +323,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -408,7 +365,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、定义说明"><span class="nav-number">1.</span> <span class="nav-text">一、定义说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、简单示例"><span class="nav-number">2.</span> <span class="nav-text">二、简单示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、问题说明"><span class="nav-number">3.</span> <span class="nav-text">三、问题说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、浅谈搜索"><span class="nav-number">4.</span> <span class="nav-text">4、浅谈搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、结束语"><span class="nav-number">5.</span> <span class="nav-text">五、结束语</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

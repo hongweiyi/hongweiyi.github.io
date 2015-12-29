@@ -216,8 +216,7 @@
 
       
         
-          <p><strong>一、迭代式Mapreduce简介</strong></p>
-<p>普通的MapReduce任务是将一个任务分割成map与reduce两个阶段。map阶段负责过滤、筛选、检查输入数据，并将处理后的结果写入本地磁盘中；reduce阶段则负责远程读入map的本地输出结果，对数据进行归并、分析等处理，之后再将结果写入HDFS中。其数据流过程如下：<br>
+          <h3 id="一、迭代式Mapreduce简介">一、迭代式Mapreduce简介</h3><p>普通的MapReduce任务是将一个任务分割成map与reduce两个阶段。map阶段负责过滤、筛选、检查输入数据，并将处理后的结果写入本地磁盘中；reduce阶段则负责远程读入map的本地输出结果，对数据进行归并、分析等处理，之后再将结果写入HDFS中。其数据流过程如下：</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2012/02/iterative-mapred/#more" rel="contents">
               阅读全文 &raquo;
@@ -305,7 +304,7 @@
 
       
         
-          <p>用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&lt;<a href="http://www.joynb.net/blog/archives/120">Python少打字小技巧</a>&gt;，但还是无法很好的运用。<br>
+          <p>用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的<a href="http://www.joynb.net/blog/archives/120">Python少打字小技巧</a>，但还是无法很好的运用。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2012/01/python-chat/#more" rel="contents">
               阅读全文 &raquo;
@@ -340,8 +339,8 @@
           
           
             
-              <a class="post-title-link" href="/2011/12/design-pattern-adapter/" itemprop="url">
-                设计模式 - 适配器模式
+              <a class="post-title-link" href="/2011/10/dist-filesystem-metadata-server/" itemprop="url">
+                分布式文件系统元数据服务器模型
               </a>
             
           
@@ -351,8 +350,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2011-12-26T22:31:00+08:00" content="2011-12-26">
-            2011-12-26
+          <time itemprop="dateCreated" datetime="2011-10-01T10:21:35+08:00" content="2011-10-01">
+            2011-10-01
           </time>
         </span>
 
@@ -377,8 +376,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2011/12/design-pattern-adapter/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-adapter/" itemprop="commentsCount"></span>
+              <a href="/2011/10/dist-filesystem-metadata-server/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/10/dist-filesystem-metadata-server/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -393,11 +392,9 @@
 
       
         
-          <p><strong>GOF**</strong>定义：**</p>
-<p><em>“Convert the interface of a class into another interface clients expect. Adapter lets classed work together thar couldn’t otherwise because of incompatible interfaces.” </em></p>
-<p><em>“将一个类的接口变换成客户端所期待的另一种接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。”</em><br>
+          <p>随着非结构化数据的爆炸，分布式文件系统进入了发展的黄金时期，从高性能计算到数据中心，从数据共享到互联网应用，已经渗透到数据应用的各方各面。对于大多数分布式文件系统(或集群文件系统，或并行文件系统)而言，通常将元数据与数据两者独立开来，即控制流与数据流进行分离，从而获得更高的系统扩展性和I/O并发性。因而，元数据管理模型显得至关重要，直接影响到系统的扩展性、性能、可靠性和稳定性等。存储系统要具有很高的Scale-Out特性，最大的挑战之一就是记录数据逻辑与物理位置的映像关系即数据元数据，还包括诸如属性和访问权限等信息。特别是对于海量小文件的应用，元数据问题是个非常大的挑战。总体来说，分布式文件系统的元数据管理方式大致可以分为三种模型，即集中式元数据服务模型、分布式元数据服务模型和无元数据服务模型。在学术界和工业界，这三种模型一直存在争议，各有优势和不足之处，实际系统实现中也难分优劣。实际上，设计出一个能够适用各种数据应用负载的通用分布式文件系统，这种想法本来就是不现实的。从这个意义上看，这三种元数据服务模型都有各自存在的理由，至少是在它适用的数据存储应用领域之内。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2011/12/design-pattern-adapter/#more" rel="contents">
+            <a class="btn" href="/2011/10/dist-filesystem-metadata-server/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -430,8 +427,8 @@
           
           
             
-              <a class="post-title-link" href="/2011/12/design-pattern-facade/" itemprop="url">
-                设计模式 - 门面模式
+              <a class="post-title-link" href="/2011/03/java-probability/" itemprop="url">
+                Java中随机数生成是等概率的吗？
               </a>
             
           
@@ -441,8 +438,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2011-12-26T20:29:00+08:00" content="2011-12-26">
-            2011-12-26
+          <time itemprop="dateCreated" datetime="2011-03-17T22:32:43+08:00" content="2011-03-17">
+            2011-03-17
           </time>
         </span>
 
@@ -467,8 +464,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2011/12/design-pattern-facade/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-facade/" itemprop="commentsCount"></span>
+              <a href="/2011/03/java-probability/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/03/java-probability/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -483,10 +480,18 @@
 
       
         
-          <p><strong>GOF**</strong>定义：**</p>
-<p><em>“Provide a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use.” </em><br>
+          <p>今天群里面问了一个问题：</p>
+<blockquote>
+<p>Java里的随机数生成是等概率的吗？</p>
+</blockquote>
+<p>例如：下面这两行代码将从0-99之间随机生成一个数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.util.Random ran = <span class="keyword">new</span> java.util.Random();</span><br><span class="line"><span class="keyword">int</span> ConnectID=ran.nextInt(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>问：生成0-99之间任意一个数字的概率是相等的吗？</p>
+</blockquote>
+<p>没怎么用过<strong>Random类</strong>，于是乎随意的浏览了一下<strong>Random类</strong>和<strong>nextInt()方法</strong>源代码，无奈水平有限，短时间内无法参透其中的奥秘啊。所以来了一个快速验证的方法，统计学中不是说过<strong>随机事件</strong>的概率，一般可以通过<strong>大量重复试验</strong>求得其近似值么。于是乎，我也通过<strong>大量重复试验</strong>来求求其概率吧。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2011/12/design-pattern-facade/#more" rel="contents">
+            <a class="btn" href="/2011/03/java-probability/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -519,8 +524,8 @@
           
           
             
-              <a class="post-title-link" href="/2011/12/design-pattern-decorate/" itemprop="url">
-                设计模式 - 装饰模式
+              <a class="post-title-link" href="/2011/03/study-school-sociey/" itemprop="url">
+                学校与社会学习的不同
               </a>
             
           
@@ -530,8 +535,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2011-12-25T23:41:03+08:00" content="2011-12-25">
-            2011-12-25
+          <time itemprop="dateCreated" datetime="2011-03-09T00:59:51+08:00" content="2011-03-09">
+            2011-03-09
           </time>
         </span>
 
@@ -540,8 +545,8 @@
             &nbsp; | &nbsp; 分类于
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/技术分享/" itemprop="url" rel="index">
-                  <span itemprop="name">技术分享</span>
+                <a href="/categories/生活分享/" itemprop="url" rel="index">
+                  <span itemprop="name">生活分享</span>
                 </a>
               </span>
 
@@ -556,8 +561,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2011/12/design-pattern-decorate/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-decorate/" itemprop="commentsCount"></span>
+              <a href="/2011/03/study-school-sociey/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/03/study-school-sociey/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -572,11 +577,10 @@
 
       
         
-          <p><strong>GOF**</strong>定义：**</p>
-<p><em>“Attach additional responsibilities to an object dynamically keeping the same interface. Decorators provide a flexible alternative to subclassing for extending functionality.” </em></p>
-<p><em>“动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式相比生成子类更为灵活。”</em><br>
+          <p>我现在谈这个似乎还挺嫩，但是还是表达一下自己的看法吧，给以后更成熟的我做一个对比。</p>
+<p>从小受我爸的熏陶，官场商场酒桌歌厅到处溜达，也见识了不少社会的“陋习”。酒桌文化、烟文化等。可以说，大学前我还算一个小混混吧，留着近似齐肩的头发，穿着长似连衣裙的衣服，踩着牛腿粗的裤脚，带着蝙蝠侠的白色镜框，不过还好我不抽烟不嗜酒不打牌。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2011/12/design-pattern-decorate/#more" rel="contents">
+            <a class="btn" href="/2011/03/study-school-sociey/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -609,8 +613,8 @@
           
           
             
-              <a class="post-title-link" href="/2011/12/design-pattern-proxy/" itemprop="url">
-                设计模式 - 代理模式
+              <a class="post-title-link" href="/2011/03/english-punctuate/" itemprop="url">
+                那些英语标点怎么读
               </a>
             
           
@@ -620,8 +624,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2011-12-25T23:37:24+08:00" content="2011-12-25">
-            2011-12-25
+          <time itemprop="dateCreated" datetime="2011-03-08T15:52:59+08:00" content="2011-03-08">
+            2011-03-08
           </time>
         </span>
 
@@ -630,8 +634,8 @@
             &nbsp; | &nbsp; 分类于
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/技术分享/" itemprop="url" rel="index">
-                  <span itemprop="name">技术分享</span>
+                <a href="/categories/生活分享/" itemprop="url" rel="index">
+                  <span itemprop="name">生活分享</span>
                 </a>
               </span>
 
@@ -646,8 +650,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2011/12/design-pattern-proxy/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-proxy/" itemprop="commentsCount"></span>
+              <a href="/2011/03/english-punctuate/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/03/english-punctuate/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -662,14 +666,11 @@
 
       
         
-          <p><strong>GOF**</strong>定义：**</p>
-<p><em>“Provide a surrogate or placeholder for another object to control access to it.” </em></p>
-<p><em>“为其它对象提供一种代理以控制对这个对象的访问。”</em><br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2011/12/design-pattern-proxy/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
+          <span itemprop="articleBody"><figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">+　 plus　加号；正号</span><br><span class="line">-　 minus　减号；负号</span><br><span class="line">±　plus <span class="keyword">or</span> minus　正负号</span><br><span class="line">×　<span class="keyword">is</span> multiplied <span class="keyword">by</span>　乘号</span><br><span class="line">÷　<span class="keyword">is</span> divided <span class="keyword">by</span>　除号</span><br><span class="line">＝　<span class="keyword">is</span> equal <span class="keyword">to</span>　等于号</span><br><span class="line">≠　<span class="keyword">is</span> <span class="keyword">not</span> equal <span class="keyword">to</span>　不等于号</span><br><span class="line">≡　<span class="keyword">is</span> equivalent <span class="keyword">to</span>　全等于号</span><br><span class="line">≌　<span class="keyword">is</span> equal <span class="keyword">to</span> <span class="keyword">or</span> approximately equal <span class="keyword">to</span>　等于或约等于号</span><br><span class="line">≈　<span class="keyword">is</span> approximately equal <span class="keyword">to</span>　约等于号</span><br><span class="line">＜　<span class="keyword">is</span> less than　小于号</span><br><span class="line">＞　<span class="keyword">is</span> greater than　大于号</span><br><span class="line">≮　<span class="keyword">is</span> <span class="keyword">not</span> less than　不小于号</span><br><span class="line">≯　<span class="keyword">is</span> <span class="keyword">not</span> more than　不大于号</span><br><span class="line">≤　<span class="keyword">is</span> less than <span class="keyword">or</span> equal <span class="keyword">to</span>　小于或等于号</span><br><span class="line">≥　<span class="keyword">is</span> more than <span class="keyword">or</span> equal <span class="keyword">to</span>　大于或等于号</span><br><span class="line">&lt;!--more-<span class="function">-&gt;</span></span><br><span class="line">%　 per cent　百分之…</span><br><span class="line">‰　per mill　千分之…</span><br><span class="line">∞　infinity　无限大号</span><br><span class="line">∝　varies as　与…成比例</span><br><span class="line">√　(square) root　平方根</span><br><span class="line">∵　since; because　因为</span><br><span class="line">∴　hence　所以</span><br><span class="line">∷　equals, as (proportion)　等于，成比例</span><br><span class="line">∠　angle　角</span><br><span class="line">⌒　semicircle　半圆</span><br><span class="line">⊙　circle　圆</span><br><span class="line">○　circumference　圆周</span><br><span class="line">π　pi 圆周率</span><br><span class="line">△　triangle　三角形</span><br><span class="line">⊥　perpendicular <span class="keyword">to</span>　垂直于</span><br><span class="line">∪　union <span class="keyword">of</span>　并，合集</span><br><span class="line">∩　intersection <span class="keyword">of</span> 交，通集</span><br><span class="line">∫　the integral <span class="keyword">of</span> …的积分</span><br><span class="line">∑　(sigma) summation <span class="keyword">of</span>　总和</span><br><span class="line">°　degree　度</span><br><span class="line">′　minute　分</span><br><span class="line">″　second　秒</span><br><span class="line">℃　Celsius system　摄氏度</span><br><span class="line">&#123;　open brace, open curly　左花括号</span><br><span class="line">&#125;　close brace, close curly　右花括号</span><br><span class="line">(　open parenthesis, open paren　左圆括号</span><br><span class="line">)　close parenthesis, close paren　右圆括号</span><br><span class="line">() brakets/ parentheses　括号</span><br><span class="line">[　open bracket 左方括号</span><br><span class="line">]　close bracket 右方括号</span><br><span class="line">[] square brackets　方括号</span><br><span class="line">.　period, dot　句号，点</span><br><span class="line">|　vertical bar, vertical virgule　竖线</span><br><span class="line">&amp;　ampersand, <span class="keyword">and</span>, reference, ref　和，引用</span><br><span class="line">*　asterisk, multiply, star, pointer　星号，乘号，星，指针</span><br><span class="line">/　slash, divide, oblique 斜线，斜杠，除号</span><br><span class="line"><span class="pi">//　slash-slash, comment 双斜线，注释符</span><br><span class="line"><span class="comment">#　pound　井号</span></span><br><span class="line">\　backslash, sometimes escape　反斜线转义符，有时表示转义符或续行符</span><br><span class="line">~　tilde　波浪符</span><br><span class="line">.　full stop　句号</span><br><span class="line">,　comma　逗号</span><br><span class="line">:　colon　冒号</span><br><span class="line">;　semicolon　分号</span><br><span class="line">?　question mark　问号</span><br><span class="line">!　exclamation mark (英式英语) exclamation point (美式英语)</span><br><span class="line">'　apostrophe　撇号</span><br><span class="line">-　hyphen　连字号</span><br><span class="line">-- dash 破折号</span><br><span class="line">...　dots/ ellipsis　省略号</span><br><span class="line">"　single quotation marks 单引号</span><br><span class="line">""　double quotation marks 双引号</span><br><span class="line">‖ parallel 双线号</span><br><span class="line">&amp;　ampersand = and</span><br><span class="line">～　swung dash 代字号</span><br><span class="line">§　section; division 分节号</span><br><span class="line">→　arrow 箭号；参见号</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a href="http://blog.sina.com.cn/s/blog_515dc9340100gy95.html" target="_blank" rel="external">原文链接</a></p>
+</blockquote>
+</span>
         
       
     </div>
@@ -699,8 +700,8 @@
           
           
             
-              <a class="post-title-link" href="/2011/12/design-pattern-additional/" itemprop="url">
-                设计模式 - 优点总结（补）
+              <a class="post-title-link" href="/2011/03/ranksystem-in-social-network/" itemprop="url">
+                从《社交网络》以及美女排名系统看问题
               </a>
             
           
@@ -710,8 +711,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2011-12-25T23:36:59+08:00" content="2011-12-25">
-            2011-12-25
+          <time itemprop="dateCreated" datetime="2011-03-06T23:33:20+08:00" content="2011-03-06">
+            2011-03-06
           </time>
         </span>
 
@@ -736,8 +737,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2011/12/design-pattern-additional/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2011/12/design-pattern-additional/" itemprop="commentsCount"></span>
+              <a href="/2011/03/ranksystem-in-social-network/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/03/ranksystem-in-social-network/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -752,9 +753,10 @@
 
       
         
-          <p>之前写的模式（工厂、抽象工厂、单例、观察者、责任链）没有总结优点，在这里补上。<br>
+          <p><img src="/images/ranksystem-in-social-network.png" alt="image"></p>
+<p>大概是2个月前看的这部电影，没有过多关注拍摄手法、演技等电影元素，关注的是<a href="http://people.mtime.com/914798/">Jesse Eisenberg</a>对Mark的人物演绎。人和人是有差距的，这点我很赞同。那么，我和Mark之间的差距在哪？</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2011/12/design-pattern-additional/#more" rel="contents">
+            <a class="btn" href="/2011/03/ranksystem-in-social-network/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -780,7 +782,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/12/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span>
   </nav>
 
  </div>
@@ -814,21 +816,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

@@ -35,21 +35,18 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="一、问题描述
-有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+<meta name="description" content="一、问题描述有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="算法设计 - 概率初探">
 <meta property="og:url" content="http://hongweiyi.com/2012/02/algorithm-probability/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="一、问题描述
-有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
-<meta property="og:image" content="http://hongweiyi.com/images/2012/02/image_thumb1.png">
-<meta property="og:image" content="http://hongweiyi.com/images/2012/02/image_thumb2.png">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="一、问题描述有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/image1.png">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/image2.png">
+<meta property="og:updated_time" content="2015-12-29T15:30:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="算法设计 - 概率初探">
-<meta name="twitter:description" content="一、问题描述
-有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
+<meta name="twitter:description" content="一、问题描述有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -217,54 +214,34 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>一、问题描述</strong></p>
-<p>有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。</p>
+        <span itemprop="articleBody"><h3 id="一、问题描述">一、问题描述</h3><p>有n个元素，需要随机选择m个，且要保证每个元素被选的概率相同。</p>
  <a id="more"></a>  
-<p><strong>二、解决思路</strong></p>
-<p><strong>1**</strong>）解法一**</p>
-<p>拿这题问朋友的时候，很多人都是说：“一个m长度的for循环，取m次random。”</p>
-<p>这个方法看似可以，简单方便，代码也一目了然：    <table border="1" cellspacing="0" cellpadding="0" width="561"><tbody>       <tr>         <td valign="top" width="559">           <p>// random() -&gt; (0,1)</p>
-<p>for i in [0, m):</p>
-<p>&#160;&#160;&#160; results[i] = data[random()*(n-1)]<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<h3 id="二、解决思路">二、解决思路</h3><h4 id="1）解法一">1）解法一</h4><p>拿这题问朋友的时候，很多人都是说：“一个m长度的for循环，取m次random。”</p>
+<p>这个方法看似可以，简单方便，代码也一目了然：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// random() -&gt; (0,1)</span></span><br><span class="line"><span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> [<span class="number">0</span>, m):</span><br><span class="line">    results[i] = data[<span class="function"><span class="title">random</span><span class="params">()</span></span>*(n-<span class="number">1</span>)]</span><br></pre></td></tr></table></figure>
 <p>但是，这段代码有什么问题吗？结果集中会不会出现重复的结果呢？既然是随机的，那肯定就有可能重复，如何消重就得看解法二了。</p>
-<p><strong>2**</strong>）解法二**</p>
-<p>要消重的话，就需要将已经选择的元素剔出，不进入下一次迭代过程。这个就和中国古代的“抓阄”是一个概念了，用高中知识解释就是“古典概率模型”——在有限多个基本结果、每个结果出现的可能性相同的条件下，先选与后选概率相同。</p>
+<h4 id="2）解法二">2）解法二</h4><p>要消重的话，就需要将已经选择的元素剔出，不进入下一次迭代过程。这个就和中国古代的“抓阄”是一个概念了，用高中知识解释就是“古典概率模型”——在有限多个基本结果、每个结果出现的可能性相同的条件下，先选与后选概率相同。</p>
 <p>将已经选择的元素剔出看似很方便，直接删除即可。但是数据集采用数组形式存储，删除的时间复杂度为线性，有人又说可以改成链表，但是链表存储查找又是线性时间了。那么我们能做的就是不删除元素，只是改变一下它的位置：将已选择的元素移到数组末尾。如下图：</p>
-<p><a href="/images/2012/02/image1.png"><img src="/images/2012/02/image_thumb1.png" alt="image" title="image"></a> </p>
-<p>代码如下：    <table border="1" cellspacing="0" cellpadding="0" width="561"><tbody>       <tr>         <td valign="top" width="559">           <p>// random() -&gt; (0,1)</p>
-<p>tmp := n-1;</p>
-<p>for i in [0, m):</p>
-<p>&#160;&#160;&#160; swap(data, random()*tmp, tmp);</p>
-<p>&#160;&#160;&#160; tmp–;<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p>题外话：以上问题源自实际编码中，同时在&lt;编程珠玑 II&gt;中也有提到，不过书中所提到是现实生活问题：N个地区，随机选择M个做样本。书中提到了一个很有趣的解法：“将N个地区名字打印出来，剪成均等的字条，放入纸篓摇乱，抓取M条。”作者称之为haha!算法，的确，看到这个算法我也哈哈大笑了很久。有时候，我们如果打破我们的概念壁垒，换一种思维思考问题，是一种解法更是一种乐趣。</p>
-<p><strong>三、问题升级</strong></p>
-<p>问题一升级，就到了Google的经典面试题了：给你一个长度为N的链表。N很大，但你不知道N有多大。你的任务是从这N个元素中随机取出k个元素。你只能遍历这个链表一次。你的算法必须保证取出的元素恰好有k个，且它们是完全随机的（出现概率均等）？</p>
-<p><strong>四、升级问题解法</strong></p>
-<p>不知道N的长度，就不满足古典概型的有限个基本问题的要求。如题目没要求只能遍历一遍，可否求出长度再转换成古典概型呢？怕也不行，如果数据是动态增加的，两次遍历依然无法解决问题。</p>
+<p><img src="/images/2012/02/image1.png" alt="image"></p>
+<p>代码如下：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// random() -&gt; (<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line"><span class="title">tmp</span> := n-<span class="number">1</span>;</span><br><span class="line"><span class="title">for</span> i <span class="keyword">in</span> [<span class="number">0</span>, m):</span><br><span class="line">    swap(<span class="typedef"><span class="keyword">data</span>, random<span class="container">()</span>*tmp, tmp);</span></span><br><span class="line">    tmp–;</span><br></pre></td></tr></table></figure>
+<p>题外话：以上问题源自实际编码中，同时在编程珠玑 II中也有提到，不过书中所提到是现实生活问题：N个地区，随机选择M个做样本。书中提到了一个很有趣的解法：“将N个地区名字打印出来，剪成均等的字条，放入纸篓摇乱，抓取M条。”作者称之为haha!算法，的确，看到这个算法我也哈哈大笑了很久。有时候，我们如果打破我们的概念壁垒，换一种思维思考问题，是一种解法更是一种乐趣。</p>
+<h3 id="三、问题升级">三、问题升级</h3><p>问题一升级，就到了Google的经典面试题了：给你一个长度为N的链表。N很大，但你不知道N有多大。你的任务是从这N个元素中随机取出k个元素。你只能遍历这个链表一次。你的算法必须保证取出的元素恰好有k个，且它们是完全随机的（出现概率均等）？</p>
+<h3 id="四、升级问题解法">四、升级问题解法</h3><p>不知道N的长度，就不满足古典概型的有限个基本问题的要求。如题目没要求只能遍历一遍，可否求出长度再转换成古典概型呢？怕也不行，如果数据是动态增加的，两次遍历依然无法解决问题。</p>
 <p>那么问题就转换成蓄水池抽样（Reservoir Sampling）问题了。算法描述如下：</p>
 <p>1）先选择前k个元素，放入结果集中；</p>
 <p>2）从k+1开始，取[1, k+1]的random，如果得到的随机数小于k，就替换掉结果集中的相应元素；</p>
 <p>3）重复第2步，直到迭代完毕。</p>
-<p>伪代码：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>// random() -&gt; (0,1)</p>
-<p>for i in [0, n):</p>
-<p>&#160;&#160;&#160; if i &lt; k then: // 将前k个元素放入结果集中</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; results[i] := data[i];</p>
-<p>&#160;&#160;&#160; else:</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; tmp := random() * i;</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; if tmp &lt; k then:</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; swap(results, tmp, data, i); // 交换结果集与数据集的元素<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>证明1：</strong></p>
-<p>1）前k个被选中的概率均为1；</p>
+<p>伪代码：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// random() -&gt; (<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line"><span class="title">for</span> i <span class="keyword">in</span> [<span class="number">0</span>, n):</span><br><span class="line">    <span class="keyword">if</span> i &lt; k <span class="keyword">then</span>: // 将前k个元素放入结果集中</span><br><span class="line">        results[i] := <span class="typedef"><span class="keyword">data</span>[i];</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        tmp := random() * i;</span><br><span class="line">        <span class="keyword">if</span> tmp &lt; k <span class="keyword">then</span>:</span><br><span class="line">            swap(results, tmp, <span class="typedef"><span class="keyword">data</span>, i); // 交换结果集与数据集的元素</span></span><br></pre></td></tr></table></figure>
+<h4 id="证明1：">证明1：</h4><p>1）前k个被选中的概率均为1；</p>
 <p>2）第k+1个元素被选中概率为k/k+1，结果集中的元素没被剔出的概率为： 1-p， p = （k / k+1）×（1 / k）。k / k+1为第k+1被选中的概率，1 / k为不幸被剔出的概率。综上，结果集中元素没被剔出的概率也为k / k+1；</p>
 <p>3）归纳法，即可证明。</p>
-<p><strong>证明2：</strong></p>
-<p>同样也可以这样证明，元素a被选中的概率为：</p>
+<h4 id="证明2：">证明2：</h4><p>同样也可以这样证明，元素a被选中的概率为：</p>
 <p>被选中的概率×（后面元素没被选中 + 后面元素被选中 × 没被替换的概率）</p>
-<p><a href="/images/2012/02/image2.png"><img src="/images/2012/02/image_thumb2.png" alt="image" title="image"></a> </p>
+<p><img src="/images/2012/02/image2.png" alt="image"></p>
 <p>证明2简明扼要啊！</p>
-<p><strong>五、总结</strong></p>
-<p>其实没啥好总结的，上面所提到仅仅只是概率运用的很小一部分。对概率理解还是得从古典概率模型出发，一般情况下，书上将概率算法大致分为四类：数值概率算法、蒙特卡罗（Monte Carlo）算法、拉斯维加斯（Las Vegas）算法和舍伍德（Sherwood）算法，我也没想通上面的是属于上面四种的哪一种，或许哪种都不是，算法嘛，思想在即可，不必纠结于概念。</p>
-<p>顺便说句：两天前，一次不经意的防泼溅测试，我的小黑本不幸挂了。两天后的今天，换了主板的小黑又原地复活啦！！！哈哈……</p>
+<h3 id="五、总结">五、总结</h3><p>其实没啥好总结的，上面所提到仅仅只是概率运用的很小一部分。对概率理解还是得从古典概率模型出发，一般情况下，书上将概率算法大致分为四类：数值概率算法、蒙特卡罗（Monte Carlo）算法、拉斯维加斯（Las Vegas）算法和舍伍德（Sherwood）算法，我也没想通上面的是属于上面四种的哪一种，或许哪种都不是，算法嘛，思想在即可，不必纠结于概念。</p>
 </span>
       
     </div>
@@ -354,21 +331,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -396,7 +373,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、问题描述"><span class="nav-number">1.</span> <span class="nav-text">一、问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、解决思路"><span class="nav-number">2.</span> <span class="nav-text">二、解决思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）解法一"><span class="nav-number">2.1.</span> <span class="nav-text">1）解法一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）解法二"><span class="nav-number">2.2.</span> <span class="nav-text">2）解法二</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、问题升级"><span class="nav-number">3.</span> <span class="nav-text">三、问题升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、升级问题解法"><span class="nav-number">4.</span> <span class="nav-text">四、升级问题解法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#证明1："><span class="nav-number">4.1.</span> <span class="nav-text">证明1：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#证明2："><span class="nav-number">4.2.</span> <span class="nav-text">证明2：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、总结"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

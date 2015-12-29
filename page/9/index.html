@@ -570,8 +570,7 @@
 
       
         
-          <p><strong>1**</strong>、前言**</p>
-<p>前面两篇<a href="http://www.hongweiyi.com/2012/02/mapred-optimize/">（一）</a><a href="http://www.hongweiyi.com/2012/02/iterative-mapred-distcache/">（二）</a>解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。</p>
+          <h3 id="1、前言">1、前言</h3><p>前面两篇<a href="http://www.hongweiyi.com/2012/02/mapred-optimize/">（一）</a><a href="http://www.hongweiyi.com/2012/02/iterative-mapred-distcache/">（二）</a>解决方案分别从静态数据（Invariant Data）分离以及分布式缓存来优化迭代式Mapreduce，但是由于Mapreduce天生的缺陷，再加上分布式缓存是分布存放在本地磁盘的，没有一个好的读取方案的话，就会大大提高了每个task的磁盘IO次数。这篇博客算是迭代式Mapreduce的收尾了，来整体分析一下我的解决方案和Haloop方案吧。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2012/02/iterative-mapred-summary-haloop/#more" rel="contents">
               阅读全文 &raquo;
@@ -777,7 +776,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/10/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/8/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/">&raquo;</a>
   </nav>
 
  </div>
@@ -811,21 +810,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

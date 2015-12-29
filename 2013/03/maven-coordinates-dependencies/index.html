@@ -26,7 +26,7 @@
 
 
 
-  <meta name="keywords" content="Maven,java," />
+  <meta name="keywords" content="Java,Maven," />
 
 
 
@@ -36,24 +36,24 @@
 
 
 <meta name="description" content="1、前言
-Maven [&apos;meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
+Maven [meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
 
-&amp;lt;!--more--&amp;gt">
+&amp;lt;!--more--&amp;gt;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Maven笔记 – 坐标与依赖">
 <meta property="og:url" content="http://hongweiyi.com/2013/03/maven-coordinates-dependencies/index.html">
 <meta property="og:site_name" content="小e的笔记">
 <meta property="og:description" content="1、前言
-Maven [&apos;meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
+Maven [meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
 
-&amp;lt;!--more--&amp;gt">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+&amp;lt;!--more--&amp;gt;">
+<meta property="og:updated_time" content="2015-12-29T15:04:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Maven笔记 – 坐标与依赖">
 <meta name="twitter:description" content="1、前言
-Maven [&apos;meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
+Maven [meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
 
-&amp;lt;!--more--&amp;gt">
+&amp;lt;!--more--&amp;gt;">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -222,7 +222,7 @@ Maven [&apos;meivin]，原意为内行、专家，用在Java开发中则是用�
 
       
         <span itemprop="articleBody"><p><strong>1、前言</strong></p>
-<pre><code>Maven ['meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
+<pre><code>Maven [meivin]，原意为内行、专家，用在Java开发中则是用于项目构建、依赖管理和项目信息管理。仔细总结一下，我们会发现，除了编写源代码，我们每天都有相当一部分时间花在了编译、运行单元测试、生成文档、打包和部署等繁琐且不起眼的工作上，这就是构建了。通过Maven可以通过一个简单的命令，让所有繁琐的步骤都能够自动完成，很方便的得到最终结果。
 
 <span class="variable">&lt;!--more--&gt;</span>
 
@@ -299,9 +299,9 @@ A如果要用X或者Y的话，需要在POM中显示声明该Dependency。
       
         <div class="post-tags">
           
-            <a href="/tags/Maven/" rel="tag">#Maven</a>
+            <a href="/tags/Java/" rel="tag">#Java</a>
           
-            <a href="/tags/java/" rel="tag">#java</a>
+            <a href="/tags/Maven/" rel="tag">#Maven</a>
           
         </div>
       
@@ -382,21 +382,21 @@ A如果要用X或者Y的话，需要在POM中显示声明该Dependency。
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

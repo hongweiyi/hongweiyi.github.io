@@ -216,8 +216,7 @@
 
       
         
-          <p><strong>1、前言</strong></p>
-<pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
+          <h3 id="1、前言">1、前言</h3><pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
 </code></pre>
           <div class="post-more-link text-center">
             <a class="btn" href="/2013/08/solr-switch-query-parser/#more" rel="contents">
@@ -312,95 +311,6 @@
 <p><strong>BTW: </strong>没感觉应该是因为一直没怎么接触数据库吧，罪过罪过(- -)
           <div class="post-more-link text-center">
             <a class="btn" href="/2013/05/multi-columns-group-by/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2013/04/apache-solr-distributed-search/" itemprop="url">
-                Apache Solr —— DistributedSearch
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于
-          <time itemprop="dateCreated" datetime="2013-04-08T18:04:00+08:00" content="2013-04-08">
-            2013-04-08
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; 分类于
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/技术分享/" itemprop="url" rel="index">
-                  <span itemprop="name">技术分享</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2013/04/apache-solr-distributed-search/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/apache-solr-distributed-search/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <h3 id="1、前言">1、前言</h3><p>当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。</p>
-<p>Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，这个分布式查询内部是怎么实现的呢？</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2013/04/apache-solr-distributed-search/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -609,6 +519,95 @@
           
           
             
+              <a class="post-title-link" href="/2013/04/apache-solr-distributed-search/" itemprop="url">
+                Apache Solr —— DistributedSearch
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-04-08T18:04:00+08:00" content="2013-04-08">
+            2013-04-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/技术分享/" itemprop="url" rel="index">
+                  <span itemprop="name">技术分享</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/04/apache-solr-distributed-search/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/apache-solr-distributed-search/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <h3 id="1、前言">1、前言</h3><p>当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。</p>
+<p>Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，这个分布式查询内部是怎么实现的呢？</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2013/04/apache-solr-distributed-search/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2013/03/apache-solr-facet-pivot-implementation-tranplant/" itemprop="url">
                 Apache Solr —— Facet Pivot实现与低版本移植
               </a>
@@ -778,7 +777,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/5/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/3/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/5/">&raquo;</a>
   </nav>
 
  </div>
@@ -812,21 +811,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

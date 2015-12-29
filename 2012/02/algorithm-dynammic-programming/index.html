@@ -35,19 +35,17 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="一、定义说明
-动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+<meta name="description" content="一、定义说明动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="算法设计 - 动态规划">
 <meta property="og:url" content="http://hongweiyi.com/2012/02/algorithm-dynammic-programming/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="一、定义说明
-动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="一、定义说明动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image0021.jpg">
+<meta property="og:updated_time" content="2015-12-29T15:28:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="算法设计 - 动态规划">
-<meta name="twitter:description" content="一、定义说明
-动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
+<meta name="twitter:description" content="一、定义说明动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -215,98 +213,60 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>一、定义说明</strong></p>
-<pre><code>动态规划（<span class="keyword">Dynamic</span> Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。
-</code></pre><a id="more"></a>
-<pre><code>动态规划常用于求最优解问题，此类问题可能有很多可行解，每个解都有一个值，而我们希望找到一个最优（最大、最小）值的解。需要注意，这样的问题可能有多个最优解，但是我们只求解&amp;ldquo;一个&amp;rdquo;。
-
-动态规划算法的设计分为如下<span class="number">4</span>个步骤：
-
-<span class="number">1</span>）描述最优解的结构；
-
-<span class="number">2</span>）递归定义最优解的值；
-
-<span class="number">3</span>）按自底向上的方式计算最优解的值；
-
-<span class="number">4</span>）由计算出的结果构造一个最优解。
-
-**二、简单示例**
-
-斐波那契（Fibonacci）数列。相信所有大学生都对这个名字不会陌生，大计基（大学计算机基础）课上老师会给大家一个这样的公式：
-</code></pre><blockquote>
-<p>f(n) = f(n-2) + f(n-1);&nbsp;&nbsp;f(0) =0,&nbsp;f(1) = 1</p>
+        <span itemprop="articleBody"><h3 id="一、定义说明">一、定义说明</h3><p>动态规划（Dynamic Programming）是通过组合子问题的解而解决整个问题的。分治法算是是将问题划分成一些独立的子问题，递归地求解各子问题，递归地求解个子问题，然后合并子问题的解而得到原问题的解。而动态规划与此不同，它是用于子问题不是独立的情况，就是各子问题包含公共的子的子问题。</p>
+<a id="more"></a>
+<p>动态规划常用于求最优解问题，此类问题可能有很多可行解，每个解都有一个值，而我们希望找到一个最优（最大、最小）值的解。需要注意，这样的问题可能有多个最优解，但是我们只求解一个。</p>
+<p>动态规划算法的设计分为如下4个步骤：</p>
+<ol>
+<li>描述最优解的结构；</li>
+<li>递归定义最优解的值；</li>
+<li>按自底向上的方式计算最优解的值；</li>
+<li>由计算出的结果构造一个最优解。</li>
+</ol>
+<h3 id="二、简单示例">二、简单示例</h3><p>斐波那契（Fibonacci）数列。相信所有大学生都对这个名字不会陌生，大计基（大学计算机基础）课上老师会给大家一个这样的公式：</p>
+<blockquote>
+<p>f(n) = f(n-2) + f(n-1);  f(0) =0, f(1) = 1</p>
 </blockquote>
-<pre><code>同时，老师就会给一个递归的解，几行代码了事。期末或国家计算机考试的时候，写出递归解就算过关了。但对于我们程序猿来说，可不是这么回事了，递归算<span class="function"><span class="title">f</span><span class="params">(<span class="number">20</span>)</span></span>都算不出来。
-
-不知道拿Fibonacci说事合理不合理，因为Fibonacci数列不存在最优不最优，我们姑且算求得答案算最优解吧。
-
-动态规划有两个要素：**最优子结构与重叠子问题**。
-
-最优子结构要素：如果问题的最优解所包含的子问题的解也是最优的，我们就称该问题具有最优子结构要素。
-
-子问题重叠要素：子问题重叠要素是指在用递归算法自顶向下对问题进行求解时，每次产生的子问题并不总是新问题，有些子问题会被重复计算多次。
-
-Fibonacci数列满足最优子结构，那子问题重叠呢？<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">1</span>)</span></span>、<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">2</span>)</span></span>均要用到<span class="function"><span class="title">f</span><span class="params">(n-<span class="number">3</span>)</span></span>的解，但是每次都要重复计算一次，所以也满足子问题重叠性质。
-
-已经描述了Fibonacci的最优解结构，公式也就是其递归解，现在需要做的就是自底向上计算最优解了，伪代码如下：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    f[] := new bigint[n];<br><br>                    f[0] := f[1] := 1;<br><br>                    for i in [2, n):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp; f[i] := f[i-1] + f[i-2];<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code>构造出的最优解就是上述代码中的f(n)了。动态规划利用了子问题的重叠性质，对每一个子问题只计算一次，然后将其计算结果保存在一个表格中，当再次需要计算已经计算过的子问题时，只是在表格中简单地查看一下结果，从而获得较高的效率。
-
-<span class="strong">**三、经典例子**</span>
-
-接下来汇总一些经典的动态规划问题，但是只给出状态转移方程（递归解）和伪代码。
-
-<span class="strong">**1）01背包问题**</span>
-
-有N件物品和一个容量为W的背包。第i件物品的重量是w[i]，价值是v[i]。求解将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。为啥叫01背包呢，因为每个物体就一件，放就是1不放就是0。
-
-子问题为V[<span class="link_label">i</span>][<span class="link_reference">w</span>]，定义为：前i件物品恰放入一个容量为w的背包可以获得的最大价值。
-
-状态转移方程：
-
-V[<span class="link_label">i</span>][<span class="link_reference">w</span>] = MAX{V[<span class="link_label">i-1</span>][<span class="link_reference">w</span>], V[<span class="link_label">i-1</span>][<span class="link_reference">w-w[i</span>]]+v[i]}
-
-其中，V[<span class="link_label">i-1</span>][<span class="link_reference">w</span>]代表第i件物品没有加入到背包中（为0），V[<span class="link_label">i-1</span>][<span class="link_reference">w-w[i</span>]]+v[i]表示第i件物品加入了（为1），在01中取最大值。
-
-伪代码：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    V[][] := new int[n][W]<br><br>                    for i in [1, n):<br><br>                    &nbsp;&nbsp;&nbsp; for w in (W, w[i-1]]: // 保证w-w[i-1]不越界<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V[i][w] := MAX{V[i-1][w], V[i-1][w-w[i]]+v[i]}<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code>上面的时间复杂度为<span class="function"><span class="title">O</span><span class="params">(n*W)</span></span>，空间复杂度也为<span class="function"><span class="title">O</span><span class="params">(n*W)</span></span>。我们可以压缩一下空间，因为我们只需要袋子装满没有，装满后的价值是多少，设V[w]：在w重量下，袋子中物品的最大价值。
-
-状态转移方程：
-</code></pre><blockquote>
-<p>V [w] = MAX{V[w], V[w-w[i]]+v[i]}</p>
+<p>同时，老师就会给一个递归的解，几行代码了事。期末或国家计算机考试的时候，写出递归解就算过关了。但对于我们程序猿来说，可不是这么回事了，递归算f(20)都算不出来。</p>
+<p>不知道拿Fibonacci说事合理不合理，因为Fibonacci数列不存在最优不最优，我们姑且算求得答案算最优解吧。</p>
+<p>动态规划有两个要素：<strong>最优子结构与重叠子问题</strong>。</p>
+<ul>
+<li>最优子结构要素：如果问题的最优解所包含的子问题的解也是最优的，我们就称该问题具有最优子结构要素。</li>
+<li>子问题重叠要素：子问题重叠要素是指在用递归算法自顶向下对问题进行求解时，每次产生的子问题并不总是新问题，有些子问题会被重复计算多次。</li>
+</ul>
+<p>Fibonacci数列满足最优子结构，那子问题重叠呢？f(n-1)、f(n-2)均要用到f(n-3)的解，但是每次都要重复计算一次，所以也满足子问题重叠性质。</p>
+<p>已经描述了Fibonacci的最优解结构，公式也就是其递归解，现在需要做的就是自底向上计算最优解了，伪代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">f[] := <span class="keyword">new</span> bigint[n];</span><br><span class="line">f[<span class="number">0</span>] := f[<span class="number">1</span>] := <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span> i in [<span class="number">2</span>, n):</span><br><span class="line">     f[i] := f[i-<span class="number">1</span>] + f[i-<span class="number">2</span>];</span><br></pre></td></tr></table></figure>
+<p>构造出的最优解就是上述代码中的f(n)了。动态规划利用了子问题的重叠性质，对每一个子问题只计算一次，然后将其计算结果保存在一个表格中，当再次需要计算已经计算过的子问题时，只是在表格中简单地查看一下结果，从而获得较高的效率。</p>
+<h3 id="三、经典例子">三、经典例子</h3><p>接下来汇总一些经典的动态规划问题，但是只给出状态转移方程（递归解）和伪代码。</p>
+<h4 id="1）01背包问题">1）01背包问题</h4><p>有N件物品和一个容量为W的背包。第i件物品的重量是w[i]，价值是v[i]。求解将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。为啥叫01背包呢，因为每个物体就一件，放就是1不放就是0。</p>
+<p>子问题为<code>V[i][w]</code>，定义为：前i件物品恰放入一个容量为w的背包可以获得的最大价值。</p>
+<p>状态转移方程：</p>
+<p><code>V[i][w] = MAX{V[i-1][w], V[i-1][w-w[i]]+v[i]}</code></p>
+<p>其中，<code>V[i-1][w]</code>代表第i件物品没有加入到背包中（为0），<code>V[i-1][w-w[i]]+v[i]</code>表示第i件物品加入了（为1），在01中取最大值。</p>
+<p>伪代码：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">V[<span class="link_label"></span>][<span class="link_reference"></span>] := new int[<span class="link_label">n</span>][<span class="link_reference">W</span>]</span><br><span class="line">for i in [1, n):</span><br><span class="line"><span class="code">    for w in (W, w[i-1]]: // 保证w-w[i-1]不越界</span></span><br><span class="line"><span class="code">        V[i][w] := MAX&#123;V[i-1][w], V[i-1][w-w[i]]+v[i]&#125;</span></span><br></pre></td></tr></table></figure>
+<p>上面的时间复杂度为O(n<em>W)，空间复杂度也为O(n</em>W)。我们可以压缩一下空间，因为我们只需要袋子装满没有，装满后的价值是多少，设V[w]：在w重量下，袋子中物品的最大价值。</p>
+<p>状态转移方程：</p>
+<blockquote>
+<p>`V [w] = MAX{V[w], V[w-w[i]]+v[i]}``</p>
 </blockquote>
-<pre><code>伪代码：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    V[]:= new int [W+1]<br><br>                    for i in [0, n):<br><br>                    &nbsp;&nbsp;&nbsp; for w in [W, w[i]-1]: // 保证w-w[i-1]不越界<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V[w] := MAX{V[w], V[w-w[i]]+v[i]}<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code><span class="strong">**2）最长公共子序列（Longest Common Sequence）**</span>
-
-求两数组相同的最长子序列，子序列可以不连续的。状态转移方程：
-
-[<span class="link_label">![clip_image002</span>](<span class="link_url">/images/2012/02/clip_image002_thumb1.jpg "clip_image002"</span>)](<span class="link_url">/images/2012/02/clip_image0021.jpg</span>)
-
-c[<span class="link_label">i</span>][<span class="link_reference">j</span>]表示在字符串x的i位前与字符串y的j位前最长公共子序列。很容易理解，如果一个x[<span class="link_label">i</span>]、y[<span class="link_label">j</span>]相等，c[<span class="link_label">i-1</span>][<span class="link_reference">j-1</span>]加1，不等的话，c[<span class="link_label">i</span>][<span class="link_reference">j</span>]等于c[<span class="link_label">i-1</span>][<span class="link_reference">j</span>]、c[<span class="link_label">i</span>][<span class="link_reference">j-1</span>]中较大的数。
-
-伪代码：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    c[][] := new int[len(x)][len(y)]<br><br>                    for i in [0, len(x)):<br><br>                    &nbsp;&nbsp;&nbsp; for j in [0, len(y));<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if i==0 || j==0 then:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i][j] :=0;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if x[i] == y[j] then:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i-1][j-1] += 1;<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c[i][j]:= MAX{c[i][j-1], c[i-1][j]};<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>3）最长递增子序列（Longest Increase Sequence）<span class="keyword">*</span><span class="keyword">*</span>
-
-求一个一维数组（N个元素）中最长递增子序列的长度。状态转移方程：
-</code></pre><blockquote>
-<p>LIS[i+1] = MAX{1, LIS[k] +1}, array[i+1] &gt; array[k], for k in [0, i]</p>
+<p>伪代码：</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">V<span class="comment">[]</span>:= new int <span class="comment">[W+1]</span></span><br><span class="line">for i in <span class="comment">[0, n):</span><br><span class="line">    for w in <span class="comment">[W, w<span class="comment">[i]</span>-1]</span>: // 保证w-w<span class="comment">[i-1]</span>不越界</span><br><span class="line">        V<span class="comment">[w]</span> := MAX&#123;V<span class="comment">[w]</span>, V<span class="comment">[w-w<span class="comment">[i]</span>]</span>+v<span class="comment">[i]</span>&#125;</span></span><br></pre></td></tr></table></figure>
+<h4 id="2）最长公共子序列（Longest_Common_Sequence）">2）最长公共子序列（Longest Common Sequence）</h4><p>求两数组相同的最长子序列，子序列可以不连续的。状态转移方程：</p>
+<p><img src="/images/2012/02/clip_image0021.jpg" alt="clip_image002"></p>
+<p><code>c[i][j]</code>表示在字符串x的i位前与字符串y的j位前最长公共子序列。很容易理解，如果一个x[i]、y[j]相等，<code>c[i-1][j-1]</code>加1，不等的话，<code>c[i][j]</code>等于<code>c[i-1][j]</code>、<code>c[i][j-1]</code>中较大的数。</p>
+<p>伪代码：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">c[<span class="link_label"></span>][<span class="link_reference"></span>] := new int[<span class="link_label">len(x)</span>][<span class="link_reference">len(y)</span>]</span><br><span class="line">for i in [0, len(x)):</span><br><span class="line"><span class="code">    for j in [0, len(y));</span></span><br><span class="line"><span class="code">        if i==0 || j==0 then:</span></span><br><span class="line"><span class="code">            c[i][j] :=0;</span></span><br><span class="line"><span class="code">        else if x[i] == y[j] then:</span></span><br><span class="line"><span class="code">            c[i-1][j-1] += 1;</span></span><br><span class="line"><span class="code">        else:</span></span><br><span class="line"><span class="code">            c[i][j]:= MAX&#123;c[i][j-1], c[i-1][j]&#125;;</span></span><br></pre></td></tr></table></figure>
+<h4 id="3）最长递增子序列（Longest_Increase_Sequence）">3）最长递增子序列（Longest Increase Sequence）</h4><p>求一个一维数组（N个元素）中最长递增子序列的长度。状态转移方程：</p>
+<blockquote>
+<p><code>LIS[i+1] = MAX{1, LIS[k] +1}, array[i+1] &gt; array[k], for k in [0, i]</code></p>
 </blockquote>
-<pre><code>伪代码：
-</code></pre><table border="1" cellpadding="0" cellspacing="0"><br>    <tbody><br>        <tr><br>            <td valign="top" width="568"><br><br>                    L[] :=new int[len(array)];<br><br>                    for i in [0, len(array)):<br><br>                    &nbsp;&nbsp;&nbsp; L[i] := 1 // 初始默认为1<br><br>                    &nbsp;&nbsp;&nbsp; for j in [0, j):<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if array[i] &gt; array[j] &amp;&amp; L[j] +1 &gt; L[i]:<br><br>                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L[i] = L[j] +1;<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code><span class="strong">**四、小结**</span>
-
-以上整理自&amp;lt;<span class="strong">**算法导论**</span>&amp;gt;、&amp;lt;<span class="strong">**编程之美**</span>&amp;gt;，要掌握动态规划主要是理解两个要素：最优子结构和重叠子问题。要懂得找到一个好的&amp;ldquo;表格&amp;rdquo;来装子问题，将大问题逐步简化，直到得到状态转移方程。&amp;ldquo;表格&amp;rdquo;即子问题最优解，如背包问题：V[<span class="link_label">w</span>]为背包重量为w的时候最大价值；LCS问题：c[<span class="link_label">i</span>][<span class="link_reference">j</span>]为x[0, i]、y[0, j]的最大子序列；LIS问题：L[i]为array[0, i]的最大递增序列。
-
-但要完全掌握动态规划仅靠以上几道经典问题是不够的，需要不断思考、分析、实践，才可逐渐掌握这一算法分析设计方法。以上经典问题的解答也是经典的，还有许多需要优化以及修改的地方，但不写在博客里了，有兴趣的可以参考相关书籍，也欢迎留言讨论。
-</code></pre></span>
+<p>伪代码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">L[] :=new int[len(array)];</span><br><span class="line">for i in [<span class="operator">0, <span class="keyword">len</span>(<span class="built_in">array</span>)):</span><br><span class="line">    <span class="keyword">L</span>[<span class="keyword">i</span>] := <span class="number">1</span> // 初始默认为<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> [<span class="number">0</span>, j):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">array</span>[<span class="keyword">i</span>] &gt; <span class="built_in">array</span>[j] &amp;&amp; <span class="keyword">L</span>[j] +<span class="number">1</span> &gt; <span class="keyword">L</span>[<span class="keyword">i</span>]:</span><br><span class="line">            <span class="keyword">L</span>[<span class="keyword">i</span>] = <span class="keyword">L</span>[j] +<span class="number">1</span>;</span></span><br></pre></td></tr></table></figure>
+<h3 id="四、小结">四、小结</h3><p>以上整理自<strong>算法导论</strong>、<strong>编程之美</strong>;，要掌握动态规划主要是理解两个要素：最优子结构和重叠子问题。要懂得找到一个好的表格来装子问题，将大问题逐步简化，直到得到状态转移方程。表格即子问题最优解，如背包问题：V[w]为背包重量为w的时候最大价值；LCS问题：<code>c[i][j]</code>为x[0, i]、y[0, j]的最大子序列；LIS问题：L[i]为array[0, i]的最大递增序列。</p>
+<p>但要完全掌握动态规划仅靠以上几道经典问题是不够的，需要不断思考、分析、实践，才可逐渐掌握这一算法分析设计方法。以上经典问题的解答也是经典的，还有许多需要优化以及修改的地方，但不写在博客里了，有兴趣的可以参考相关书籍，也欢迎留言讨论。</p>
+</span>
       
     </div>
 
@@ -395,21 +355,21 @@ c[<span class="link_label">i</span>][<span class="link_reference">j</span>]表�
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -437,7 +397,7 @@ c[<span class="link_label">i</span>][<span class="link_reference">j</span>]表�
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、定义说明"><span class="nav-number">1.</span> <span class="nav-text">一、定义说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、简单示例"><span class="nav-number">2.</span> <span class="nav-text">二、简单示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、经典例子"><span class="nav-number">3.</span> <span class="nav-text">三、经典例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）01背包问题"><span class="nav-number">3.1.</span> <span class="nav-text">1）01背包问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）最长公共子序列（Longest_Common_Sequence）"><span class="nav-number">3.2.</span> <span class="nav-text">2）最长公共子序列（Longest Common Sequence）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3）最长递增子序列（Longest_Increase_Sequence）"><span class="nav-number">3.3.</span> <span class="nav-text">3）最长递增子序列（Longest Increase Sequence）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、小结"><span class="nav-number">4.</span> <span class="nav-text">四、小结</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

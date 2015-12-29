@@ -35,20 +35,17 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="一、概述
-这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
+<meta name="description" content="一、概述这篇博文主要是解决上一篇迭代式MapReduce解决方案（一）中总结所提到的第三个问题，与网上大多数Hadoop调优（董的博客;、淘宝数据平台）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MapReduce优化（一）">
 <meta property="og:url" content="http://hongweiyi.com/2012/02/mapred-optimize/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="一、概述
-这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
-<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image002_thumb.jpg">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="一、概述这篇博文主要是解决上一篇迭代式MapReduce解决方案（一）中总结所提到的第三个问题，与网上大多数Hadoop调优（董的博客;、淘宝数据平台）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。">
+<meta property="og:image" content="http://hongweiyi.com/images/2012/02/clip_image002.jpg">
+<meta property="og:updated_time" content="2015-12-29T15:49:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MapReduce优化（一）">
-<meta name="twitter:description" content="一、概述
-这篇博文主要是解决上一篇&amp;lt;迭代式MapReduce解决方案（一）&amp;gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&amp;lt;董的博客&amp;gt;、&amp;lt;淘宝数据平台&amp;gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到">
+<meta name="twitter:description" content="一、概述这篇博文主要是解决上一篇迭代式MapReduce解决方案（一）中总结所提到的第三个问题，与网上大多数Hadoop调优（董的博客;、淘宝数据平台）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -216,54 +213,58 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>一、概述</strong></p>
-<p>这篇博文主要是解决上一篇&lt;<a href="http://www.hongweiyi.com/?p=250" target="_blank" rel="external">迭代式MapReduce解决方案（一）</a>&gt;中总结所提到的第三个问题，与网上大多数Hadoop调优（&lt;<a href="http://dongxicheng.org/tag/hadoop%E4%BC%98%E5%8C%96/" target="_blank" rel="external">董的博客</a>&gt;、&lt;<a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">淘宝数据平台</a>&gt;）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。<br> <a id="more"></a>  </p>
-<p><strong>二、问题的提出</strong></p>
-<p>用的例子依然是上篇博客讲到的PageRank计算，其中输入数据为随机生成的100W行记录，大小3.22G。我们也可以来粗略的估算一下，单个map task生成的临时文件大小：</p>
-<p>3.22G数据，100W记录。每行平均32kb，一个split为64M，约2W行数据。由于是随机生成的数据，所以每行平均约为500个外链地址，每个连接地址都会生成一行临时结果&lt;URL_ID AER_PR&gt;，算每行结果15字节，那么最后的生成结果为2W×500×15b = 150M。</p>
+        <span itemprop="articleBody"><h3 id="一、概述">一、概述</h3><p>这篇博文主要是解决上一篇<a href="http://www.hongweiyi.com/?p=250" target="_blank" rel="external">迭代式MapReduce解决方案（一）</a>中总结所提到的第三个问题，与网上大多数Hadoop调优（<a href="http://dongxicheng.org/tag/hadoop%E4%BC%98%E5%8C%96/" target="_blank" rel="external">董的博客</a>;、<a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">淘宝数据平台</a>）不太一样，网上告诉的是方法，但是方法是什么以及优化后能达到什么效果没有一个直观的感受。这篇博文讲述了一些简单的优化手段，可将140M的临时文件缩小到4.9M，期望能有一些对优化一些更为直观的感受，起到抛砖引玉的作用。<br> <a id="more"></a>  </p>
+<h3 id="二、问题的提出">二、问题的提出</h3><p>用的例子依然是上篇博客讲到的PageRank计算，其中输入数据为随机生成的100W行记录，大小3.22G。我们也可以来粗略的估算一下，单个map task生成的临时文件大小：</p>
+<p>3.22G数据，100W记录。每行平均32kb，一个split为64M，约2W行数据。由于是随机生成的数据，所以每行平均约为500个外链地址，每个连接地址都会生成一行临时结果<url_id aer_pr="">，算每行结果15字节，那么最后的生成结果为2W×500×15b = 150M。</url_id></p>
 <p>而实际上，在不进行任何优化的情况下，一个map task生成的临时文件为140.6M，很大的结果啊！</p>
-<p><strong>三、优化方案</strong></p>
-<p><strong>1**</strong>、设置combiner**</p>
-<p>Mapreduce中的Combiner就是为了避免map任务和reduce任务之间的数据传输而设置的，Hadoop允许用户针对map task的输出指定一个合并函数。</p>
+<h3 id="三、优化方案">三、优化方案</h3><h4 id="1、设置combiner">1、设置combiner</h4><p>Mapreduce中的Combiner就是为了避免map任务和reduce任务之间的数据传输而设置的，Hadoop允许用户针对map task的输出指定一个合并函数。</p>
 <p>对于Combiner有几点需要说明的是：</p>
-<p>1）有很多人认为这个combiner和map输出的数据合并是一个过程，其实不然，map输出的数据合并只会产生在有数据spill出的时候，即进行merge操作。</p>
-<p>2）与mapper与reducer不同的是，combiner没有默认的实现，需要显式的设置在conf中才有作用。</p>
-<p>3）并不是所有的job都适用combiner，只有操作满足结合律的才可设置combiner。combine操作类似于：opt(opt(1, 2, 3), opt(4, 5, 6))。如果opt为求和、求最大值的话，可以使用，但是如果是求中值的话，不适用。</p>
-<p>4）一般来说，combiner即reducer，它们俩进行同样的操作。</p>
+<p>1）有很多人认为这个combiner和map输出的数据合并是一个过程，其实不然，map输出的数据合并只会产生在有数据spill出的时候，即进行merge操作。<br>2）与mapper与reducer不同的是，combiner没有默认的实现，需要显式的设置在conf中才有作用。<br>3）并不是所有的job都适用combiner，只有操作满足结合律的才可设置combiner。combine操作类似于：opt(opt(1, 2, 3), opt(4, 5, 6))。如果opt为求和、求最大值的话，可以使用，但是如果是求中值的话，不适用。<br>4）一般来说，combiner即reducer，它们俩进行同样的操作。</p>
 <p>对于PageRank计算来说，单个reduce操作即对值求和，适用combine操作。添加代码如下：</p>
-<blockquote>
-<p>job.setCombinerClass(PRReducer.class);  </p>
-</blockquote>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">job</span><span class="class">.setCombinerClass</span>(<span class="tag">PRReducer</span><span class="class">.class</span>);</span><br></pre></td></tr></table></figure>
 <p>最后输出结果大小28.3M，“压缩”比约为20%。</p>
-<p><strong>2**</strong>、数据压缩**</p>
-<p>顾名思义，对输出结果进行压缩，Hadoop称之为codec。下面列举一些常见的codec：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="123">           <p><strong>压缩格式</strong><br>         </p></td>          <td valign="top" width="406">           </td></tr></tbody></table></p>
-<p><strong>HadoopCompressionCodec</strong><br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
-<p>DEFLATE<br>                   <td valign="top" width="406">           </td></p>
-<p>org.apache.hadoop.io.compress.DefaultCodec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
-<p>gzip<br>                   <td valign="top" width="406">           </td></p>
-<p>org.apache.hadoop.io.compress.GzipCodec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
-<p>bzip2<br>                   <td valign="top" width="406">           </td></p>
-<p>org.apache.hadoop.io.compress.BZip2Codec<br>                        <tr>         <td valign="top" width="123">           </td></tr></p>
-<p>LZO<br>                   <td valign="top" width="406">           </td></p>
-<p>com.hadoop.compression.lzo.LzopCodec<br>                      </p>  <p></p>
+<h4 id="2、数据压缩">2、数据压缩</h4><p>顾名思义，对输出结果进行压缩，Hadoop称之为codec。下面列举一些常见的codec：</p>
+<table>
+<thead>
+<tr>
+<th>压缩格式</th>
+<th>HadoopCompressionCodec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEFLATE</td>
+<td>org.apache.hadoop.io.compress.DefaultCodec</td>
+</tr>
+<tr>
+<td>gzip</td>
+<td>org.apache.hadoop.io.compress.GzipCodec</td>
+</tr>
+<tr>
+<td>bzip2</td>
+<td>org.apache.hadoop.io.compress.BZip2Codec</td>
+</tr>
+<tr>
+<td>LZO</td>
+<td>com.hadoop.compression.lzo.LzopCodec</td>
+</tr>
+</tbody>
+</table>
 <p>以下两行代码即可：</p>
-<blockquote>
-<p>conf.setBoolean(&quot;mapred.compress.map.output&quot;, true);</p>
-<p>conf.set (&quot;mapred.map.output.compression.codec&quot;, &quot;<em>*</em>Codec&quot;);  </p>
-</blockquote>
-<p>但需要注意的是，时间与空间永远是矛盾的，若要获得大的压缩比就会降低一些时间效率。通常来说，想要达到cpu和磁盘压缩比的平衡取舍，LzoCodec比较适合。不过由于GPL许可的原因，该库没有包含在Apache的发行版中，需要单独从<strong><a href="http://code.google.com/p/hadoop-gpl-compression" target="_blank" rel="external">Google Code</a></strong>或<strong><a href="https://github.com/kevinweil/hadoop-lzo" target="_blank" rel="external">GitHub</a></strong>下载，其中后者包含有修正的软件错误及其它一些工具。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">conf</span><span class="class">.setBoolean</span>("<span class="tag">mapred</span><span class="class">.compress</span><span class="class">.map</span><span class="class">.output</span>", <span class="tag">true</span>);</span><br><span class="line"><span class="tag">conf</span><span class="class">.set</span> ("<span class="tag">mapred</span><span class="class">.map</span><span class="class">.output</span><span class="class">.compression</span><span class="class">.codec</span>", "<span class="tag">xxxCodec</span>");</span><br></pre></td></tr></table></figure>
+<p>但需要注意的是，时间与空间永远是矛盾的，若要获得大的压缩比就会降低一些时间效率。通常来说，想要达到cpu和磁盘压缩比的平衡取舍，LzoCodec比较适合。不过由于GPL许可的原因，该库没有包含在Apache的发行版中，需要单独从<a href="http://code.google.com/p/hadoop-gpl-compression" target="_blank" rel="external">Google Code</a>或<a href="https://github.com/kevinweil/hadoop-lzo" target="_blank" rel="external">GitHub</a>下载，其中后者包含有修正的软件错误及其它一些工具。</p>
 <p>本文使用的是默认的压缩方式DefaultCodec，压缩比约为29%。</p>
-<p><strong>3**</strong>、查看临时文件内部，具体情况具体分析**</p>
-<p><a href="/images/2012/02/clip_image002.jpg"><img src="/images/2012/02/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<h4 id="3、查看临时文件内部，具体情况具体分析">3、查看临时文件内部，具体情况具体分析</h4><p><img src="/images/2012/02/clip_image002.jpg" alt="clip_image002"></p>
 <p>上面的文件就是我的临时文件内部格式， value在内存中为DoubleWritable，没有考虑精度问题。一个value数据输出后，就会占20字节，我们是否需要这么高的精度呢？</p>
 <p>我觉得是不需要，不需要的话，就是将输出数据精度降低，实验中将double精度降至6位，“压缩”比约为59%。这个例子很实在，即对于每个任务来说，不仅仅是job conf需要优化，其自身算法或者说数据格式都还有很大的优化空间。没有最好，只有更好！</p>
-<p><strong>四、总结</strong></p>
-<p>经过上面几个“简单”的优化，代码行数修改寥寥几行，临时数据从140.6M降到了4.9M，压缩比为3.49%。需要注意的是，实验所用数据是模拟的，且数据分布较为均匀，故在实际生产环境中压缩比应该没这么高，所以需要根据job的实际情况，选择combine、压缩、数据格式，但其所带来的优化结果仍会很可观。</p>
+<h3 id="四、总结">四、总结</h3><p>经过上面几个“简单”的优化，代码行数修改寥寥几行，临时数据从140.6M降到了4.9M，压缩比为3.49%。需要注意的是，实验所用数据是模拟的，且数据分布较为均匀，故在实际生产环境中压缩比应该没这么高，所以需要根据job的实际情况，选择combine、压缩、数据格式，但其所带来的优化结果仍会很可观。</p>
 <p>本文只是简要的抽出了一些方便做实验的优化方法，更多的更广的配置、代码优化方法，敬请期待以后的博文。</p>
 <blockquote>
 <p><strong>参考资料：</strong></p>
-<p>&lt; <a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">hadoop作业调优参数整理及原理</a>&gt;</p>
-<p>&lt;Hadoop权威指南 &gt;</p>
+<ul>
+<li><a href="http://www.tbdata.org/archives/1470" target="_blank" rel="external">hadoop作业调优参数整理及原理</a></li>
+<li>Hadoop权威指南</li>
+</ul>
 </blockquote>
 </span>
       
@@ -356,21 +357,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -398,7 +399,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、问题的提出"><span class="nav-number">2.</span> <span class="nav-text">二、问题的提出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、优化方案"><span class="nav-number">3.</span> <span class="nav-text">三、优化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、设置combiner"><span class="nav-number">3.1.</span> <span class="nav-text">1、设置combiner</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、数据压缩"><span class="nav-number">3.2.</span> <span class="nav-text">2、数据压缩</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、查看临时文件内部，具体情况具体分析"><span class="nav-number">3.3.</span> <span class="nav-text">3、查看临时文件内部，具体情况具体分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

@@ -35,16 +35,16 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&amp;lt;Python少打字小技巧&amp;gt;，但还是无法很好的运用。">
+<meta name="description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的Python少打字小技巧，但还是无法很好的运用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="人生苦短，我用Python">
 <meta property="og:url" content="http://hongweiyi.com/2012/01/python-chat/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&amp;lt;Python少打字小技巧&amp;gt;，但还是无法很好的运用。">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的Python少打字小技巧，但还是无法很好的运用。">
+<meta property="og:updated_time" content="2015-12-29T15:22:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="人生苦短，我用Python">
-<meta name="twitter:description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&amp;lt;Python少打字小技巧&amp;gt;，但还是无法很好的运用。">
+<meta name="twitter:description" content="用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的Python少打字小技巧，但还是无法很好的运用。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -212,48 +212,26 @@
       
 
       
-        <span itemprop="articleBody"><p>用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的&lt;<a href="http://www.joynb.net/blog/archives/120" target="_blank" rel="external">Python少打字小技巧</a>&gt;，但还是无法很好的运用。<br> <a id="more"></a>  </p>
-<p>今天逛论坛的时候，看到了一个网友发了一个<a href="http://bbs.chinaunix.net/thread-823862-1-1.html" target="_blank" rel="external">ip地址排序</a>的帖子，代码行数60行，核心代码30多行。没有仔细读，看看评论的时候，看到了另一个解法，总代码6行，核心代码4行。用了列表解析、匿名函数等特性，还有内置函数，代码如下：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span>iplist=[‘192.168.1.33’,’10.5.1.3’,’10.5.2.4’,’202.98.96.68’,’13.12.1.1’]&#160;&#160; </span></span></li>
-<li><span></span><span class="keyword">def</span><span> ip2int(s):&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; l = [</span><span class="builtins">int</span><span>(i) </span><span class="keyword">for</span><span> i </span><span class="keyword">in</span><span> s.split(‘.’)]&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; </span><span class="keyword">return</span><span> (l[0] &lt;&lt; 24) | (l[1] &lt;&lt; 16) | (l[2] &lt;&lt; 8 ) | l[3]&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
-<li><span>iplist.sort(</span><span class="keyword">lambda</span><span> x, y: </span><span class="builtins">cmp</span><span>(ip2int(x), ip2int(y)))&#160;&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span> iplist&#160; </span>   </li>
-</ol>
-<p>按照&lt;<a href="http://www.joynb.net/blog/archives/120" target="_blank" rel="external">Python少打字小技巧</a>&gt;里的例子，这个代码核心部分可以缩减到2行（其实可以只有1行），不过，可读性就不敢恭维咯。<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span>iplist=[‘192.168.1.33’,’10.5.1.3’,’10.5.2.4’,’202.98.96.68’,’13.12.1.1’]&#160;&#160; </span></span></li>
-<li><span>p = </span><span class="keyword">lambda</span><span> ip: </span><span class="builtins">sum</span><span>( [ </span><span class="builtins">int</span><span>(k)*v </span><span class="keyword">for</span><span> k, v </span><span class="keyword">in</span><span>&#160;</span><span class="builtins">zip</span><span>(ip.split(‘.’), [1&lt;&lt;24, 65536, 256, 1])]);&#160;&#160; </span></li>
-<li><span>iplist.sort(</span><span class="keyword">lambda</span><span> x, y: </span><span class="builtins">cmp</span><span>(p(x), p(y)))&#160;&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span> iplist&#160; </span>   </li>
-</ol>
+        <span itemprop="articleBody"><p>用脚本语言的原因就是因为其语法简单，使用方便，但是好像一直没有把握其中的精华。虽然仔细读过网上转载过N次的<a href="http://www.joynb.net/blog/archives/120" target="_blank" rel="external">Python少打字小技巧</a>，但还是无法很好的运用。</p>
+ <a id="more"></a>  
+<p>今天逛论坛的时候，看到了一个网友发了一个<a href="http://bbs.chinaunix.net/thread-823862-1-1.html" target="_blank" rel="external">ip地址排序</a>的帖子，代码行数60行，核心代码30多行。没有仔细读，看看评论的时候，看到了另一个解法，总代码6行，核心代码4行。用了列表解析、匿名函数等特性，还有内置函数，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">iplist=[‘<span class="number">192.168</span><span class="number">.1</span><span class="number">.33</span>′,’<span class="number">10.5</span><span class="number">.1</span><span class="number">.3</span>′,’<span class="number">10.5</span><span class="number">.2</span><span class="number">.4</span>′,’<span class="number">202.98</span><span class="number">.96</span><span class="number">.68</span>′,’<span class="number">13.12</span><span class="number">.1</span><span class="number">.1</span>’]  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ip2int</span><span class="params">(s)</span>:</span>  </span><br><span class="line">    l = [int(i) <span class="keyword">for</span> i <span class="keyword">in</span> s.split(‘.’)]  </span><br><span class="line">    <span class="keyword">return</span> (l[<span class="number">0</span>] &lt;&lt; <span class="number">24</span>) | (l[<span class="number">1</span>] &lt;&lt; <span class="number">16</span>) | (l[<span class="number">2</span>] &lt;&lt; <span class="number">8</span> ) | l[<span class="number">3</span>]  </span><br><span class="line">      </span><br><span class="line">iplist.sort(<span class="keyword">lambda</span> x, y: cmp(ip2int(x), ip2int(y)))  </span><br><span class="line"><span class="keyword">print</span> iplist</span><br></pre></td></tr></table></figure>
+<p>按照<a href="http://www.joynb.net/blog/archives/120" target="_blank" rel="external">Python少打字小技巧</a>里的例子，这个代码核心部分可以缩减到2行（其实可以只有1行），不过，可读性就不敢恭维咯。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">iplist=[‘<span class="number">192.168</span><span class="number">.1</span><span class="number">.33</span>′,’<span class="number">10.5</span><span class="number">.1</span><span class="number">.3</span>′,’<span class="number">10.5</span><span class="number">.2</span><span class="number">.4</span>′,’<span class="number">202.98</span><span class="number">.96</span><span class="number">.68</span>′,’<span class="number">13.12</span><span class="number">.1</span><span class="number">.1</span>’]  </span><br><span class="line">p = <span class="keyword">lambda</span> ip: sum( [ int(k)*v <span class="keyword">for</span> k, v <span class="keyword">in</span> zip(ip.split(‘.’), [<span class="number">1</span>&lt;&lt;<span class="number">24</span>, <span class="number">65536</span>, <span class="number">256</span>, <span class="number">1</span>])]);  </span><br><span class="line">iplist.sort(<span class="keyword">lambda</span> x, y: cmp(p(x), p(y)))  </span><br><span class="line"><span class="keyword">print</span> iplist</span><br></pre></td></tr></table></figure>
 <p>既然说到短小精悍，就写写Python的一些特性和函数吧：lambda、map、reduce、filter</p>
 <p><strong>lambda</strong></p>
-<p>匿名函数，和c/c++中的宏定义类似，格式为：lambda [参数] : [表达式]，如：lambda x : x+2，调用的时候可以用一个变量接收这个函数，并传入参数。<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span>lam = </span><span class="keyword">lambda</span><span> x : x+2&#160;&#160; </span></span></li>
-<li><span></span><span class="keyword">print</span><span> lam(2)&#160;&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span> (</span><span class="keyword">lambda</span><span> x : x+2)(2)&#160; </span>   </li>
-</ol>
+<p>匿名函数，和c/c++中的宏定义类似，格式为：lambda [参数] : [表达式]，如：lambda x : x+2，调用的时候可以用一个变量接收这个函数，并传入参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lam = <span class="keyword">lambda</span> x : x+<span class="number">2</span>  </span><br><span class="line"><span class="keyword">print</span> lam(<span class="number">2</span>)  </span><br><span class="line"><span class="keyword">print</span> (<span class="keyword">lambda</span> x : x+<span class="number">2</span>)(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
 <p>有些人觉得lambda也就这点功能，但笔者认为，这才是脚本语言，点题：人生苦短，我用Python！这位<a href="http://www.cnblogs.com/coderzh/archive/2010/04/30/python-cookbook-lambda.html" target="_blank" rel="external"><strong>博主</strong></a>写得不错，可以参考参考。</p>
 <p><strong>map，reduce，filter</strong></p>
 <p>其实lambda很多地方都是用在上面这三个函数上面，map(func,seq)、reduce(func,seq,initial=None)、filter(bool_func,seq)。</p>
-<p>map：对seq中的每一个对象都执行func函数，并返回一个列表；</p>
-<p>reduce：对seq中的每两个对象依次执行func函数，并返回一个值，如1+2+3+4；</p>
-<p>filter：过滤掉seq中不符合bool_func的对象。</p>
-<p>虽然这三个函数中func都可以使用def来定义，但是如果程序需要的逻辑比较简单的话，用lambda就足够了。<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span>ls = [1,2,3,4,5]&#160;&#160; </span></span></li>
-<li><span></span><span class="comment"># every item in ls plus 2 </span><span>&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span>&#160;</span><span class="builtins">map</span><span>(</span><span class="keyword">lambda</span><span> x : x+2, ls)&#160;&#160; </span></li>
-<li><span></span><span class="comment"># sum(ls) </span><span>&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span>&#160;</span><span class="builtins">reduce</span><span>(</span><span class="keyword">lambda</span><span> x, y : x+y, ls)&#160;&#160; </span></li>
-<li><span></span><span class="comment"># filter the item which less than 2 </span><span>&#160; </span></li>
-<li><span></span><span class="keyword">print</span><span>&#160;</span><span class="builtins">filter</span><span>(</span><span class="keyword">lambda</span><span> x : x &gt; 2 </span><span class="keyword">and</span><span>&#160;</span><span class="builtins">True</span><span>&#160;</span><span class="keyword">or</span><span>&#160;</span><span class="builtins">False</span><span>, ls)&#160;&#160; </span> </li>
-</ol>
+<ul>
+<li>map：对seq中的每一个对象都执行func函数，并返回一个列表；</li>
+<li>reduce：对seq中的每两个对象依次执行func函数，并返回一个值，如1+2+3+4；</li>
+<li>filter：过滤掉seq中不符合bool_func的对象。</li>
+</ul>
+<p>虽然这三个函数中func都可以使用def来定义，但是如果程序需要的逻辑比较简单的话，用lambda就足够了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ls = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]  </span><br><span class="line"><span class="comment"># every item in ls plus 2  </span></span><br><span class="line"><span class="keyword">print</span> map(<span class="keyword">lambda</span> x : x+<span class="number">2</span>, ls)  </span><br><span class="line"><span class="comment"># sum(ls)  </span></span><br><span class="line"><span class="keyword">print</span> reduce(<span class="keyword">lambda</span> x, y : x+y, ls)  </span><br><span class="line"><span class="comment"># filter the item which less than 2  </span></span><br><span class="line"><span class="keyword">print</span> filter(<span class="keyword">lambda</span> x : x &gt; <span class="number">2</span> <span class="keyword">and</span> <span class="keyword">True</span> <span class="keyword">or</span> <span class="keyword">False</span>, ls)</span><br></pre></td></tr></table></figure>
 </span>
       
     </div>
@@ -277,7 +255,7 @@
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2011/12/design-pattern-adapter/" rel="next">设计模式 - 适配器模式</a>
+              <a href="/2011/10/dist-filesystem-metadata-server/" rel="next">分布式文件系统元数据服务器模型</a>
             
           </div>
         </div>
@@ -343,21 +321,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

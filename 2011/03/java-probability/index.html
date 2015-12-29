@@ -26,7 +26,7 @@
 
 
 
-  <meta name="keywords" content="java," />
+  <meta name="keywords" content="Java," />
 
 
 
@@ -35,34 +35,43 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="今天群里面HJH问了一个问题：
+<meta name="description" content="今天群里面问了一个问题：
 
 Java里的随机数生成是等概率的吗？
+
 例如：下面这两行代码将从0-99之间随机生成一个数
-java.util.Random ran=new java.util.Random();
-int ConnectID=ran.nextInt(100);
-问：生成0-99之间任意一个数字的概率是相等的吗？没怎么用过Random类，于是乎随意的浏览了一下Random类和next">
+12java.util.Random ran = new java.util.Random();int ConnectID=ran.nextInt(100);
+
+问：生成0-99之间任意一个数字的概率是相等的吗？
+
+没怎么用过Random类，于是乎随意的浏览了一下Random类和">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中随机数生成是等概率的吗？">
 <meta property="og:url" content="http://hongweiyi.com/2011/03/java-probability/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="今天群里面HJH问了一个问题：
+<meta property="og:description" content="今天群里面问了一个问题：
 
 Java里的随机数生成是等概率的吗？
+
 例如：下面这两行代码将从0-99之间随机生成一个数
-java.util.Random ran=new java.util.Random();
-int ConnectID=ran.nextInt(100);
-问：生成0-99之间任意一个数字的概率是相等的吗？没怎么用过Random类，于是乎随意的浏览了一下Random类和next">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+12java.util.Random ran = new java.util.Random();int ConnectID=ran.nextInt(100);
+
+问：生成0-99之间任意一个数字的概率是相等的吗？
+
+没怎么用过Random类，于是乎随意的浏览了一下Random类和">
+<meta property="og:updated_time" content="2015-12-29T15:12:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中随机数生成是等概率的吗？">
-<meta name="twitter:description" content="今天群里面HJH问了一个问题：
+<meta name="twitter:description" content="今天群里面问了一个问题：
 
 Java里的随机数生成是等概率的吗？
+
 例如：下面这两行代码将从0-99之间随机生成一个数
-java.util.Random ran=new java.util.Random();
-int ConnectID=ran.nextInt(100);
-问：生成0-99之间任意一个数字的概率是相等的吗？没怎么用过Random类，于是乎随意的浏览了一下Random类和next">
+12java.util.Random ran = new java.util.Random();int ConnectID=ran.nextInt(100);
+
+问：生成0-99之间任意一个数字的概率是相等的吗？
+
+没怎么用过Random类，于是乎随意的浏览了一下Random类和">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -230,45 +239,24 @@ int ConnectID=ran.nextInt(100);
       
 
       
-        <span itemprop="articleBody"><p>今天群里面<strong>HJH</strong>问了一个问题：</p>
+        <span itemprop="articleBody"><p>今天群里面问了一个问题：</p>
 <blockquote>
-<p>Java里的<strong>随机数生成</strong>是<strong>等概率</strong>的吗？</p>
+<p>Java里的随机数生成是等概率的吗？</p>
+</blockquote>
 <p>例如：下面这两行代码将从0-99之间随机生成一个数</p>
-<p>java.util.Random ran=new java.util.Random();</p>
-<p>int ConnectID=ran.nextInt(100);</p>
-<p>问：生成0-99之间任意一个数字的概率是相等的吗？<br>没怎么用过<strong>Random类</strong>，于是乎随意的浏览了一下<strong>Random类</strong>和<strong>nextInt()方法</strong>源代码，无奈水平有限，短时间内无法参透其中的奥秘啊。所以来了一个快速验证的方法，统计学中不是说过<strong>随机事件</strong>的概率，一般可以通过<strong>大量重复试验</strong>求得其近似值么。于是乎，我也通过<strong>大量重复试验</strong>来求求其概率吧。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.util.Random ran = <span class="keyword">new</span> java.util.Random();</span><br><span class="line"><span class="keyword">int</span> ConnectID=ran.nextInt(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>问：生成0-99之间任意一个数字的概率是相等的吗？</p>
 </blockquote>
-<p><strong><a id="more"></a>代码</strong>如下：</p>
-<div class="dp-highlighter">
-
-<ol>
-<li><span><span>java.util.Random ran = </span><span class="keyword">new</span><span> java.util.Random(); </span></span></li>
-<li><span> </span><span class="keyword">int</span><span> connectID; </span></li>
-<li><span class="keyword">int</span><span>[] ids = </span><span class="keyword">new</span><span> </span><span class="keyword">int</span><span>[</span><span class="number">100</span><span>]; </span></li>
-<li><span class="keyword">for</span><span> (</span><span class="keyword">int</span><span> i = </span><span class="number">0</span><span>; i &lt; </span><span class="number">100</span><span>; i++) { </span></li>
-<li><span> ids[i] = </span><span class="number">0</span><span>; </span></li>
-<li><span>} </span></li>
-<li><span class="keyword">for</span><span> (</span><span class="keyword">int</span><span> i = </span><span class="number">0</span><span>; i &lt; </span><span class="number">10000000</span><span>; i++) { </span></li>
-<li><span> connectID = ran.nextInt(</span><span class="number">100</span><span>); </span></li>
-<li><span> ids[connectID]++; </span></li>
-<li><span>} </span></li>
-<li><span class="keyword">for</span><span> (</span><span class="keyword">int</span><span> i = </span><span class="number">0</span><span>; i &lt; </span><span class="number">100</span><span>; i++) { </span></li>
-<li><span> System.out.println(i + </span><span class="string">“: “</span><span> + ids[i]); </span></li>
-<li><span>} </span><br></li></ol></div><br>截一小段<strong>结果</strong>：<blockquote>
-<p>0: 99127</p>
-<p>1: 99941</p>
-<p>2: 100295</p>
-<p>3: 100187</p>
-<p>4: 100255</p>
-<p>5: 100266</p>
-<p>6: 100280</p>
-<p>7: 99840</p>
-<p>8: 100466</p>
-<p>9: 99616</p>
-<p>10: 100016<br>剩下的90个数出现的频率和上面的基本一致，大约为10万次。通过上面的实验，基本可以确定为<strong>随机数生成是等概率的</strong>。至于怎么实现的，有时间再研究研究JDK吧……</p>
+<p>没怎么用过<strong>Random类</strong>，于是乎随意的浏览了一下<strong>Random类</strong>和<strong>nextInt()方法</strong>源代码，无奈水平有限，短时间内无法参透其中的奥秘啊。所以来了一个快速验证的方法，统计学中不是说过<strong>随机事件</strong>的概率，一般可以通过<strong>大量重复试验</strong>求得其近似值么。于是乎，我也通过<strong>大量重复试验</strong>来求求其概率吧。</p>
+<a id="more"></a>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">java.util.Random ran = <span class="keyword">new</span> java.util.Random();</span><br><span class="line"><span class="keyword">int</span> connectID;</span><br><span class="line"><span class="keyword">int</span>[] ids = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">100</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">  ids[i] = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000000</span>; i++) &#123;</span><br><span class="line">  connectID = ran.nextInt(<span class="number">100</span>);</span><br><span class="line">  ids[connectID]++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">  System.out.println(i + “: “ + ids[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>截一小段结果：</p>
+<blockquote>
+<p>0: 99127<br>1: 99941<br>2: 100295<br>3: 100187<br>4: 100255<br>5: 100266<br>6: 100280<br>7: 99840<br>8: 100466<br>9: 99616<br>10: 100016</p>
 </blockquote>
-
-
+<p>剩下的90个数出现的频率和上面的基本一致，大约为10万次。通过上面的实验，基本可以确定为随机数生成是等概率的</p>
 </span>
       
     </div>
@@ -277,7 +265,7 @@ int ConnectID=ran.nextInt(100);
       
         <div class="post-tags">
           
-            <a href="/tags/java/" rel="tag">#java</a>
+            <a href="/tags/Java/" rel="tag">#Java</a>
           
         </div>
       
@@ -286,7 +274,7 @@ int ConnectID=ran.nextInt(100);
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2011/04/wanting-qu/" rel="prev">我的歌声里</a>
+              <a href="/2011/10/dist-filesystem-metadata-server/" rel="prev">分布式文件系统元数据服务器模型</a>
             
           </div>
 
@@ -358,21 +346,21 @@ int ConnectID=ran.nextInt(100);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

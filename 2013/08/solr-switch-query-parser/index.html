@@ -35,19 +35,16 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
 
 
-<meta name="description" content="1、前言
-早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
+<meta name="description" content="1、前言早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Solr Query Parser学习有感">
 <meta property="og:url" content="http://hongweiyi.com/2013/08/solr-switch-query-parser/index.html">
 <meta property="og:site_name" content="小e的笔记">
-<meta property="og:description" content="1、前言
-早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
-<meta property="og:updated_time" content="2015-12-29T14:26:50.000Z">
+<meta property="og:description" content="1、前言早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
+<meta property="og:updated_time" content="2015-12-29T15:03:41.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Solr Query Parser学习有感">
-<meta name="twitter:description" content="1、前言
-早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
+<meta name="twitter:description" content="1、前言早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;amp;ldquo;友好&amp;amp;rdquo;的filter query功能。">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -215,14 +212,10 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>1、前言</strong></p>
-<pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
+        <span itemprop="articleBody"><h3 id="1、前言">1、前言</h3><pre><code>早上了解QueryParser的时候，发现了一个有意思的插件-<span class="keyword">SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter </span>query功能。
 </code></pre><a id="more"></a>
-<pre><code>&amp;nbsp;
-
-<span class="keyword">*</span><span class="keyword">*</span>2、细说<span class="keyword">*</span><span class="keyword">*</span>
-
-插件的语法如下：
+<pre><code>&amp;nbsp<span class="comment">;</span>
+</code></pre><h3 id="2、细说">2、细说</h3><pre><code>插件的语法如下：
 </code></pre><blockquote>
 <p>fq={!switch case.foo=XXX case.bar=zzz case.yak=qqq}foo</p>
 </blockquote>
@@ -238,20 +231,13 @@
 
 如下：
 
-[<span class="link_label">![image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/08/image_thumb.png "image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/08/image.png</span>)&amp;nbsp;
+[<span class="link_label">![image</span>](<span class="link_url">/2013/08/image.png</span>)
 
 部分源码：
-</code></pre><p>[code lang=”java”]<br>/<em>* SwitchQParserPlugin </em>/<br>@Override<br>public Query parse() throws SyntaxError {<br>  String val = localParams.get(QueryParsing.V);</p>
-<p>  // we don’t want to wrapDefaults arround params, because then<br>  // clients could add their own switch options<br>  String subQ = localParams.get(SWITCH_DEFAULT);<br>  subQ = StringUtils.isBlank(val)<br>    ? localParams.get(SWITCH_CASE, subQ)<br>    : localParams.get(SWITCH_CASE + &quot;.&quot; + val.trim(), subQ);</p>
-<p>  if (null == subQ) {<br>    throw new SyntaxError(&quot;No &quot;+SWITCH_DEFAULT+&quot;, and no switch case matching specified query string: \&quot;&quot; + val + &quot;\&quot;&quot;);<br>  }</p>
-<p>  subParser = subQuery(subQ, null);<br>  return subParser.getQuery();<br>}<br>[/code]</p>
-<pre><code>&amp;nbsp;
+</code></pre><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** SwitchQParserPlugin */</span></span><br><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Query <span class="title">parse</span><span class="params">()</span> <span class="keyword">throws</span> SyntaxError </span>&#123;</span><br><span class="line">  String val = localParams.get(QueryParsing.V);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// we don't want to wrapDefaults arround params, because then </span></span><br><span class="line">  <span class="comment">// clients could add their own switch options </span></span><br><span class="line">  String subQ = localParams.get(SWITCH_DEFAULT);</span><br><span class="line">  subQ = StringUtils.isBlank(val)</span><br><span class="line">    ? localParams.get(SWITCH_CASE, subQ)</span><br><span class="line">    : localParams.get(SWITCH_CASE + &amp;quot;.&amp;quot; + val.trim(), subQ);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">null</span> == subQ) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> SyntaxError(&amp;quot;No &amp;quot;+SWITCH_DEFAULT+&amp;quot;, and no <span class="keyword">switch</span> <span class="keyword">case</span> matching specified query string: \&amp;quot;&amp;quot; + val + &amp;quot;\&amp;quot;&amp;quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  subParser = subQuery(subQ, <span class="keyword">null</span>);</span><br><span class="line">  <span class="keyword">return</span> subParser.getQuery();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、有感">3、有感</h3><pre><code>这个插件的使用场景我觉得更多的是在业务层使用，由业务层封装多个case，将多个case的值暴露给更上层的业务，提供一个较为友好的交互方式。比如下面这种（肯定实际不是这么做的）：
 
-<span class="strong">**3、有感**</span>
-
-这个插件的使用场景我觉得更多的是在业务层使用，由业务层封装多个case，将多个case的值暴露给更上层的业务，提供一个较为友好的交互方式。比如下面这种（肯定实际不是这么做的）：
-
-[<span class="link_label">![QQ图片20130831103315</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/08/QQ20130831103315_thumb.jpg "QQ图片20130831103315"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/08/QQ20130831103315.jpg</span>)
+![<span class="link_label">"QQ图片20130831103315"</span>](<span class="link_url">/2013/08/QQ20130831103315.jpg</span>)
 
 总的来说，这个插件对于我们现在的系统而言，用处不大，但是Solr的这种查询方式，这种插件式编码方式，很值得我们借鉴和学习。
 </code></pre></span>
@@ -343,21 +329,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">98</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">分类</span>
               
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -385,7 +371,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、前言"><span class="nav-number">1.</span> <span class="nav-text">1、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、细说"><span class="nav-number">2.</span> <span class="nav-text">2、细说</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、有感"><span class="nav-number">3.</span> <span class="nav-text">3、有感</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
