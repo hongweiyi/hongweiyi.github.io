@@ -1,128 +1,49 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop源码 - ipc.Client · 小e的笔记</title><meta name="description" content="1**、前言**
-上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。  
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop源码 - ipc.Client · 小e的笔记</title><meta name="description" content="1、前言上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。
+
 Hadoop的RPC机制还是挺简单的，简述如下：
-1）创建代理对象；
-2）代理对象调用相应方法（invoke()）；
-3）invoke调用client对象的call方法，向服务器发送请求（参数、方法）；
-4）再等待call方法的完成；
-5）返回请求结果。
+
+创建代理对象；
+代理对象调用相应方法（invoke()）；
+invoke调用client对象的call方法，向服务器发送请求（参数、方法）；
+再等待call方法的完成；
+返回请求结果。
+
 具体是怎么实现的，下面来看看吧。
-2**、Client类分析**
-有了RPC大致分析，Client我就挑重要的分析了。
+2、Client类分析有了RPC大致分析，Client我就挑重要的分析了。
 1）connections
 RPC中就有了ClientCache类，那么client可以复用，所以一个client对象会有多个连接对象，实现中是用HashTable&amp;lt;ConnectionId, Connection&amp;gt;存储的连接对象。
-其中，ConnectionId是用来唯一标识连接的ID，主要由客户端地址、时间戳再结合一个素数生成；Connection是Client中的静态内部类，用以"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop源码 - ipc.Client</h1><div class="post-meta"><div class="post-time">Feb 25, 2012</div></div><div class="post-content"><p><strong>1**</strong>、前言**</p>
-<p>上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。<br>  <a id="more"></a></p>
+其中，ConnectionId是用来唯一标识连接的ID，主要由客户端地址、时间戳再结合一个素数生成；Connection是Client中的静态"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop源码 - ipc.Client</h1><div class="post-meta"><div class="post-time">Feb 25, 2012</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>上篇博客分析了ipc包下的RPC类，这篇博客来看看Client类吧。</p>
+<a id="more"></a>
 <p>Hadoop的RPC机制还是挺简单的，简述如下：</p>
-<p>1）创建代理对象；</p>
-<p>2）代理对象调用相应方法（invoke()）；</p>
-<p>3）invoke调用client对象的call方法，向服务器发送请求（参数、方法）；</p>
-<p>4）再等待call方法的完成；</p>
-<p>5）返回请求结果。</p>
+<ol>
+<li>创建代理对象；</li>
+<li>代理对象调用相应方法（invoke()）；</li>
+<li>invoke调用client对象的call方法，向服务器发送请求（参数、方法）；</li>
+<li>再等待call方法的完成；</li>
+<li>返回请求结果。</li>
+</ol>
 <p>具体是怎么实现的，下面来看看吧。</p>
-<p><strong>2**</strong>、Client类分析**</p>
-<p>有了RPC大致分析，Client我就挑重要的分析了。</p>
+<h3 id="2、Client类分析">2、Client类分析</h3><p>有了RPC大致分析，Client我就挑重要的分析了。</p>
 <p><strong>1）connections</strong></p>
-<p>RPC中就有了ClientCache类，那么client可以复用，所以一个client对象会有多个连接对象，实现中是用HashTable&lt;ConnectionId, Connection&gt;存储的连接对象。</p>
+<p>RPC中就有了ClientCache类，那么client可以复用，所以一个client对象会有多个连接对象，实现中是用<code>HashTable&lt;ConnectionId, Connection&gt;</code>存储的连接对象。</p>
 <p>其中，ConnectionId是用来唯一标识连接的ID，主要由客户端地址、时间戳再结合一个素数生成；Connection是Client中的静态内部类，用以处理远程连接对象。</p>
 <p><strong>2）Call</strong></p>
 <p>客户端方法调用的实体类，存放了id、参数、返回值等。需要注意的是，Call类中有callComplete()方法，在一次call调用完毕之后调用，并调用notify()通知client接收完毕。</p>
-<p><strong>3）call(Writable param, ConnectionId remoteId)</strong>     <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></tbody></table></p>
-<ol>
-<li><span><span class="keyword">public</span><span> Object invoke(Object proxy, Method method, Object[] args)&#160;&#160; </span></span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">throws</span><span> Throwable {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; ObjectWritable value = (ObjectWritable)&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; client.call(</span><span class="keyword">new</span><span> Invocation(method, args), remoteId); </span><span class="comment">// 调用方法 </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> value.get();&#160;&#160; </span></li>
-<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
-</li>
-<li><p><span><span class="comment">// client请求方法 </span><span>&#160; </span></span></p>
-</li>
-<li><span></span><span class="keyword">public</span><span> Writable call(Writable param, ConnectionId remoteId)&#160;&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">throws</span><span> InterruptedException, IOException {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; Call call = </span><span class="keyword">new</span><span> Call(param);&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; Connection connection = getConnection(remoteId, call); </span><span class="comment">// 获得连接对象 </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160; connection.sendParam(call);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 发送参数 </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; </span><span class="keyword">synchronized</span><span> (call) {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">while</span><span> (!call.done) {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.wait();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// 等待response </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">catch</span><span> (InterruptedException ie) {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; interrupted = </span><span class="keyword">true</span><span>;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">return</span><span> call.value;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160; }&#160;&#160; </span></li>
-<li><p><span>&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
-</li>
-<li><p><span><span class="comment">// Connection线程，等待服务器响应 </span><span>&#160; </span></span></p>
-</li>
-<li><span></span><span class="keyword">public</span><span>&#160;</span><span class="keyword">void</span><span> run() {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (LOG.isDebugEnabled())&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; LOG.debug(getName() + </span><span class="string">&quot;: starting, having connections &quot;</span><span>&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; + connections.size());&#160;&#160; </span></li>
-<li><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">while</span><span> (waitForWork()) {</span><span class="comment">// 等待工作，主要依据是calls是否为空 </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; receiveResponse();&#160; </span><span class="comment">// 接收响应 </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; close();&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
-</li>
-<li><p><span><span class="keyword">private</span><span>&#160;</span><span class="keyword">void</span><span> receiveResponse() {&#160;&#160; </span></span></p>
-</li>
-<li><span>&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">try</span><span> {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> id = in.readInt();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// try to read an id </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; Call call = calls.get(id);&#160;&#160; </span></li>
-<li><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">int</span><span> state = in.readInt();&#160;&#160;&#160;&#160; </span><span class="comment">// read call status </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">if</span><span> (state == Status.SUCCESS.state) {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Writable value = ReflectionUtils.newInstance(valueClass, conf);&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; value.readFields(in);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// read value </span><span>&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; call.setValue(value);&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; calls.remove(id);&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }&#160;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; …&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; } </span><span class="keyword">catch</span><span> (IOException e) {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; markClosed(e);&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; }&#160;&#160; </span></li>
-<li><p><span>&#160;&#160;&#160; }&#160;&#160; </span>                                   <tr>         <td valign="top" width="568">           <div class="dp-highlighter">             <div class="bar"></div>              </div></td></tr></p>
-</li>
-<li><p><span><span class="keyword">public</span><span>&#160;</span><span class="keyword">synchronized</span><span>&#160;</span><span class="keyword">void</span><span> setValue(Writable value) {&#160;&#160; </span></span></p>
-</li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.value = value;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; callComplete();&#160;&#160; </span></li>
-<li><span>}&#160;&#160; </span></li>
-<li><span></span><span class="keyword">protected</span><span>&#160;</span><span class="keyword">synchronized</span><span>&#160;</span><span class="keyword">void</span><span> callComplete() {&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; </span><span class="keyword">this</span><span>.done = </span><span class="keyword">true</span><span>;&#160;&#160; </span></li>
-<li><span>&#160;&#160;&#160;&#160;&#160; notify();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; </span><span class="comment">// notify caller </span><span>&#160; </span></li>
-<li><span>}&#160;&#160; </span>                                 </li>
-</ol>
+<p><strong>3）<code>call(Writable param, ConnectionId remoteId)</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span>  </span><br><span class="line">      <span class="keyword">throws</span> Throwable </span>&#123;  </span><br><span class="line">      …  </span><br><span class="line"></span><br><span class="line">      ObjectWritable value = (ObjectWritable)  </span><br><span class="line">        client.call(<span class="keyword">new</span> Invocation(method, args), remoteId); <span class="comment">// 调用方法  </span></span><br><span class="line">      …  </span><br><span class="line">      <span class="keyword">return</span> value.get();  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// client请求方法  </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Writable <span class="title">call</span><span class="params">(Writable param, ConnectionId remoteId)</span>    </span><br><span class="line">                       <span class="keyword">throws</span> InterruptedException, IOException </span>&#123;  </span><br><span class="line">    Call call = <span class="keyword">new</span> Call(param);  </span><br><span class="line">    Connection connection = getConnection(remoteId, call); <span class="comment">// 获得连接对象  </span></span><br><span class="line">    connection.sendParam(call);                 <span class="comment">// 发送参数  </span></span><br><span class="line">    …  </span><br><span class="line">    <span class="keyword">synchronized</span> (call) &#123;  </span><br><span class="line">      <span class="keyword">while</span> (!call.done) &#123;  </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">          call.wait();                           <span class="comment">// 等待response  </span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException ie) &#123;  </span><br><span class="line">          interrupted = <span class="keyword">true</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">      &#125;  </span><br><span class="line">      …  </span><br><span class="line">      <span class="keyword">return</span> call.value;  </span><br><span class="line">      …  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Connection线程，等待服务器响应  </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">      <span class="keyword">if</span> (LOG.isDebugEnabled())  </span><br><span class="line">        LOG.debug(getName() + <span class="string">": starting, having connections "</span>   </span><br><span class="line">            + connections.size());  </span><br><span class="line"></span><br><span class="line">      <span class="keyword">while</span> (waitForWork()) &#123;<span class="comment">// 等待工作，主要依据是calls是否为空  </span></span><br><span class="line">        receiveResponse();  <span class="comment">// 接收响应  </span></span><br><span class="line">      &#125;  </span><br><span class="line"></span><br><span class="line">      close();  </span><br><span class="line"></span><br><span class="line">      …  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">receiveResponse</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">      …  </span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span> &#123;  </span><br><span class="line">        <span class="keyword">int</span> id = in.readInt();                    <span class="comment">// try to read an id  </span></span><br><span class="line">        …  </span><br><span class="line">        Call call = calls.get(id);  </span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> state = in.readInt();     <span class="comment">// read call status  </span></span><br><span class="line">        <span class="keyword">if</span> (state == Status.SUCCESS.state) &#123;  </span><br><span class="line">          Writable value = ReflectionUtils.newInstance(valueClass, conf);  </span><br><span class="line">          value.readFields(in);                 <span class="comment">// read value  </span></span><br><span class="line">          call.setValue(value);  </span><br><span class="line">          calls.remove(id);  </span><br><span class="line">        &#125;   </span><br><span class="line">        …  </span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;  </span><br><span class="line">        markClosed(e);  </span><br><span class="line">      &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(Writable value)</span> </span>&#123;  </span><br><span class="line">      <span class="keyword">this</span>.value = value;  </span><br><span class="line">      callComplete();  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callComplete</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">      <span class="keyword">this</span>.done = <span class="keyword">true</span>;  </span><br><span class="line">      notify();  <span class="comment">// notify caller  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>该方法由invoker调用，调用过程如下：</p>
-<p>A、构建Call对象</p>
-<p>B、 用remoteId获得connection对象</p>
-<p>&#160;&#160;&#160; a) 如果connections中有remoteId，取得该connection；反之，创建一个，并添加进connections；</p>
-<p>&#160;&#160;&#160; b) connection.setupIOstreams()连接到服务器，并配置好连接对象，发送协议头，接着运行connection线程，等待接收工作（waitForWork()）；</p>
-<p>C、 调用connection.sendParam发送协议体，等待接收响应，call.wait();；</p>
-<p>&#160;&#160;&#160; a) receiveResponse()，依次读入call的值（id，value）；</p>
-<p>&#160;&#160;&#160; b) 标记接收结束（markClosed），同时notifyAll()；</p>
-<p>D、 获得返回值，返回调用者。</p>
-<p><strong>3、异步/同步模型</strong></p>
-<p>Hadoop的RPC对外的接口其实是同步的，但是，RPC的内部实现其实是异步消息机制。hadoop用线程wait/notify机制实现异步转同步，发送请求（call）之后wait请求处理完毕，接收完响应（connection.receiveResponse()）之后notify，notify()方法在call.setValue中。</p>
+<ol>
+<li>构建Call对象</li>
+<li>用remoteId获得connection对象<br>2.1 如果connections中有remoteId，取得该connection；反之，创建一个，并添加进connections；<br>2.2 connection.setupIOstreams()连接到服务器，并配置好连接对象，发送协议头，接着运行connection线程，等待接收工作（waitForWork()）；</li>
+<li>调用connection.sendParam发送协议体，等待接收响应，call.wait();；<br>3.1 receiveResponse()，依次读入call的值（id，value）；<br>3.2 标记接收结束（markClosed），同时notifyAll()；</li>
+<li>获得返回值，返回调用者。</li>
+</ol>
+<h3 id="3、异步/同步模型">3、异步/同步模型</h3><p>Hadoop的RPC对外的接口其实是同步的，但是，RPC的内部实现其实是异步消息机制。hadoop用线程wait/notify机制实现异步转同步，发送请求（call）之后wait请求处理完毕，接收完响应（connection.receiveResponse()）之后notify，notify()方法在call.setValue中。</p>
 <p>但现在有一个问题，一个connection有多个call。可能同时有多个call在等待接收消息，那么是当client接收到response后，怎样确认它到底是之前哪个request的response呢？这个就是依靠的connection中的一个HashTable&lt;Integer, Call&gt;了，其中的Integer是用来标识Call，这样就可以将request和response对应上了。</p>
-<p><strong>4、小结</strong></p>
-<p>今天先休息一下了，吃坏东西了，悲催。</p>
 <blockquote>
 <p><strong>参考资料：</strong></p>
 <p><a href="http://blog.csdn.net/historyasamirror/article/details/6159248" target="_blank" rel="external">智障大师的专栏</a></p>

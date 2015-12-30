@@ -1,57 +1,69 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop源码 - ipc.RPC · 小e的笔记</title><meta name="description" content="1、前言
-Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：百度百科。  
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop源码 - ipc.RPC · 小e的笔记</title><meta name="description" content="1、前言Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：百度百科。
+
 Hadoop的RPC主要是通过Java的动态代理（Dynamic Proxy）与反射（Reflect）实现，源代码在org.apache.hadoop.ipc下，有以下几个主要类：
+
 Client：RPC服务的客户端
 RPC：实现了一个简单的RPC模型
 Server：服务端的抽象类
 RPC.Server：服务端的具体类
 VersionedProtocol：所有的使用RPC服务的类都要实现该接口，在创建代理时，用来判断代理对象是否创建正确。
-2、通信发生在？
-Hadoop是master-slave模型，master只会接受请求并相应，slave在发送请求的同时，也有可能"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop源码 - ipc.RPC</h1><div class="post-meta"><div class="post-time">Feb 25, 2012</div></div><div class="post-content"><p><strong>1、前言</strong></p>
-<p>Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：<a href="http://baike.baidu.com/view/32726.htm" target="_blank" rel="external">百度百科</a>。<br>  <a id="more"></a></p>
+
+2、通信发生在？Hadoop是master-slave模型，master只会接受请求并相应，slave在发送请求"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop源码 - ipc.RPC</h1><div class="post-meta"><div class="post-time">Feb 25, 2012</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>Hadoop是典型的单元数据服务器模型，它将控制流与数据流分离开来，同时两种流的通信机制也不一样，分别为RPC和流式通信，这篇博客主要介绍Hadoop的RPC流程……。关于RPC的简介可以参考：<a href="http://baike.baidu.com/view/32726.htm" target="_blank" rel="external">百度百科</a>。</p>
+<a id="more"></a>
 <p>Hadoop的RPC主要是通过Java的动态代理（Dynamic Proxy）与反射（Reflect）实现，源代码在org.apache.hadoop.ipc下，有以下几个主要类：</p>
-<p>Client：RPC服务的客户端</p>
-<p>RPC：实现了一个简单的RPC模型</p>
-<p>Server：服务端的抽象类</p>
-<p>RPC.Server：服务端的具体类</p>
-<p>VersionedProtocol：所有的使用RPC服务的类都要实现该接口，在创建代理时，用来判断代理对象是否创建正确。</p>
-<p><strong>2、通信发生在？</strong></p>
-<p>Hadoop是master-slave模型，master只会接受请求并相应，slave在发送请求的同时，也有可能会接受其它请求，其它请求来自slave伙伴或者client。</p>
+<ul>
+<li>Client：RPC服务的客户端</li>
+<li>RPC：实现了一个简单的RPC模型</li>
+<li>Server：服务端的抽象类</li>
+<li>RPC.Server：服务端的具体类</li>
+<li>VersionedProtocol：所有的使用RPC服务的类都要实现该接口，在创建代理时，用来判断代理对象是否创建正确。</li>
+</ul>
+<h3 id="2、通信发生在？">2、通信发生在？</h3><p>Hadoop是master-slave模型，master只会接受请求并相应，slave在发送请求的同时，也有可能会接受其它请求，其它请求来自slave伙伴或者client。</p>
 <p>VersionedProtocol说了，所有要使用RPC服务的类都要实现该接口，我们可以来看一下有哪些接口继承了该接口。</p>
-<p><a href="/images/2012/02/clip_image0023.jpg"><img src="/images/2012/02/clip_image002_thumb3.jpg" alt="clip_image002" title="clip_image002"></a></p>
-<p><strong>1**</strong>）HDFS相关**</p>
-<p><strong>ClientDatanodeProtocol</strong>：client与datanode交互的接口，操作不多，只有一个block恢复的方法。那么，其它数据请求的方法呢？client与datanode主要交互是通过流式的socket实现，源码在DataXceiver，在这里先不说了；</p>
-<p><strong>ClientProtocol</strong>：client与Namenode交互的接口，所有控制流的请求均在这里，如：创建文件、删除文件等；</p>
-<p><strong>DatanodeProtocol</strong>：Datanode与Namenode交互的接口，如心跳、blockreport等；</p>
-<p><strong>NamenodeProtocol</strong>：SecondaryNode与Namenode交互的接口。</p>
-<p><strong>2**</strong>）Mapreduce相关**</p>
-<p><strong>InterDatanodeProtocol</strong>：Datanode内部交互的接口，用来更新block的元数据；</p>
-<p><strong>InnerTrackerProtocol</strong>：TaskTracker与JobTracker交互的接口，功能与DatanodeProtocol相似；</p>
-<p><strong>JobSubmissionProtocol</strong>：JobClient与JobTracker交互的接口，用来提交Job、获得Job等与Job相关的操作；</p>
-<p><strong>TaskUmbilicalProtocol</strong>：Task中子进程与母进程交互的接口，子进程即map、reduce等操作，母进程即TaskTracker，该接口可以回报子进程的运行状态（词汇扫盲: umbilical 脐带的, 关系亲密的） 。</p>
-<p><strong>3**</strong>）其它**</p>
-<p><strong>AdminOperationProtocol</strong>：不用用户操作的接口，提供一些管理操作，如刷新JobTracker的node列表；</p>
-<p><strong>RefreshAuthorizationPolicyProtocol**</strong>，RefreshUserMappingsProtocol：**暂不明白。</p>
-<p><strong>3**</strong>、RPC方法**</p>
-<p>RPC提供了一个简单的RPC机制，提供以下几种静态方法：</p>
-<p><a href="/images/2012/02/clip_image0042.jpg"><img src="/images/2012/02/clip_image004_thumb2.jpg" alt="clip_image004" title="clip_image004"></a></p>
-<p><strong>1）*</strong>Proxy**</p>
-<p>waitForProxy、getProxy、stopProxy均是与代理有关的方法，其中wait需要保证namenode启动正常且连接正常，主要由SecondayNode、Datanode、JobTracker使用。</p>
+<p><img src="/images/2012/02/clip_image0023.jpg" alt="clip_image002"></p>
+<h4 id="1）HDFS相关">1）HDFS相关</h4><ul>
+<li><p><strong>ClientDatanodeProtocol</strong>：client与datanode交互的接口，操作不多，只有一个block恢复的方法。那么，其它数据请求的方法呢？client与datanode主要交互是通过流式的socket实现，源码在DataXceiver，在这里先不说了；</p>
+</li>
+<li><p><strong>ClientProtocol</strong>：client与Namenode交互的接口，所有控制流的请求均在这里，如：创建文件、删除文件等；</p>
+</li>
+<li><p><strong>DatanodeProtocol</strong>：Datanode与Namenode交互的接口，如心跳、blockreport等；</p>
+</li>
+<li><p><strong>NamenodeProtocol</strong>：SecondaryNode与Namenode交互的接口。</p>
+</li>
+</ul>
+<h4 id="2）Mapreduce相关">2）Mapreduce相关</h4><ul>
+<li><strong>InterDatanodeProtocol</strong>：Datanode内部交互的接口，用来更新block的元数据；</li>
+<li><strong>InnerTrackerProtocol</strong>：TaskTracker与JobTracker交互的接口，功能与DatanodeProtocol相似；</li>
+<li><strong>JobSubmissionProtocol</strong>：JobClient与JobTracker交互的接口，用来提交Job、获得Job等与Job相关的操作；</li>
+<li><strong>TaskUmbilicalProtocol</strong>：Task中子进程与母进程交互的接口，子进程即map、reduce等操作，母进程即TaskTracker，该接口可以回报子进程的运行状态（词汇扫盲: umbilical 脐带的, 关系亲密的） 。</li>
+</ul>
+<h4 id="3）其它">3）其它</h4><ul>
+<li><p><strong>AdminOperationProtocol</strong>：不用用户操作的接口，提供一些管理操作，如刷新JobTracker的node列表；</p>
+</li>
+<li><p><strong>RefreshAuthorizationPolicyProtocol**</strong>，RefreshUserMappingsProtocol</p>
+</li>
+</ul>
+<h3 id="3、RPC方法">3、RPC方法</h3><p>RPC提供了一个简单的RPC机制，提供以下几种静态方法：</p>
+<p><img src="/images/2012/02/clip_image0042.jpg" alt="clip_image004"></p>
+<h4 id="1）Proxy">1）Proxy</h4><p>waitForProxy、getProxy、stopProxy均是与代理有关的方法，其中wait需要保证namenode启动正常且连接正常，主要由SecondayNode、Datanode、JobTracker使用。</p>
 <p>stop方法即停止代理。</p>
 <p>get则是一般的获取代理的方法， 创建代理实例，获得代理实例的versioncode，再与getProxy方法传入的versioncode做对比，相同返回代理，不同抛出VersionMismatch异常。</p>
-<p><strong>2）getServer</strong></p>
-<p>创建并返回一个Server实例，由TaskTracker、JobTracker、NameNode、DataNode使用。</p>
-<p><strong>3）call</strong></p>
-<p>静态方法，向一系列服务器发送一系列请求，在源码中没见到那个类使用该方法。但注释提到了：Expert，应该是给系统管理员使用的接口。</p>
-<p><strong>4**</strong>、RPC静态类**</p>
-<p>RPC方法仅仅提到了方法的作用，但是具体实现没说，具体实现就涉及到了RPC的静态类了，RPC类中有5个静态内部类，分别为：</p>
-<p><strong>RPC.ClientCache**</strong>：**用来缓存Client对象；</p>
-<p><strong>RPC.Invocation**</strong>：**每次RPC调用传的参数实体类，其中Invocation包括了调用方法（Method）和配置文件；</p>
-<p><strong>RPC.Invoker**</strong>：**具体的调用类，采用Java的动态代理机制，继承自InvocationHandler，有remoteId和client成员，id用以标识异步请求对象，client用以调用实现代码；</p>
-<p><strong>RPC.Server**</strong>：**org.apache.hadoop.ipc.Server的具体类，实现了抽象类的call方法，获得传入参数的call实例，再获取method方法，调用即可。用的是反射机制，反射很绝，再没使用之前，完全不知道该代码会怎么执行；</p>
-<p><strong>RPC. **</strong>VersionMismatch<strong>**：</strong>版本不匹配异常。</p>
-<p><strong>5、小结</strong></p>
-<p>以上是org.apache.hadoop.ipc.RPC类的实现分析，接下来再分析ipc包下的Server与Client类吧！</p>
+<h4 id="2）getServer">2）getServer</h4><p>创建并返回一个Server实例，由TaskTracker、JobTracker、NameNode、DataNode使用。</p>
+<h4 id="3）call">3）call</h4><p>静态方法，向一系列服务器发送一系列请求，在源码中没见到那个类使用该方法。但注释提到了：Expert，应该是给系统管理员使用的接口。</p>
+<h3 id="4、RPC静态类">4、RPC静态类</h3><p>RPC方法仅仅提到了方法的作用，但是具体实现没说，具体实现就涉及到了RPC的静态类了，RPC类中有5个静态内部类，分别为：</p>
+<ul>
+<li><p><strong>RPC.ClientCache</strong>：用来缓存Client对象；</p>
+</li>
+<li><p><strong>RPC.Invocation</strong>：每次RPC调用传的参数实体类，其中Invocation包括了调用方法（Method）和配置文件；</p>
+</li>
+<li><p><strong>RPC.Invoker</strong>：具体的调用类，采用Java的动态代理机制，继承自InvocationHandler，有remoteId和client成员，id用以标识异步请求对象，client用以调用实现代码；</p>
+</li>
+<li><p><strong>RPC.Server</strong>：org.apache.hadoop.ipc.Server的具体类，实现了抽象类的call方法，获得传入参数的call实例，再获取method方法，调用即可。用的是反射机制，反射很绝，再没使用之前，完全不知道该代码会怎么执行；</p>
+</li>
+<li><p><strong>RPC.VersionMismatch</strong>：版本不匹配异常。</p>
+</li>
+</ul>
+<h3 id="5、小结">5、小结</h3><p>以上是<code>org.apache.hadoop.ipc.RPC</code>类的实现分析，接下来再分析ipc包下的Server与Client类吧！</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2012/02/hadoop-ipc-client/" class="prev">上一篇</a><a href="/2012/02/iterative-mapred-distcache/" class="next">下一篇</a></div><div data-thread-key="2012/02/hadoop-ipc-rpc/" data-title="Hadoop源码 - ipc.RPC" data-url="http://hongweiyi.com/2012/02/hadoop-ipc-rpc/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');

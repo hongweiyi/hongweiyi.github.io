@@ -1,66 +1,62 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - 并查集 · 小e的笔记</title><meta name="description" content="1**、简介**
-在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。  
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - 并查集 · 小e的笔记</title><meta name="description" content="1、简介在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。
+
 并查集保持了一组不相交的动态集合，每个集合通过一个代表来识别，代表即集合中的某个成员。哪个成员被选中无所谓iwom关心的是如果寻找某一动态集合的代表两次，并且在两次寻找之间不修改集合，两次得到的答案应该是一样的。
-2**、基本操作**
-它主要涉及两个基本操作，分别为：
+2、基本操作它主要涉及两个基本操作，分别为：
+
 Union-Set(x, y)：合并两个不相交集合
+
 Find-Set(x)：判断两个元素是否属于同一个集合
+
+
 还需要另外一个基本操作，即：
+
 Make-Set(x)：新建一个集合，唯一的成员也是代表就是x
-3**、实现方法**
-现有不相交集"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - 并查集</h1><div class="post-meta"><div class="post-time">Mar 16, 2012</div></div><div class="post-content"><p><strong>1**</strong>、简介**</p>
-<p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。<br>  <a id="more"></a></p>
+
+3、实现方法&lt;"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - 并查集</h1><div class="post-meta"><div class="post-time">Mar 16, 2012</div></div><div class="post-content"><h3 id="1、简介">1、简介</h3><p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。</p>
+<a id="more"></a>
 <p>并查集保持了一组不相交的动态集合，每个集合通过一个代表来识别，代表即集合中的某个成员。哪个成员被选中无所谓iwom关心的是如果寻找某一动态集合的代表两次，并且在两次寻找之间不修改集合，两次得到的答案应该是一样的。</p>
-<p><strong>2**</strong>、基本操作**</p>
-<p>它主要涉及两个基本操作，分别为：</p>
-<p><strong>Union-Set(x, y)：</strong>合并两个不相交集合</p>
-<p><strong>Find-Set(x)：</strong>判断两个元素是否属于同一个集合</p>
+<h3 id="2、基本操作">2、基本操作</h3><p>它主要涉及两个基本操作，分别为：</p>
+<ul>
+<li><p><strong>Union-Set(x, y)</strong>：合并两个不相交集合</p>
+</li>
+<li><p><strong>Find-Set(x)</strong>：判断两个元素是否属于同一个集合</p>
+</li>
+</ul>
 <p>还需要另外一个基本操作，即：</p>
-<p><strong>Make-Set(x)：</strong>新建一个集合，唯一的成员也是代表就是x</p>
-<p><strong>3**</strong>、实现方法**</p>
-<p>现有不相交集合：{1, 3, 7}，{4}，{2, 5, 9, 10}，{6, 8}</p>
-<p><strong>1）用编号最小的元素标记所在集合</strong></p>
-<p>{<strong>1</strong>, 3, 7}，{<strong>4</strong>}，{<strong>2</strong>, 5, 9, 10}，{<strong>6</strong>, 8}</p>
-<p><strong>2）定义一个数组set[1…n]，其中set[i]表示元素i所在集合</strong></p>
-<p><a href="/images/2012/03/clip_image002.jpg"><img src="/images/2012/03/clip_image002_thumb.jpg" alt="clip_image002" title="clip_image002"></a></p>
-<p><strong>3）find操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>find(x):</p>
-<p>&#160;&#160;&#160;&#160; return set[x];<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>4）Union操作</strong>    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>union(x, y):</p>
-<p>&#160;&#160;&#160; for k in [0, n): // 遍历所有集合，更新其中一个集合的代表</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (set[k] == find(a)):</p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; set[k] := find(b);<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>4**</strong>、实现分析**</p>
-<p>上面实现很简单，find操作只需要返回其代表即可，时间复杂为O(1)。但是Union操作则需要修改其中一个集合所有的代表，同时由于是用的数组存的，元素为数组的索引，必须要遍历所有元素才可以修改，时间复杂为O(n)。要优化操作，就必须优化数据结构。</p>
-<p>&#160;</p>
-<p><strong>5**</strong>、优化**</p>
-<p><strong>1）链表</strong></p>
-<p>每个集合建立一个链表，有头尾指针，头结点为代表。所有结点都添加了指向代表的指针。</p>
+<ul>
+<li><strong>Make-Set(x)</strong>：新建一个集合，唯一的成员也是代表就是x</li>
+</ul>
+<h3 id="3、实现方法">3、实现方法</h3><p>现有不相交集合：<code>{1, 3, 7}，{4}，{2, 5, 9, 10}，{6, 8}</code></p>
+<h4 id="1）用编号最小的元素标记所在集合">1）用编号最小的元素标记所在集合</h4><p><code>{1, 3, 7}，{4}，{2, 5, 9, 10}，{6, 8}</code></p>
+<h4 id="2）定义一个数组set[1…n]，其中set[i]表示元素i所在集合">2）定义一个数组set[1…n]，其中set[i]表示元素i所在集合</h4><p><img src="/images/2012/03/clip_image002.jpg" alt="clip_image002"></p>
+<h4 id="3）find操作">3）find操作</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">find</span>(x):</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">set</span>[x];</span><br></pre></td></tr></table></figure>
+<h4 id="4）Union操作">4）Union操作</h4><figure class="highlight openscad"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">union</span><span class="params">(x, y)</span>:</span><br><span class="line">    <span class="keyword">for</span> k in [<span class="number">0</span>, n): <span class="comment">// 遍历所有集合，更新其中一个集合的代表</span></span><br><span class="line">        <span class="keyword">if</span> <span class="params">(set[k] == find<span class="params">(a)</span>)</span>:</span><br><span class="line">            set[k] := find<span class="params">(b)</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="4、实现分析">4、实现分析</h3><p>上面实现很简单，find操作只需要返回其代表即可，时间复杂为O(1)。但是Union操作则需要修改其中一个集合所有的代表，同时由于是用的数组存的，元素为数组的索引，必须要遍历所有元素才可以修改，时间复杂为O(n)。要优化操作，就必须优化数据结构。</p>
+<h3 id="5、优化">5、优化</h3><h4 id="1）链表">1）链表</h4><p>每个集合建立一个链表，有头尾指针，头结点为代表。所有结点都添加了指向代表的指针。</p>
 <p>很容易知道，find操作时间复杂度为O(1)，合并只需要将较小的集合添加到另一个集合的后尾，再更新代表即可，时间复杂度也为O(n)，与数组相比，在时间上优化了一点点。</p>
-<p><strong>2）有根树</strong></p>
-<p>并查集目前最好的实现是用有根树，即建立一个森林，每棵树是一个集合，树根元素就是代表，每个结点存储指向其父亲结点的指针（而不是指向子结点的指针）。</p>
+<h4 id="2）有根树">2）有根树</h4><p>并查集目前最好的实现是用有根树，即建立一个森林，每棵树是一个集合，树根元素就是代表，每个结点存储指向其父亲结点的指针（而不是指向子结点的指针）。</p>
 <p>可执行三种不相交集合操作：</p>
-<p>a. Make-Set：创建一颗仅包含一个结点的树；</p>
-<p>b. Find-Set：查找可以描述为找两个元素各自的根，判断其是否相等。实现中需要沿着父结点指针一直找下去，直到找到树根为止。（时间复杂度O(n)）</p>
-<p>c. Union-Set：并集可以描述为把一棵树接到另一个棵树的根结点上，并更新某颗树的代表。（时间复杂度O(n)）</p>
-<p><a href="/images/2012/03/clip_image003.jpg"><img src="/images/2012/03/clip_image003_thumb.jpg" alt="clip_image003" title="clip_image003"></a></p>
+<ol>
+<li>Make-Set：创建一颗仅包含一个结点的树；</li>
+<li>Find-Set：查找可以描述为找两个元素各自的根，判断其是否相等。实现中需要沿着父结点指针一直找下去，直到找到树根为止。（时间复杂度O(n)）</li>
+<li>Union-Set：并集可以描述为把一棵树接到另一个棵树的根结点上，并更新某颗树的代表。（时间复杂度O(n)）</li>
+</ol>
+<p><img src="/images/2012/03/clip_image003.jpg" alt="clip_image003"></p>
 <p>其实这个与链表来说，性能没有本质上的提高。合并也需要更新结点代表，且如果树构造的时候，构造了一颗线性链的树，查找复杂度也提高了。对其进行优化，有两种策略：</p>
-<p><strong>a. **</strong>按秩合并（union by rank）**</p>
+<p><strong>a. 按秩合并（union by rank）</strong></p>
 <p>秩（Rank）就是一颗树的结点数，即使包含较少结点的树根指向包含较多结点的树根。</p>
-<p><strong>b. **</strong>路径压缩**</p>
-<p><strong><a href="/images/2012/03/clip_image005.jpg"><img src="/images/2012/03/clip_image005_thumb.jpg" alt="clip_image005" title="clip_image005"></a></strong></p>
+<p><strong>b. 路径压缩</strong></p>
+<p><img src="/images/2012/03/clip_image005.jpg" alt="clip_image005"></p>
 <p>如上图，使查找路径上的每个结点都直接指向根结点。简单而有效。</p>
-<p>&#160;</p>
-<p><strong>6**</strong>、小结**</p>
-<p>在实现中，并查集均是使用有根树结合按秩合并和路径压缩来实现。按秩合并提高了Union-Set操作效率，而路径压缩提高了Find-Set操作效率。</p>
-<p>空间复杂度为O(N)，建立一个集合的时间复杂度为O(1)， N次合并M查找的时间复杂度为O(M Alpha(N))，这里Alpha是Ackerman函数的某个反函数，在很大的范围内（人类目前观测到的宇宙范围估算有10的80次方个原子，这小于前面所说的范围）这个函数的值可以看成是不大于4的，所以并查集的操作可以看作是线性的。具体证明得参加&lt;算法导论&gt;。</p>
+<h3 id="6、小结">6、小结</h3><p>在实现中，并查集均是使用有根树结合按秩合并和路径压缩来实现。按秩合并提高了Union-Set操作效率，而路径压缩提高了Find-Set操作效率。</p>
+<p>空间复杂度为O(N)，建立一个集合的时间复杂度为O(1)， N次合并M查找的时间复杂度为O(M Alpha(N))，这里Alpha是Ackerman函数的某个反函数，在很大的范围内（人类目前观测到的宇宙范围估算有10的80次方个原子，这小于前面所说的范围）这个函数的值可以看成是不大于4的，所以并查集的操作可以看作是线性的。具体证明得参加《算法导论》。</p>
 <p>并查集常作为另一种复杂的数据结构或者算法的存储结构。常见的应用有：求无向图的连通分量个数、最近公共祖先（LCA）、最小生成树等。</p>
-<p>&#160;</p>
 <blockquote>
 <p>参考资料：</p>
-<p>&lt;算法导论&gt;，第二十二章</p>
+<p>《算法导论》，第二十二章</p>
 <p>董的博客：<a href="http://dongxicheng.org/structure/union-find-set/" target="_blank" rel="external">数据结构之并查集</a></p>
 </blockquote>
-</div></article></div></section><footer><div class="paginator"><a href="/2012/03/weibo-analysis/" class="prev">上一篇</a><a href="/2012/03/data-structure-skiplists/" class="next">下一篇</a></div><div data-thread-key="2012/03/data-structure-disjoint-set/" data-title="趣味数据结构 - 并查集" data-url="http://hongweiyi.com/2012/03/data-structure-disjoint-set/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
+</div></article></div></section><footer><div class="paginator"><a href="/2012/04/nlp-repost-segmentation/" class="prev">上一篇</a><a href="/2012/03/data-structure-skiplists/" class="next">下一篇</a></div><div data-thread-key="2012/03/data-structure-disjoint-set/" data-title="趣味数据结构 - 并查集" data-url="http://hongweiyi.com/2012/03/data-structure-disjoint-set/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';ds.async = true;

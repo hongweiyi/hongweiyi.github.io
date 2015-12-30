@@ -1,41 +1,21 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java装箱/拆箱技术 · 小e的笔记</title><meta name="description" content="今天群里提出了一个有趣的问题：       
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java装箱/拆箱技术 · 小e的笔记</title><meta name="description" content="今天群里提出了一个有趣的问题：
 
-Integer num1 = 128;&amp;#160;&amp;#160; 
-Integer num2 = 128;&amp;#160;&amp;#160; 
-int num3 = 128;&amp;#160;&amp;#160; 
-int num4 = 128;&amp;#160;&amp;#160; 
-Syst"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java装箱/拆箱技术</h1><div class="post-meta"><div class="post-time">Mar 4, 2012</div></div><div class="post-content"><p>今天群里提出了一个有趣的问题：<br><a id="more"></a><div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span>Integer num1 = </span><span class="number">128</span><span>;&#160;&#160; </span></span></li>
-<li><span>Integer num2 = </span><span class="number">128</span><span>;&#160;&#160; </span></li>
-<li><span></span><span class="keyword">int</span><span> num3 = </span><span class="number">128</span><span>;&#160;&#160; </span></li>
-<li><span></span><span class="keyword">int</span><span> num4 = </span><span class="number">128</span><span>;&#160;&#160; </span></li>
-<li><span>System.out.println(num1 == num2);&#160;&#160; </span></li>
-<li><span>System.out.println(num1 == num3);&#160;&#160; </span></li>
-<li><span>System.out.println(num2 == num3);&#160;&#160; </span></li>
-<li><span>System.out.println(num3 == num4);&#160;&#160; </span></li>
-<li><span>System.out.println(</span><span class="string">&quot;============&quot;</span><span>);&#160;&#160; </span></li>
-<li><span>Integer num5 = </span><span class="number">12</span><span>;&#160;&#160; </span></li>
-<li><span>Integer num6 = </span><span class="number">12</span><span>;&#160;&#160; </span></li>
-<li><span></span><span class="keyword">int</span><span> num7 = </span><span class="number">12</span><span>;&#160;&#160; </span></li>
-<li><span></span><span class="keyword">int</span><span> num8 = </span><span class="number">12</span><span>;&#160;&#160; </span></li>
-<li><span>System.out.println(num5 == num6);&#160;&#160; </span></li>
-<li><span>System.out.println(num5 == num7);&#160;&#160; </span></li>
-<li><span>System.out.println(num6 == num7);&#160;&#160; </span></li>
-<li><span>System.out.println(num7 == num8);&#160; </span>   </li>
-</ol>
+12345678910111213141516&lt;/"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java装箱/拆箱技术</h1><div class="post-meta"><div class="post-time">Mar 4, 2012</div></div><div class="post-content"><p>今天群里提出了一个有趣的问题：</p>
+<a id="more"></a>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Integer num1 = 128<span class="comment">;  </span></span><br><span class="line">Integer num2 = 128<span class="comment">;  </span></span><br><span class="line">int num3 = 128<span class="comment">;  </span></span><br><span class="line">int num4 = 128<span class="comment">;  </span></span><br><span class="line">System.out.println(num1 == num2)<span class="comment">;  </span></span><br><span class="line">System.out.println(num1 == num3)<span class="comment">;  </span></span><br><span class="line">System.out.println(num2 == num3)<span class="comment">;  </span></span><br><span class="line">System.out.println(num3 == num4)<span class="comment">;  </span></span><br><span class="line">System.out.println("============")<span class="comment">;  </span></span><br><span class="line">Integer num5 = 12<span class="comment">;  </span></span><br><span class="line">Integer num6 = 12<span class="comment">;  </span></span><br><span class="line">int num7 = 12<span class="comment">;  </span></span><br><span class="line">int num8 = 12<span class="comment">;  </span></span><br><span class="line">System.out.println(num5 == num6)<span class="comment">;  </span></span><br><span class="line">System.out.println(num5 == num7)<span class="comment">;  </span></span><br><span class="line">System.out.println(num6 == num7)<span class="comment">;  </span></span><br><span class="line">System.out.println(num7 == num8)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
 <p>乍一看，好似是常量池的题目，但是运行一遍结果之后，好像有些迷糊，结果只有第一个输出为false，其它地方均为true。</p>
-<p>（num3==num4）以及（num7==num8）这个倒是没什么，常量池基本知识。</p>
+<p><code>（num3==num4）</code>以及<code>（num7==num8）</code>这个倒是没什么，常量池基本知识。</p>
 <p>Integer与int比较，以及Integer内部比较是怎么样的呢？这就涉及到自动装箱/拆箱技术了，一般来说，具有包装类的语言都有这种技术，如Objective-C、Java等，该技术只是编译器给用户提供的一些方便（编译器糖：Compiler Sugar），那么我们来看看Java是怎么实现的吧。附上字节码：</p>
-<p><a href="/images/2012/03/image.png"><img src="/images/2012/03/image_thumb.png" alt="image" title="image"></a> </p>
+<p><img src="/images/2012/03/image.png" alt="image"></p>
 <p>Java的自动装箱直接调用了Integer的静态方法Integer.valueOf，实质上还是创建了一个Integer对象。</p>
-<p><a href="/images/2012/03/image1.png"><img src="/images/2012/03/image_thumb1.png" alt="image" title="image"></a> 而拆箱呢，有人说是将int变量先装箱，再比较。但是字节码说明了，是获得对象的值，再比较。</p>
+<p><img src="/images/2012/03/image1.png" alt="image"></p>
+<p>而拆箱呢，有人说是将int变量先装箱，再比较。但是字节码说明了，是获得对象的值，再比较。</p>
 <p>还有一个疑问，为什么在128的时候num1 != num2，而改一个常量12就等于了呢？需要说明的是，在自动装箱时对于值从[–128, 127]之间的值，它们被装箱为Integer对象后，会在内存中被重用（装箱对象池？）。即如果创建时值位于界内，它会先判断是否存在该对象，有的话直接指向地址。如果不位于界内，则会直接创建新对象。</p>
 <p>这样的功能嘛，还是推荐使用标准的格式（=new Integer(value);），自个明白呢，以后的人也明白。不过自个私底下研究研究还是很开脑的。</p>
 <blockquote>
-<p><strong>P.S.: </strong>反编译字节码命令 javap –c ClassName，不能带.class后缀</p>
+<p><strong>P.S.</strong>: 反编译字节码命令 javap –c ClassName，不能带.class后缀</p>
 </blockquote>
-</div></article></div></section><footer><div class="paginator"><a href="/2012/03/hadoop-related/" class="prev">上一篇</a><a href="/2012/02/iterative-mapred-summary-haloop/" class="next">下一篇</a></div><div data-thread-key="2012/03/java-boxing/" data-title="Java装箱/拆箱技术" data-url="http://hongweiyi.com/2012/03/java-boxing/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
+</div></article></div></section><footer><div class="paginator"><a href="/2012/03/data-structure-bitmap/" class="prev">上一篇</a><a href="/2012/02/iterative-mapred-summary-haloop/" class="next">下一篇</a></div><div data-thread-key="2012/03/java-boxing/" data-title="Java装箱/拆箱技术" data-url="http://hongweiyi.com/2012/03/java-boxing/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';ds.async = true;

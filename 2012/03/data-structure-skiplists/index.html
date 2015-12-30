@@ -1,53 +1,47 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - SkipLists · 小e的笔记</title><meta name="description" content="1**、简介**
-给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。  
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - SkipLists · 小e的笔记</title><meta name="description" content="1、简介给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。
+
 说完上面的，来推荐一个有趣的数据结构，可方便实现上面几个要求，那就是SkipLists（跳表）。我们先来看看SkipList作者William Pugh对它的定义吧：
 
-Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent al"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - SkipLists</h1><div class="post-meta"><div class="post-time">Mar 9, 2012</div></div><div class="post-content"><p><strong>1**</strong>、简介**</p>
-<p>给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。<br>  <a id="more"></a></p>
+Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent algorithms for balanc"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - SkipLists</h1><div class="post-meta"><div class="post-time">Mar 9, 2012</div></div><div class="post-content"><h3 id="1、简介">1、简介</h3><p>给一串有序的数据，如何存储可以增删查改快速方便、扩容简单、实现也简单呢？用数组吧，实现简单，二分法也老快了，但是删除就很麻烦了，且扩容也需要开辟新的空间。用链表吧，新增删除都很快，但是查找就得遍历了。用平衡树（AVL、红黑树）吧，新增删除扩容都很方便，但是实现起来非常麻烦。</p>
+<a id="more"></a>
 <p>说完上面的，来推荐一个有趣的数据结构，可方便实现上面几个要求，那就是SkipLists（跳表）。我们先来看看SkipList作者William Pugh对它的定义吧：</p>
 <blockquote>
-<p><em>Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent algorithms for balanced trees.(1990)</em>  </p>
+<p>Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent algorithms for balanced trees.(1990)</p>
 </blockquote>
 <p>SkipLists设计出来就是用来取代平衡树的，SkipList依靠随机的思想，从某种程序上实现了平衡，且插入与删除都比较简单。</p>
-<p><strong>2**</strong>、SkipLists思想**</p>
-<p><a href="/images/2012/03/image4.png"><img src="/images/2012/03/image_thumb4.png" alt="image" title="image"></a> 我们先来看看上面的有序链表（例子Copy自文献），需要查找一个节点，我们得获得头节点，再依次遍历下去，时间复杂度为O(n)。</p>
-<p><a href="/images/2012/03/image5.png"><img src="/images/2012/03/image_thumb5.png" alt="image" title="image"></a> 如果有上面这种结构，每间隔一个节点添加一个额外指针指向下下个节点。那么每次查找先查下下节点，大于继续查找，小于的话，查找下个节点。这样的话，时间复杂度就降到了O(n/2)。</p>
+<h3 id="2、SkipLists思想">2、SkipLists思想</h3><p><img src="/images/2012/03/image4.png" alt="image"></p>
+<p>我们先来看看上面的有序链表（例子Copy自文献），需要查找一个节点，我们得获得头节点，再依次遍历下去，时间复杂度为O(n)。</p>
+<p><img src="/images/2012/03/image5.png" alt="image"></p>
+<p>如果有上面这种结构，每间隔一个节点添加一个额外指针指向下下个节点。那么每次查找先查下下节点，大于继续查找，小于的话，查找下个节点。这样的话，时间复杂度就降到了O(n/2)。</p>
 <p>这基本上就是跳表的核心思想，即通过“空间来换取时间”的一个算法，通过在每个节点中增加了向前的指针，从而提升查找的效率。</p>
-<p><strong>3**</strong>、构造过程**</p>
-<p>1）给定一个有序的链表；</p>
-<p>2）选择链表最上层的最大、最小节点，然后从其它节点中按照一定算法随机选出一些节点，将这些节点组成有序链表。新链表称之为第一层，原链表称之为下一层；</p>
-<p>3）为刚选出的每个节点添加一个指针域，这个指针指向下一层中相应的节点。Top指针指向首层首节点；</p>
-<p>4）重复2、3步，直到不能选选择出除最大最小节点之外的节点。</p>
+<h3 id="3、构造过程">3、构造过程</h3><ol>
+<li>给定一个有序的链表；</li>
+<li>选择链表最上层的最大、最小节点，然后从其它节点中按照一定算法随机选出一些节点，将这些节点组成有序链表。新链表称之为第一层，原链表称之为下一层；</li>
+<li>为刚选出的每个节点添加一个指针域，这个指针指向下一层中相应的节点。Top指针指向首层首节点；</li>
+<li>重复2、3步，直到不能选选择出除最大最小节点之外的节点。</li>
+</ol>
 <p>如下图：</p>
-<p><a href="/images/2012/03/clip_image006.jpg"><img src="/images/2012/03/clip_image006_thumb.jpg" alt="clip_image006" title="clip_image006"></a></p>
-<p><strong>4**</strong>、结构特征**</p>
-<p>1）一个SkipList应由多个层组成（Level）；</p>
-<p>2）SkipList的最底层包含所有的节点；</p>
-<p>3）每一层都是一个有序链表；</p>
-<p>4）如果节点X出现在第i层，那么所有&lt;i的层都含有X；</p>
-<p>5）Top指向最高层的首节点；</p>
-<p>6）第i层的节点通过down指针指向下一层相应的节点；</p>
-<p>7）每一层均有全局最大最小值。</p>
-<p><strong>5**</strong>、其它**</p>
-<p><strong>1**</strong>）随机算法**</p>
-<p>调用一个随机函数，该函数返回节点会撑到第几层，伪代码如下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>randomLevel()</p>
-<p>&#160;&#160;&#160; lvl := 1</p>
-<p><em>&#160;&#160;&#160; – random</em>() <em>that returns a random value in </em>[0…1)</p>
-<p><strong>&#160;&#160;&#160; while </strong>random() &lt; p <strong>and </strong>lvl &lt; MaxLevel <strong>do</strong></p>
-<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; lvl := lvl + 1</p>
-<p><strong>&#160;&#160;&#160; return </strong>lvl<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p><img src="/images/2012/03/clip_image006.jpg" alt="clip_image006"></p>
+<h3 id="4、结构特征">4、结构特征</h3><ol>
+<li>一个SkipList应由多个层组成（Level）；</li>
+<li>SkipList的最底层包含所有的节点；</li>
+<li>每一层都是一个有序链表；</li>
+<li>如果节点X出现在第i层，那么所有&lt;i的层都含有X；</li>
+<li>Top指向最高层的首节点；</li>
+<li>第i层的节点通过down指针指向下一层相应的节点；</li>
+<li>每一层均有全局最大最小值。</li>
+</ol>
+<h3 id="5、其它">5、其它</h3><h4 id="1）随机算法">1）随机算法</h4><p>调用一个随机函数，该函数返回节点会撑到第几层，伪代码如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">randomLevel</span><span class="params">()</span></span></span><br><span class="line">    lvl := <span class="number">1</span></span><br><span class="line">    — <span class="function"><span class="title">random</span><span class="params">()</span></span> that returns <span class="tag">a</span> random value <span class="keyword">in</span> [<span class="number">0</span>…<span class="number">1</span>)</span><br><span class="line">    while <span class="function"><span class="title">random</span><span class="params">()</span></span> &lt; <span class="tag">p</span> and lvl &lt; MaxLevel do</span><br><span class="line">         lvl := lvl + <span class="number">1</span></span><br><span class="line">    return lvl</span><br></pre></td></tr></table></figure>
 <p>一般来说，p为0.5，那么能撑到第i的概率为0.5^i。</p>
-<p><strong>2**</strong>）查找**</p>
-<p>SkipLists查找从Top节点开始，如二分查找一样，大于下一节点就继续，小于则跳到下一层。直到找到节点或者到NULL为止。时间复杂度O(logn)。</p>
-<p><strong>3**</strong>）插入**</p>
-<p>插入也用上面的查找，但是每下一层均要记录转下的那个节点，将其存入update中。待找到插入的位置之后，需要在所有下层插入节点，根据update节点更新。</p>
+<h4 id="2）查找">2）查找</h4><p>SkipLists查找从Top节点开始，如二分查找一样，大于下一节点就继续，小于则跳到下一层。直到找到节点或者到NULL为止。时间复杂度O(logn)。</p>
+<h4 id="3）插入">3）插入</h4><p>插入也用上面的查找，但是每下一层均要记录转下的那个节点，将其存入update中。待找到插入的位置之后，需要在所有下层插入节点，根据update节点更新。</p>
 <p>同时，插入一个元素也需要调用随机算法，判断是否需要更新链表。使用的随机算法和构造时的算法是一致的。时间复杂度O(logn)。</p>
-<p><strong>4**</strong>）删除**</p>
-<p>删除找到之后，就直接删除了，没什么特别的地方。时间复杂度O(logn)。</p>
+<h4 id="4）删除">4）删除</h4><p>删除找到之后，就直接删除了，没什么特别的地方。时间复杂度O(logn)。</p>
 <blockquote>
 <p>参考资料：</p>
 <p>William Pugh：<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.85.9211&amp;rep=rep1&amp;type=pdf" target="_blank" rel="external">Skip lists: a probabilistic alternative to balanced trees</a></p>
-<p>跳表：<a href="http://www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html" target="_blank" rel="external">www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html</a></p>
+<p><a href="http://www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html" target="_blank" rel="external">跳表</a></p>
 </blockquote>
 </div></article></div></section><footer><div class="paginator"><a href="/2012/03/data-structure-disjoint-set/" class="prev">上一篇</a><a href="/2012/03/redis-data-strutrue/" class="next">下一篇</a></div><div data-thread-key="2012/03/data-structure-skiplists/" data-title="趣味数据结构 - SkipLists" data-url="http://hongweiyi.com/2012/03/data-structure-skiplists/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
