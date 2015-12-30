@@ -448,38 +448,6 @@
   </entry>
   
   <entry>
-    <title><![CDATA[README]]></title>
-    <link href="http://hongweiyi.com/2015/08/README/"/>
-    <id>http://hongweiyi.com/2015/08/README/</id>
-    <published>2015-08-28T12:32:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<h1 id="建站">建站</h1><p>使用 <a href="https://hexo.io/zh-cn/" target="_blank" rel="external">hexo</a>，快速开始如下：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>npm install hexo-cli -g</span><br><span class="line"><span class="variable">$ </span>hexo init blog</span><br><span class="line"><span class="variable">$ </span>cd blog</span><br><span class="line"><span class="variable">$ </span>npm install</span><br><span class="line"><span class="variable">$ </span>hexo server</span><br></pre></td></tr></table></figure>
-<h1 id="主题">主题</h1><p>使用了 <a href="http://theme-next.iissnan.com/" target="_blank" rel="external">NexT</a>，快速开始如下：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> your-hexo-site</span><br><span class="line">$ git clone http<span class="variable">s:</span>//github.<span class="keyword">com</span>/iissnan/hexo-theme-<span class="keyword">next</span> themes/<span class="keyword">next</span></span><br></pre></td></tr></table></figure>
-<p>由于墙的存在，建议直接到项目的 <a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="external">github 主页</a> 直接下载 zip 包。</p>
-<h1 id="部署到_github_pages">部署到 github pages</h1><p>安装 git 部署插件即可，参考: <a href="https://hexo.io/zh-cn/docs/deployment.html" target="_blank" rel="external">部署</a></p>
-<ul>
-<li>安装插件</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm <span class="operator"><span class="keyword">install</span> hexo-deployer-git <span class="comment">--save</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>在 <code>_config.yml</code> 中修改 deploy 内容</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">deploy</span>:</span><br><span class="line">  <span class="attribute">type</span>: git</span><br><span class="line">  <span class="attribute">repo</span>: <span class="attribute">https</span>:<span class="comment">//github.com/hongweiyi/hongweiyi.github.io.git</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>部署</li>
-</ul>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>hexo deploy</span><br></pre></td></tr></table></figure>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h1 id="建站">建站</h1><p>使用 <a href="https://hexo.io/zh-cn/" target="_blank" rel="external">hexo</a>，快速开始如下：</p>
-<figure class="highlight elixi]]>
-    </summary>
-    
-  </entry>
-  
-  <entry>
     <title><![CDATA[OOM Killer 的一次问题定位]]></title>
     <link href="http://hongweiyi.com/2015/03/oom-killer-1/"/>
     <id>http://hongweiyi.com/2015/03/oom-killer-1/</id>
@@ -1151,6 +1119,46 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
       <category term="JVM" scheme="http://hongweiyi.com/tags/JVM/"/>
     
       <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Solr Query Parser学习有感]]></title>
+    <link href="http://hongweiyi.com/2013/08/solr-switch-query-parser/"/>
+    <id>http://hongweiyi.com/2013/08/solr-switch-query-parser/</id>
+    <published>2013-08-31T02:55:12.000Z</published>
+    <updated>2015-12-29T16:41:11.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>
+<a id="more"></a>
+<h3 id="2、细说">2、细说</h3><p>插件的语法如下：</p>
+<blockquote>
+<p>fq={!switch case.foo=XXX case.bar=zzz case.yak=qqq}foo</p>
+</blockquote>
+<p>这个语法是官方文档里面的，这算个什么嘛，还真只是语法，一点逻辑都没有！！！我就写了带一点点逻辑的查询语句如下：</p>
+<blockquote>
+<p>fq={!switch case.cs=city:changsha case.bj=city:beijing}cs</p>
+</blockquote>
+<p>这句话翻译过来，其实就是：</p>
+<blockquote>
+<p>fq=city:changsha</p>
+</blockquote>
+<p>因为在SwitchQParserPlugin的parse()中，只是找到了localParams的v属性（即cs），再从SWITCH_CASE对应的字段，获得相应的查询语句后，返回子查询对象。由于Solr模块可移植性强加上逻辑实在是过于简单，所以做低版本移植也非常方便，几(M&eacute;i)分(yǒu)钟(y&agrave;n)搞(zh&egrave;ng)定(ā)。</p>
+<p>如下：</p>
+<p><img src="/images/2013/08/image.png" alt="image"></p>
+<p>部分源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** SwitchQParserPlugin */</span></span><br><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Query <span class="title">parse</span><span class="params">()</span> <span class="keyword">throws</span> SyntaxError </span>&#123;</span><br><span class="line">String val = localParams.get(QueryParsing.V);</span><br><span class="line"></span><br><span class="line"><span class="comment">// we don't want to wrapDefaults arround params, because then</span></span><br><span class="line"><span class="comment">// clients could add their own switch options</span></span><br><span class="line">String subQ = localParams.get(SWITCH_DEFAULT);</span><br><span class="line">subQ = StringUtils.isBlank(val)</span><br><span class="line">  ? localParams.get(SWITCH_CASE, subQ)</span><br><span class="line">  : localParams.get(SWITCH_CASE + &amp;quot;.&amp;quot; + val.trim(), subQ);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">null</span> == subQ) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> SyntaxError(&amp;quot;No &amp;quot;+SWITCH_DEFAULT+&amp;quot;, and no <span class="keyword">switch</span> <span class="keyword">case</span> matching specified query string: \&amp;quot;&amp;quot; + val + &amp;quot;\&amp;quot;&amp;quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">subParser = subQuery(subQ, <span class="keyword">null</span>);</span><br><span class="line"><span class="keyword">return</span> subParser.getQuery();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、有感">3、有感</h3><p>这个插件的使用场景我觉得更多的是在业务层使用，由业务层封装多个case，将多个case的值暴露给更上层的业务，提供一个较为友好的交互方式。比如下面这种（肯定实际不是这么做的）：</p>
+<p><img src="/images/2013/08/QQ20130831103315.jpg" alt="QQ图片20130831103315"></p>
+<p>总的来说，这个插件对于我们现在的系统而言，用处不大，但是Solr的这种查询方式，这种插件式编码方式，很值得我们借鉴和学习。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>]]>
+    
+    </summary>
+    
+      <category term="Solr" scheme="http://hongweiyi.com/tags/Solr/"/>
     
       <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
     
