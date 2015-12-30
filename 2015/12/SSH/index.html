@@ -14,7 +14,7 @@
 用户拿到公钥后，加密密码发送过来。恶意拦截者就可以拿到密码
 
 为了避免上面的情况，加上 known_hosts，可以防止以后使用的时候被恶意拦截，但是无法防止第一次被恶意拦截（第一次一般会把公钥指纹打印出来问一下，个人觉得作用不大，没人会看的）
-2."><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/archives" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">SSH 资料</h1><div class="post-meta"><div class="post-time">Dec 30, 2015 | [<a class="tag-link" href="/tags/SSH/">SSH</a>]</div></div><div class="post-content"><h2 id="1-_原理">1. 原理</h2><h3 id="1-1_SSH_原理">1.1 SSH 原理</h3><ol>
+2."><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">SSH 资料</h1><div class="post-meta"><div class="post-time">Dec 30, 2015 | [<a class="tag-link" href="/tags/SSH/">SSH</a>]</div></div><div class="post-content"><h2 id="1-_原理">1. 原理</h2><h3 id="1-1_SSH_原理">1.1 SSH 原理</h3><ol>
 <li>远程主机收到用户的登录请求，把自己的公钥发给用户</li>
 <li>用户使用这个公钥，将登录密码加密后，发送回来</li>
 <li>远程主机用自己的私钥，解密登录密码。如果密码正确，就同意用户登录</li>
@@ -50,7 +50,7 @@
 <blockquote>
 <p><code>&#39;cat &gt;&gt; .ssh/authorized_keys&#39; &lt; ~/.ssh/id_rsa.pub</code> 的作用是，将本地的公钥文件 <code>~/.ssh/id_rsa.pub</code>，重定向追加到远程文件 authorized_keys 的末尾</p>
 </blockquote>
-</div></article></div></section><footer><div class="paginator"><a class="prev"> </a><a href="/2015/10/docker-volume-plugin/" class="next">下一篇</a></div><div data-thread-key="2015/12/SSH/" data-title="SSH 资料" data-url="http://hongweiyi.com/2015/12/SSH/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
+</div></article></div></section><footer><div class="paginator"><a class="prev"></a><a href="/2015/10/docker-volume-plugin/" class="next">下一篇</a></div><div data-thread-key="2015/12/SSH/" data-title="SSH 资料" data-url="http://hongweiyi.com/2015/12/SSH/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';ds.async = true;
