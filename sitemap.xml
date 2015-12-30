@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hongweiyi.com/2015/12/SSH/</loc>
+    <lastmod>2015-12-30T12:19:58.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2012/02/jvm-structure/</loc>
     <lastmod>2015-12-30T12:16:30.000Z</lastmod>
   </url>
@@ -142,11 +147,6 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://hongweiyi.com/2013/01/linux-process-shell/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
@@ -172,12 +172,12 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2015/10/docker-compose-pratice/</loc>
+    <loc>http://hongweiyi.com/2012/09/mapred-optimize-writable/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2012/09/hadoop-bug-in-text/</loc>
+    <loc>http://hongweiyi.com/2015/10/docker-compose-pratice/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -342,7 +342,12 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2012/09/mapred-optimize-writable/</loc>
+    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2012/09/hadoop-bug-in-text/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   

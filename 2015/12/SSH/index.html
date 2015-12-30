@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> SSH 资料 · 小e的笔记</title><meta name="description" content="原理SSH 原理
+远程主机收到用户的登录请求，把自己的公钥发给用户
+用户使用这个公钥，将登录密码加密后，发送回来
+远程主机用自己的私钥，解密登录密码。如果密码正确，就同意用户登录
+
+免密原理
+将用户的公钥存在远程主机
+登录时，远程主机通过用户的公钥加密一段随机的字符串发送回去
+用户用自己的私钥解密字符串后返回。如果字符串正确，就同意用户登录
+
+为什么有 known_hosts
+恶意拦截登录请求，冒充远程主机，将伪造的公钥发送给用户
+用户拿到公钥后，加密密码发送过来。恶意拦截者就可以拿到密码
+
+为了避免上面的情况，加上 known_hosts，可以防止以后使用的时候被恶意拦截，但是无法防止第一次被恶意拦截（第一次一般会把公钥指纹打印出来问一下，个人觉得作用不大，没人会看的）
+操作免询问&lt;a href=&quot;http://askubu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">SSH 资料</h1><div class="post-meta"><div class="post-time">Dec 30, 2015</div></div><div class="post-content"><h2 id="原理">原理</h2><h3 id="SSH_原理">SSH 原理</h3><ol>
+<li>远程主机收到用户的登录请求，把自己的公钥发给用户</li>
+<li>用户使用这个公钥，将登录密码加密后，发送回来</li>
+<li>远程主机用自己的私钥，解密登录密码。如果密码正确，就同意用户登录</li>
+</ol>
+<h3 id="免密原理">免密原理</h3><ol>
+<li>将用户的公钥存在远程主机</li>
+<li>登录时，远程主机通过用户的公钥加密一段随机的字符串发送回去</li>
+<li>用户用自己的私钥解密字符串后返回。如果字符串正确，就同意用户登录</li>
+</ol>
+<h3 id="为什么有_known_hosts">为什么有 known_hosts</h3><ol>
+<li>恶意拦截登录请求，冒充远程主机，将伪造的公钥发送给用户</li>
+<li>用户拿到公钥后，加密密码发送过来。恶意拦截者就可以拿到密码</li>
+</ol>
+<p>为了避免上面的情况，加上 known_hosts，可以防止以后使用的时候被恶意拦截，但是无法防止第一次被恶意拦截（第一次一般会把公钥指纹打印出来问一下，个人觉得作用不大，没人会看的）</p>
+<h2 id="操作">操作</h2><h3 id="免询问">免询问</h3><p><a href="http://askubuntu.com/questions/123072/ssh-automatically-accept-keys" target="_blank" rel="external">ssh: automatically accept keys</a></p>
+<ul>
+<li>ssh -oStrictHostKeyChecking=no user@host</li>
+</ul>
+<blockquote>
+<p>注：这个在 mac 上不生效</p>
+</blockquote>
+<p>或者在 ~/.ssh/config 中加</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">Host</span> *</span><br><span class="line">  StrictHostKeyChecking <span class="built_in">no</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：如果服务器变更了，这个 known_hosts 需要删掉重新生成。你也可以将 known_hosts 这个文件指向 /dev/null。使用 <code>-oUserKnownHostsFile=/dev/null</code></p>
+</blockquote>
+<h3 id="免密">免密</h3><p>在需要免密登录其它机器的机器上执行：</p>
+<ul>
+<li>ssh-keygen -t rsa</li>
+<li>ssh user@host ‘mkdir -p .ssh &amp;&amp; cat &gt;&gt; .ssh/authorized_keys’ &lt; ~/.ssh/id_rsa.pub</li>
+</ul>
+<blockquote>
+<p><code>&#39;cat &gt;&gt; .ssh/authorized_keys&#39; &lt; ~/.ssh/id_rsa.pub</code> 的作用是，将本地的公钥文件 <code>~/.ssh/id_rsa.pub</code>，重定向追加到远程文件 authorized_keys 的末尾</p>
+</blockquote>
+</div></article></div></section><footer><div class="paginator"><a class="prev"> </a><a href="/2015/10/docker-volume-plugin/" class="next">下一篇</a></div><div data-thread-key="2015/12/SSH/" data-title="SSH 资料" data-url="http://hongweiyi.com/2015/12/SSH/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+
+</script></footer><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-66911097-1",'auto');ga('send','pageview');</script><script src="https://cdn.bootcss.com/mathjax/2.5.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></body></html>
