@@ -291,7 +291,7 @@
     <link href="http://hongweiyi.com/2015/09/java-source-code-practice/"/>
     <id>http://hongweiyi.com/2015/09/java-source-code-practice/</id>
     <published>2015-09-01T15:40:00.000Z</published>
-    <updated>2015-12-30T12:24:18.000Z</updated>
+    <updated>2015-12-30T14:13:51.000Z</updated>
     <content type="html"><![CDATA[<h2 id="1-_原则">1. 原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
 <h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
 <h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>
@@ -337,7 +337,9 @@
     
     </summary>
     
-      <category term="Java, 源码" scheme="http://hongweiyi.com/tags/Java-%E6%BA%90%E7%A0%81/"/>
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="源码" scheme="http://hongweiyi.com/tags/%E6%BA%90%E7%A0%81/"/>
     
       <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
     
@@ -377,6 +379,29 @@
       <category term="CSS" scheme="http://hongweiyi.com/tags/CSS/"/>
     
       <category term="Frontend" scheme="http://hongweiyi.com/tags/Frontend/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Java 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/08/java-practice/"/>
+    <id>http://hongweiyi.com/2015/08/java-practice/</id>
+    <published>2015-08-28T14:32:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]>
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
     
       <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
     
@@ -484,29 +509,6 @@
   </entry>
   
   <entry>
-    <title><![CDATA[Java 最佳实践]]></title>
-    <link href="http://hongweiyi.com/2015/08/java-practice/"/>
-    <id>http://hongweiyi.com/2015/08/java-practice/</id>
-    <published>2015-08-28T14:32:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<ul>
-<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<ul>
-<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
-</ul>
-]]>
-    </summary>
-    
-      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
-    
-      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
-    
-  </entry>
-  
-  <entry>
     <title><![CDATA[OOM Killer 的一次问题定位]]></title>
     <link href="http://hongweiyi.com/2015/03/oom-killer-1/"/>
     <id>http://hongweiyi.com/2015/03/oom-killer-1/</id>
@@ -564,7 +566,7 @@
     <link href="http://hongweiyi.com/2014/10/i-need-an-answer-now-from-remote/"/>
     <id>http://hongweiyi.com/2014/10/i-need-an-answer-now-from-remote/</id>
     <published>2014-10-21T15:23:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
+    <updated>2015-12-30T14:34:26.000Z</updated>
     <content type="html"><![CDATA[<p>人人都在办公室坐着的时候，你很容易就会养成一种坏习惯：不管大事小事，不管什么时间，也不管是否会打断对方的工作，只要想起来，就会打扰对方。为何有那么多人在传统的办公室里工作效率低下，这就是关键原因。习惯了这种工作模式之后，你很难设想一个无法立即得到反馈的世界是什么模样——无论事情有多小。可是，这样的世界是存在的，而且适宜人类居住。<a id="more"></a></p>
 <p>首先，你需要认识到，并不是每个问题都需要立即得到解答。没有什么能比拿着一个无须立即得到答案的问题去打扰别人更傲慢的行为了。这意味着你要明白，并不是所有的事情都同样重要。</p>
 <p>一旦明白了这个道理，你就踏上醒悟和高效之路了。可以过几个小时再得到回答的问题，可以发邮件解决。几分钟内需要知道答案的问题，可以用即时消息。至于那些如天塌下来一般、不能等的急事儿，你可以使用一种老式的发明：电话。</p>
@@ -582,7 +584,11 @@
     
     </summary>
     
-      <category term="Remote, 书摘, 生活" scheme="http://hongweiyi.com/tags/Remote-%E4%B9%A6%E6%91%98-%E7%94%9F%E6%B4%BB/"/>
+      <category term="Remote" scheme="http://hongweiyi.com/tags/Remote/"/>
+    
+      <category term="书摘" scheme="http://hongweiyi.com/tags/%E4%B9%A6%E6%91%98/"/>
+    
+      <category term="生活" scheme="http://hongweiyi.com/tags/%E7%94%9F%E6%B4%BB/"/>
     
       <category term="生活点滴" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E7%82%B9%E6%BB%B4/"/>
     
@@ -748,7 +754,7 @@
     <link href="http://hongweiyi.com/2014/04/rework-digest/"/>
     <id>http://hongweiyi.com/2014/04/rework-digest/</id>
     <published>2014-04-14T13:40:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
+    <updated>2015-12-30T14:14:20.000Z</updated>
     <content type="html"><![CDATA[<p>昨天在hn上看到37signals，顺带看到《rework》这本书，多看试读了一下，立马亚马逊下单了。怎么说吧，里面的大多数文字都让我产生深深的共鸣，两小时读完，有种恨不得立马去他公司去体验一把的感觉，这感觉是如此奇妙。</p>
 <p>苦于自己不善于文字，就只能在这里把书里最后的总结摘抄上来，与大家分享分享：</p>
 <a id="more"></a>
@@ -766,7 +772,13 @@
     
     </summary>
     
-      <category term="REWORK, 37signals, 书摘, 生活" scheme="http://hongweiyi.com/tags/REWORK-37signals-%E4%B9%A6%E6%91%98-%E7%94%9F%E6%B4%BB/"/>
+      <category term="37signals" scheme="http://hongweiyi.com/tags/37signals/"/>
+    
+      <category term="REWORK" scheme="http://hongweiyi.com/tags/REWORK/"/>
+    
+      <category term="书摘" scheme="http://hongweiyi.com/tags/%E4%B9%A6%E6%91%98/"/>
+    
+      <category term="生活" scheme="http://hongweiyi.com/tags/%E7%94%9F%E6%B4%BB/"/>
     
       <category term="生活点滴" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E7%82%B9%E6%BB%B4/"/>
     
@@ -1023,79 +1035,28 @@
     <link href="http://hongweiyi.com/2013/11/what-i-think-about-1111/"/>
     <id>http://hongweiyi.com/2013/11/what-i-think-about-1111/</id>
     <published>2013-11-17T15:49:49.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<p><strong>1、前言</strong></p>
-<p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。<br><a id="more"></a>  </p>
+    <updated>2015-12-30T14:37:17.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。</p>
+<a id="more"></a>  
 <p>在这过程虽然对于双11相关的开发事宜了解不是很多，但是或多或少有所耳闻，在这里将我的一些心得体会记录下来。</p>
-<p>&#160;</p>
-<p><strong>2、内部机制</strong></p>
-<p>我面向的这个应用的开发流程和普通的应用开发流程基本一致，提前2-3个月开发完毕，开发周期约1个半月。</p>
-<p>开发需要做的<strong>第一件事</strong>：需要与各个关联应用的owner沟通协商，沟通内容大概就是需求是否能够满足；平均TPS/峰值TPS大约多少；如果需要开发周期多长，我负责的主要数据相关的接口，结果是需求暂时无法满足，得重新开发新接口；TPS似乎有点高，得压测后评估新的服务器容量；半个人月开发一周测试。这个结果也还算okay，基本就是时间的问题，与他们协商好新接口以及联调的时间即可自行开发了。</p>
-<p>开发需要做的<strong>第二件事</strong>：具体开发过程大同小异了，开发完毕后需要进行联调以及测试，同时要对新的接口进行压测，压测完毕后才是重点——服务器容量水位评估，用以评估在当前的水平下，需要多少台机器才能够撑得住预估TPS。具体的评估方法在这里就不细说了，阿里技术嘉年华中有篇PPT，就讲了容量水位的评估，《<a href="http://club.alibabatech.org/resource_detail.htm?topicId=81" target="_blank" rel="external">如何利用应用自己的数据来保证系统的稳定</a>》，和我用的类似但不完全相同。</p>
-<p>开发需要做的<strong>第三件事</strong>：联调完毕，压测完毕，机器扩容也完毕。在我这个小菜看来，我的系统就可以发布了，后经运维再三提醒与要求，给接口加上了服务开发，方便在各个活动中进行服务的升降级。公司内部有自己的分布式资源管理组件，可很方便的实现应用开关，基本的实现思路可以看一下这篇博客：《<a href="http://iamzhongyong.iteye.com/blog/1897694" target="_blank" rel="external">java分布式系统开关功能设计</a>》</p>
+<h3 id="2、内部机制">2、内部机制</h3><p>我面向的这个应用的开发流程和普通的应用开发流程基本一致，提前2-3个月开发完毕，开发周期约1个半月。</p>
+<p>开发需要做的第一件事：需要与各个关联应用的owner沟通协商，沟通内容大概就是需求是否能够满足；平均TPS/峰值TPS大约多少；如果需要开发周期多长，我负责的主要数据相关的接口，结果是需求暂时无法满足，得重新开发新接口；TPS似乎有点高，得压测后评估新的服务器容量；半个人月开发一周测试。这个结果也还算okay，基本就是时间的问题，与他们协商好新接口以及联调的时间即可自行开发了。</p>
+<p>开发需要做的第二件事：具体开发过程大同小异了，开发完毕后需要进行联调以及测试，同时要对新的接口进行压测，压测完毕后才是重点——服务器容量水位评估，用以评估在当前的水平下，需要多少台机器才能够撑得住预估TPS。具体的评估方法在这里就不细说了，阿里技术嘉年华中有篇PPT，就讲了容量水位的评估，《<a href="http://club.alibabatech.org/resource_detail.htm?topicId=81" target="_blank" rel="external">如何利用应用自己的数据来保证系统的稳定</a>》，和我用的类似但不完全相同。</p>
+<p>开发需要做的第三件事：联调完毕，压测完毕，机器扩容也完毕。在我这个小菜看来，我的系统就可以发布了，后经运维再三提醒与要求，给接口加上了服务开发，方便在各个活动中进行服务的升降级。公司内部有自己的分布式资源管理组件，可很方便的实现应用开关，基本的实现思路可以看一下这篇博客：《<a href="http://iamzhongyong.iteye.com/blog/1897694" target="_blank" rel="external">java分布式系统开关功能设计</a>》</p>
 <p>由于接的这个项目并非支付宝关键链路上的系统，所以系统优先级会比较低，我上层的应用做的限流机制也比较轻便。业务方会评估我系统的应用容量，配置报警机制，在超过容量阈值的时候报警，同时人工干预进行系统限流。具体的限流实现也较为简单，分布式资源管理系统推送限流概率，比如说0.9，业务则会通过Random过滤掉约为10%的请求，直接抛弃掉，好像也很弱的样子。当然，这是属于应用级的限流，也有系统级的限流，比如淘宝那边的TMD，支付宝这边的SLA，都没有深入了解，如TMD是nginx的一个组件，应该是在接入层做的限流，如限流控制在500TPS，那么第501个请求则直接抛弃。运维方面，在双11前几天也会提前查看机器状态信息，如负载、请求量、日志情况，针对不同的情况作出不同的调整，比如动态给数据库集群增添机器、修改报警阈值等。</p>
-<p>&#160;</p>
-<p><strong>3、后记</strong></p>
-<p>以上便是我这个双11相关工作周边游荡的编外人员所接触到的双11内部机制，无论是理解还是实践都比较肤浅，不过还有机会深入双11核心工作滴，木哈哈哈！</p>
-<p>&#160;</p>
+<h3 id="3、后记">3、后记</h3><p>以上便是我这个双11相关工作周边游荡的编外人员所接触到的双11内部机制，无论是理解还是实践都比较肤浅，不过还有机会深入双11核心工作滴，木哈哈哈！</p>
 <blockquote>
 <p>双11前两天我那系统的请求量还是挺可观的，比平常翻了十翻，但是双11当天请求量却掉回解放前。应该是被限流了，不是关键链路上的就是悲惨啊！！！</p>
 </blockquote>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p><strong>1、前言</strong></p>
-<p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。<br>]]>
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>本人小菜在支付宝数据平台实习半年，主要业务均是离线场景，原以为今年是刷不上双11了，但幸运的是，运营支撑部门准备开发一套线上场景的应用，需要用到数据平台这边的系统，更幸运的是，我负责了部分数据平台这边的部分数据出口系统。该套应用双11当天也需要使用，所以呢，我也算是凑了凑双11开发的热闹。</p>]]>
     
     </summary>
     
       <category term="双11" scheme="http://hongweiyi.com/tags/%E5%8F%8C11/"/>
     
       <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[我的Macbook小记]]></title>
-    <link href="http://hongweiyi.com/2013/11/my-macbook/"/>
-    <id>http://hongweiyi.com/2013/11/my-macbook/</id>
-    <published>2013-11-06T16:14:10.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<p>上上周在淘宝上下单新款macbook pro retina 15寸，定制版，周二也就是昨天收到货，收货的心情确实非常激动。rMBP也是我想了很久的机器了，一直没狠下心来买，这次买也算是脑子一热吧。不过收货中间曲折种种，让我不得不感叹一下了。</p>
-<a id="more"></a>
-<pre><code><span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>自己本身处在这个电商的中心，所以也一直挺支持自己东家的业务，在淘宝上花销多大也算是比较放心，这次&amp;ldquo;大手笔&amp;rdquo;网上消费，<span class="tag">&lt;/<span class="title">span</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>从选店家到仔细思考中间的时间也不过几个小时。选了同事&amp;ldquo;推荐&amp;rdquo;的一个商家，其实这个同事也就是随便选了一家，觉得应该没问题就推荐给我了。店家吧，现在看来确实没啥问题，但是就是拿到的货好像那个啥了点。<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
-
-收货的时候直接给我发了裸机+电源+打印发票，收到货的心情是非常激动，但打开货之后，那个心啊！拔凉拔凉的！那种不爽的感觉简直无法用语言形容。不过机器检查了一下，电池循环次数2次，序列号没问题，初步来说应该是好的，所以就简单的找了下店家的麻烦，店家解释似乎也还合理，顺带还补偿了我￥50。谁知，这才是不爽的开始。
-</code></pre><blockquote>
-<p>店家今天给单独把盒子发过来了，看顺丰价格应该是一日达，赞一个！</p>
-</blockquote>
-<pre><code>使用了半天macbook，觉得屏幕有点闪，开始觉得是屏幕太好了，我眼拙。随便动了动电源调了调亮度，感觉似乎好像是没问题了，继续使用着。晚上的时候，回家慢慢研究，研究研究着就不太对劲了：诶，这不应该啊，这闪得还挺带感啊，非常规律啊！好吧，不爽开始了！！！
-
-最初认为是驱动的问题，想着比较新的Intel Iris Pro加上比较新的Mavericks，应该有点不兼容吧，但也没找到新的驱动，在mac下似乎是没有办法证实这个问题了。好吧，那就装个双系统吧，折腾折腾给装了个双系统Win7，在装的过程中，需要烧录系统盘，中间还格盘格错了，格了一个移动硬盘，1T啊，今天恢复了一天都没恢复过来！！！不小心搞走了我1T的数据不说，最后在Win7下的验证结果是：Win7下，屏幕也在闪！<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>而且装机过程中，发现在option选择磁盘的界面中，屏幕也一如既然的闪烁，仿佛这个世界与她没关一样。<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
-
-<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>基于以上种种，我这里基本上认为是硬件问题了。不带这么搞的啊，还没摸热就发现硬件出问题了，还是最值钱最漂亮的屏幕！！！<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
-
-唉，接下来的流程就比较常规了，电话客服、旺旺店家、游走维修点。客服告之重置SMC的方法，试之无效，请去维修点检测是否硬件有问题；维修点发现问题后，很委婉的告之无能为力，国内没上市，没检测设备也没有更换设备，请送修香港或等国内上市后再来；店家各种&amp;ldquo;呵呵&amp;rdquo;，但也算比较友好，可单程<span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"font-size: 13px;"</span>&gt;</span>保价<span class="tag">&lt;/<span class="title">span</span>&gt;</span>包邮送香港检测。
-
-唉，自己也在纠结，送香港的话，店家不上心加上香港方如果直接给拆解再修好，那不如直接等国内上市了。但如果等国内上市，说不定香港又可以包换呢！纠结来纠结去，最后还是听cc的，送香港吧！希望这个小本能有个好的下场。
-
-以上只是这两天的一下杂乱思路的整理，整理了一下发现还是很杂乱。嗯，就这么着吧！
-</code></pre><blockquote>
-<p>苹果官方的服务很不错，第一次享受到&ldquo;预约&rdquo;。&ldquo;嗯，苹果和我预约了明天早上10:30的电话&rdquo;</p>
-<p>这是拿这台Macbook写的，希望这是她的第一次也是最后一次了，换一台吧，别修了！！！</p>
-</blockquote>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>上上周在淘宝上下单新款macbook pro retina 15寸，定制版，周二也就是昨天收到货，收货的心情确实非常激动。rMBP也是我想了很久的机器了，一直没狠下心来买，这次买也算是脑子一热吧。不过收货中间曲折种种，让我不得不感叹一下了。</p>]]>
-    
-    </summary>
-    
-      <category term="Apple" scheme="http://hongweiyi.com/tags/Apple/"/>
-    
-      <category term="Macbook" scheme="http://hongweiyi.com/tags/Macbook/"/>
-    
-      <category term="RBMP" scheme="http://hongweiyi.com/tags/RBMP/"/>
-    
-      <category term="生活分享" scheme="http://hongweiyi.com/categories/%E7%94%9F%E6%B4%BB%E5%88%86%E4%BA%AB/"/>
     
   </entry>
   
@@ -1178,6 +1139,46 @@ CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使
       <category term="JVM" scheme="http://hongweiyi.com/tags/JVM/"/>
     
       <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Solr Query Parser学习有感]]></title>
+    <link href="http://hongweiyi.com/2013/08/solr-switch-query-parser/"/>
+    <id>http://hongweiyi.com/2013/08/solr-switch-query-parser/</id>
+    <published>2013-08-31T02:55:12.000Z</published>
+    <updated>2015-12-29T16:41:11.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>
+<a id="more"></a>
+<h3 id="2、细说">2、细说</h3><p>插件的语法如下：</p>
+<blockquote>
+<p>fq={!switch case.foo=XXX case.bar=zzz case.yak=qqq}foo</p>
+</blockquote>
+<p>这个语法是官方文档里面的，这算个什么嘛，还真只是语法，一点逻辑都没有！！！我就写了带一点点逻辑的查询语句如下：</p>
+<blockquote>
+<p>fq={!switch case.cs=city:changsha case.bj=city:beijing}cs</p>
+</blockquote>
+<p>这句话翻译过来，其实就是：</p>
+<blockquote>
+<p>fq=city:changsha</p>
+</blockquote>
+<p>因为在SwitchQParserPlugin的parse()中，只是找到了localParams的v属性（即cs），再从SWITCH_CASE对应的字段，获得相应的查询语句后，返回子查询对象。由于Solr模块可移植性强加上逻辑实在是过于简单，所以做低版本移植也非常方便，几(M&eacute;i)分(yǒu)钟(y&agrave;n)搞(zh&egrave;ng)定(ā)。</p>
+<p>如下：</p>
+<p><img src="/images/2013/08/image.png" alt="image"></p>
+<p>部分源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** SwitchQParserPlugin */</span></span><br><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Query <span class="title">parse</span><span class="params">()</span> <span class="keyword">throws</span> SyntaxError </span>&#123;</span><br><span class="line">String val = localParams.get(QueryParsing.V);</span><br><span class="line"></span><br><span class="line"><span class="comment">// we don't want to wrapDefaults arround params, because then</span></span><br><span class="line"><span class="comment">// clients could add their own switch options</span></span><br><span class="line">String subQ = localParams.get(SWITCH_DEFAULT);</span><br><span class="line">subQ = StringUtils.isBlank(val)</span><br><span class="line">  ? localParams.get(SWITCH_CASE, subQ)</span><br><span class="line">  : localParams.get(SWITCH_CASE + &amp;quot;.&amp;quot; + val.trim(), subQ);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">null</span> == subQ) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> SyntaxError(&amp;quot;No &amp;quot;+SWITCH_DEFAULT+&amp;quot;, and no <span class="keyword">switch</span> <span class="keyword">case</span> matching specified query string: \&amp;quot;&amp;quot; + val + &amp;quot;\&amp;quot;&amp;quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">subParser = subQuery(subQ, <span class="keyword">null</span>);</span><br><span class="line"><span class="keyword">return</span> subParser.getQuery();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、有感">3、有感</h3><p>这个插件的使用场景我觉得更多的是在业务层使用，由业务层封装多个case，将多个case的值暴露给更上层的业务，提供一个较为友好的交互方式。比如下面这种（肯定实际不是这么做的）：</p>
+<p><img src="/images/2013/08/QQ20130831103315.jpg" alt="QQ图片20130831103315"></p>
+<p>总的来说，这个插件对于我们现在的系统而言，用处不大，但是Solr的这种查询方式，这种插件式编码方式，很值得我们借鉴和学习。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>]]>
+    
+    </summary>
+    
+      <category term="Solr" scheme="http://hongweiyi.com/tags/Solr/"/>
     
       <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
     
