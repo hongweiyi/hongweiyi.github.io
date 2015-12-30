@@ -1,64 +1,106 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> JVM内存结构 · 小e的笔记</title><meta name="description" content="1**、JVM规定**
-《The Java Virtual Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
-1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Native Method Stacks；
-以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。   
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> JVM内存结构 · 小e的笔记</title><meta name="description" content="1、JVM规定《The Java Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
+
+The pc Register
+Java Virtual Machine Stacks
+Heap
+Method Area
+Runtime Constant Pool
+Native Method Stacks；
+
+以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。
+  
 如下图所示：
-![clip_image002[6]](/images/2012/02/clip_image0026.jpg)
-2**、内存空间详解*"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">JVM内存结构</h1><div class="post-meta"><div class="post-time">Feb 13, 2012</div></div><div class="post-content"><p><strong>1**</strong>、JVM规定**</p>
-<p>《<em>The Java<strong> </strong>Virtual Machine Specification</em>》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
-<p>1）The pc Register；2）Java Virtual Machine Stacks；3）Heap；4）Method Area；5）Runtime Constant Pool；6）Native Method Stacks；</p>
-<p>以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。<br> <a id="more"></a>  </p>
+
+2、内存空间详解1）PC寄存器和JVM方法栈每个线程都会拥有以及创建一个属于自己的PC"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">JVM内存结构</h1><div class="post-meta"><div class="post-time">Feb 13, 2012</div></div><div class="post-content"><h3 id="1、JVM规定">1、JVM规定</h3><p>《The Java Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
+<ol>
+<li>The pc Register</li>
+<li>Java Virtual Machine Stacks</li>
+<li>Heap</li>
+<li>Method Area</li>
+<li>Runtime Constant Pool</li>
+<li>Native Method Stacks；</li>
+</ol>
+<p>以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。</p>
+<a id="more"></a>  
 <p>如下图所示：</p>
-<p><a href="/images/2012/02/clip_image0026_thumb.jpg" title="clip_image002[6]">![clip_image002[6]</a>](/images/2012/02/clip_image0026.jpg)</p>
-<p><strong>2**</strong>、内存空间详解**</p>
-<p><strong>1）PC寄存器和JVM方法栈</strong></p>
-<p>每个线程都会拥有以及创建一个属于自己的PC寄存器和JVM方法栈，PC寄存器占用的有可能为CPU寄存器或者OS内存，而JVM栈占用的为OC内存。</p>
+<p><img src="/images/2012/02/clip_image0026.jpg" alt="clip_image0026"></p>
+<h3 id="2、内存空间详解">2、内存空间详解</h3><h4 id="1）PC寄存器和JVM方法栈">1）PC寄存器和JVM方法栈</h4><p>每个线程都会拥有以及创建一个属于自己的PC寄存器和JVM方法栈，PC寄存器占用的有可能为CPU寄存器或者OS内存，而JVM栈占用的为OC内存。</p>
 <p>每运行一个方法，便会将方法的信息压入JVM方法栈中，同时将当前执行方法放入PC寄存器中（需要注意的是，如果当前方法为Native方法，PC寄存器的值为空）。可以想到，如果方法栈太深，如递归方法，便会报StackOverflowError，同样如果占用空间太多，也会报OutOfMemoryError。需要修改JVM参数设置：-Xss××k，在××中填入数字。</p>
-<p><strong>2）本地方法栈</strong></p>
-<p>同JVM方法栈一样，本地方法栈存放的是native方法的调用的状态。在Sun JDK的实现中，本地方法栈和JVM方法栈是同一个。</p>
-<p><strong>3）方法区</strong></p>
-<p>方法区存放了要加载的类的信息（名称、修饰符等）、类的静态变量、类中定义为fianl类型的常量、类中的Field信息、类中的方法信息，你用Class对象的方法，如getName()、getFields()等来获取信息时，这些数据都来自方法区。需要注意的是，Runtime Constant Pool（常量池）也存放在方法区中。</p>
+<h4 id="2）本地方法栈">2）本地方法栈</h4><p>同JVM方法栈一样，本地方法栈存放的是native方法的调用的状态。在Sun JDK的实现中，本地方法栈和JVM方法栈是同一个。</p>
+<h4 id="3）方法区">3）方法区</h4><p>方法区存放了要加载的类的信息（名称、修饰符等）、类的静态变量、类中定义为fianl类型的常量、类中的Field信息、类中的方法信息，你用Class对象的方法，如getName()、getFields()等来获取信息时，这些数据都来自方法区。需要注意的是，Runtime Constant Pool（常量池）也存放在方法区中。</p>
 <p>方法区是被同一个JVM所有线程所共享的，在Sun JDK中这块区域对应Permanet Generation（持久代），默认最小值为16MB，最大值为64MB，可通过-XX:PermSize及-XX:MaxPermSize来指定。当方法区无法满足分配请求时，会报OutOfMemoryError。</p>
-<p><strong>4）堆</strong></p>
-<p>堆用于存放对象实例以及数组值，可以认为所有通过new来创建的对象的内存均在此分配。一般所说的GC，大部分都是对堆进行的。</p>
+<h4 id="4）堆">4）堆</h4><p>堆用于存放对象实例以及数组值，可以认为所有通过new来创建的对象的内存均在此分配。一般所说的GC，大部分都是对堆进行的。</p>
 <p>堆在32位操作系统上最大为2GB，在64位的则没有限制，大小通过-Xms和-Xmx来控制。-Xms为JVM启动时申请的最小堆内存，默认为物理内存的1/64但小于1GB；-Xmx为JVM可申请的最大堆内存，默认为物理内存的1/4但小于1GB，默认当空余堆内存小于40%的时候，JVM会将堆增大到-Xmx指定大小，可通过-XX:MinHeapFreeRatio=来指定比例，空余堆大于70%时，会将堆大小降到-Xms指定大小，这个参数可用-XX:MaxHeapFreeRatio=来指定。但对于运行系统来说，会避免频繁调整堆大小，会将-Xms和-Xmx的值设为一样。</p>
 <p>为了让内存回收更加高效，Sun JDK从1.2开始对堆采取了分代管理的方法，如下图：</p>
-<p><a href="/images/2012/02/clip_image0046_thumb.jpg" title="clip_image004[6]">![clip_image004[6]</a>](/images/2012/02/clip_image0046.jpg)</p>
-<p><strong>4.1) 新生代（New Generation）</strong></p>
-<p>大多数的新建对象都是从新生代中分配内存，新生代由Eden（伊甸园） Space和两块相同的Survivor Space（S0，S1或者From，To）构成。</p>
+<p><img src="/images/2012/02/clip_image0046.jpg" alt="clip_image0046"></p>
+<h4 id="4-1)_新生代（New_Generation）">4.1) 新生代（New Generation）</h4><p>大多数的新建对象都是从新生代中分配内存，新生代由Eden（伊甸园） Space和两块相同的Survivor Space（S0，S1或者From，To）构成。</p>
 <p>可通过-Xmn参数来指定新生代大小，-XX:SurvivorRatio来调整Eden与S Space的大小。</p>
-<p><strong>4.2）旧生代（Old Generation）</strong></p>
-<p>用于存放新生代经过多次垃圾回收仍然存活的对象，像Cache。同时新建的对象也有可能在旧生代上直接分配内存，一般来说是比较的对象，即：单一大对象以及大数组，-XX:PretenureSizeThreshold = 1024 (byte, default = 0)可用来代表单一对象超过多大即不在新生代分配。</p>
+<h4 id="4-2）旧生代（Old_Generation）">4.2）旧生代（Old Generation）</h4><p>用于存放新生代经过多次垃圾回收仍然存活的对象，像Cache。同时新建的对象也有可能在旧生代上直接分配内存，一般来说是比较的对象，即：单一大对象以及大数组，-XX:PretenureSizeThreshold = 1024 (byte, default = 0)可用来代表单一对象超过多大即不在新生代分配。</p>
 <p>旧生代所占内存大小为-Xmx-（-Xmn）。</p>
-<p><strong>3**</strong>、典型JVM参数配置汇总<strong>     <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="223">           <p></p></td></tr></tbody></table></strong>配置**<br>                   <td valign="top" width="301">           </td></p>
-<p><strong>解释</strong><br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-Xss××k<br>                   <td valign="top" width="301">           </td></p>
-<p>方法栈深度<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:PermSize<br>                   <td valign="top" width="301">           </td></p>
-<p>方法区内存最小值<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:MaxPermSize<br>                   <td valign="top" width="301">           </td></p>
-<p>方法区内存最大值<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-Xms<br>                   <td valign="top" width="301">           </td></p>
-<p>JVM启动分配最小堆内存<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-Xmx<br>                   <td valign="top" width="301">           </td></p>
-<p>JVM启动分配最大堆内存<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:MinHeapFreeRatio=<br>                   <td valign="top" width="301">           </td></p>
-<p>堆内存需扩展时，剩余内存最小比例，默认40%<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:MaxHeapFreeRatio=<br>                   <td valign="top" width="301">           </td></p>
-<p>堆内存需收缩时，剩余内存最大比例，默认70%<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-Xmn<br>                   <td valign="top" width="301">           </td></p>
-<p>堆新生代内存大小<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:NewRatio=<br>                   <td valign="top" width="301">           </td></p>
-<p>如参数为4，则新生代与旧生代比例为1：4<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:SurvivorRatio=<br>                   <td valign="top" width="301">           </td></p>
-<p>S0/S1占新生代内存的比例<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:PretenureSizeThreshold=<br>                   <td valign="top" width="301">           </td></p>
-<p>需要内存超过参数的对象，直接在旧生代分配<br>                        <tr>         <td valign="top" width="223">           </td></tr></p>
-<p>-XX:MaxTenuringThreshold=<br>                   <td valign="top" width="301">           </td></p>
-<p>设置垃圾最大年龄。如果为0，新生代对象不经过S区，直接进行旧生代，值较大的话，会增加新生代对象再GC的概率。<br>                      </p>  <p></p>
-<p><strong>4、小结</strong></p>
-<p>总的来说，所有语言的内存结构都大同小异，均分为堆、栈、区，堆放动态分配（alloc）的对象，栈存放临时变量、方法过程等，区则存放编译时确定的方法签名、常量池等。</p>
-<p>JVM的内存结构需要结合GC一起学习，有兴趣的可以参考&lt;The Java™ Virtual Machine Specification&gt;以及&lt;分布式Java应用&gt;这两本书。</p>
+<p>3、典型JVM参数配置汇总</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-Xss××k</td>
+<td>方法栈深度</td>
+</tr>
+<tr>
+<td>-XX:PermSize</td>
+<td>方法区内存最小值</td>
+</tr>
+<tr>
+<td>-XX:MaxPermSize</td>
+<td>方法区内存最大值</td>
+</tr>
+<tr>
+<td>-Xms</td>
+<td>JVM启动分配最小堆内存</td>
+</tr>
+<tr>
+<td>-Xmx</td>
+<td>JVM启动分配最大堆内存</td>
+</tr>
+<tr>
+<td>-XX:MinHeapFreeRatio=</td>
+<td>堆内存需扩展时，剩余内存最小比例，默认40%</td>
+</tr>
+<tr>
+<td>-XX:MaxHeapFreeRatio=</td>
+<td>堆内存需收缩时，剩余内存最大比例，默认70%</td>
+</tr>
+<tr>
+<td>-Xmn</td>
+<td>堆新生代内存大小</td>
+</tr>
+<tr>
+<td>-XX:NewRatio=</td>
+<td>如参数为4，则新生代与旧生代比例为1:4</td>
+</tr>
+<tr>
+<td>-XX:SurvivorRatio=</td>
+<td>S0/S1占新生代内存的比例</td>
+</tr>
+<tr>
+<td>-XX:PretenureSizeThreshold=</td>
+<td>需要内存超过参数的对象，直接在旧生代分配</td>
+</tr>
+<tr>
+<td>-XX:MaxTenuringThreshold=</td>
+<td>设置垃圾最大年龄。如果为0，新生代对象不经过S区，直接进行旧生代，值较大的话，会增加新生代对象再GC的概率</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>PretenureSizeThreshold 不一定完全生效，其中取决于 tlab 是否可用。tlab是每个线程在eden里分配的一块内存区域，主要为了提高内存分配效率。如果 tlab 可用的话，优先分配在 tlab 中。</p>
+</blockquote>
+<h3 id="4、小结">4、小结</h3><p>总的来说，所有语言的内存结构都大同小异，均分为堆、栈、区，堆放动态分配（alloc）的对象，栈存放临时变量、方法过程等，区则存放编译时确定的方法签名、常量池等。</p>
+<p>JVM的内存结构需要结合GC一起学习，有兴趣的可以参考<the java™="" virtual="" machine="" specification="">以及《分布式Java应用》这两本书。</the></p>
 </div></article></div></section><footer><div class="paginator"><a href="/2012/02/algorithm-dynammic-programming/" class="prev">上一篇</a><a href="/2012/02/mapred-optimize/" class="next">下一篇</a></div><div data-thread-key="2012/02/jvm-structure/" data-title="JVM内存结构" data-url="http://hongweiyi.com/2012/02/jvm-structure/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
