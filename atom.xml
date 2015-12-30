@@ -209,8 +209,8 @@
     <link href="http://hongweiyi.com/2015/09/remoting-practice/"/>
     <id>http://hongweiyi.com/2015/09/remoting-practice/</id>
     <published>2015-09-09T16:00:00.000Z</published>
-    <updated>2015-12-29T14:33:29.000Z</updated>
-    <content type="html"><![CDATA[<h2 id="通信层">通信层</h2><ul>
+    <updated>2015-12-30T12:23:52.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="1-_通信层">1. 通信层</h2><ul>
 <li>直接使用最成熟的网络框架，如 Netty</li>
 <li>单连接 &amp; 连接复用 &amp; 长连接<ul>
 <li>建议提前设计心跳机制</li>
@@ -220,7 +220,7 @@
 </li>
 </ul>
 <a id="more"></a>
-<h2 id="线程模型">线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
+<h2 id="2-_线程模型">2. 线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
 <ul>
 <li>序列化过程在业务线程中处理</li>
 <li>请求/响应包多个批量从 IO 线程交给业务线程处理</li>
@@ -231,7 +231,7 @@
 </li>
 <li>需要定时打印线程池大小，方便性能分析</li>
 </ul>
-<h2 id="序列化">序列化</h2><ul>
+<h2 id="3-_序列化">3. 序列化</h2><ul>
 <li>全站都是 Java 系</li>
 </ul>
 <p>为了以后能让其它语言更好的交互，协议设计越扁平越好，切忌将整个协议类对象序列化，仅整个序列化方法参数对象列表及返回值对象。</p>
@@ -239,14 +239,14 @@
 <li>全站各种语言百花齐放</li>
 </ul>
 <p>可以考虑直接使用 Protobuf 或者 msgpack 这样的跨语言的序列化协议，但我个人没使用经验。</p>
-<h2 id="容灾">容灾</h2><ul>
+<h2 id="4-_容灾">4. 容灾</h2><ul>
 <li>必须要有超时时间，分布式环境下无超时机制对整体环境影响非常大</li>
 <li>需要有连接隔离机制（根据请求量、错误率等）<ul>
 <li>可参考 <a href="https://github.com/Netflix/ribbon" target="_blank" rel="external">Netflix 的 ribbon</a></li>
 </ul>
 </li>
 </ul>
-<h2 id="故障定位">故障定位</h2><ul>
+<h2 id="5-_故障定位">5. 故障定位</h2><ul>
 <li>客户端发送、服务端接收均需要打印日志，日志必须要有的几个字段：<ul>
 <li>时间戳</li>
 <li>唯一ID： 由于客户端和服务端的请求量较大，所以需要有唯一 ID 能够将客户端日志和服务端请求串起来</li>
@@ -266,7 +266,7 @@
 </ul>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h2 id="通信层">通信层</h2><ul>
+    <![CDATA[<h2 id="1-_通信层">1. 通信层</h2><ul>
 <li>直接使用最成熟的网络框架，如 Netty</li>
 <li>单连接 &amp; 连接复用 &amp; 长连接<ul>
 <li>建议提前设计心跳机制</li>
@@ -291,12 +291,12 @@
     <link href="http://hongweiyi.com/2015/09/java-source-code-practice/"/>
     <id>http://hongweiyi.com/2015/09/java-source-code-practice/</id>
     <published>2015-09-01T15:40:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+    <updated>2015-12-30T12:24:18.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="1-_原则">1. 原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
 <h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
 <h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>
 <a id="more"></a>
-<h2 id="方式">方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
+<h2 id="2-_方式">2. 方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
 <ul>
 <li>针对应用程序（Tomcat、Hadoop）：找启动脚本 -&gt; 找到 main 入口 -&gt; 开始 Debug</li>
 <li>库、框架（FastJSON、Spring）：找到关键类 -&gt; 打断点 -&gt; 查看堆栈</li>
@@ -328,10 +328,10 @@
 <p>搜索三方库需要选择 Custom -&gt; Project and Libraries</p>
 </blockquote>
 <p>如果是 Eclipse 的话，似乎只能是大概知道是哪个 Jar 包之后，解压 source 包再全文搜索吧 = =</p>
-<h2 id="其他">其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
+<h2 id="3-_其他">3. 其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+    <![CDATA[<h2 id="1-_原则">1. 原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
 <h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
 <h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>]]>
     
@@ -348,8 +348,8 @@
     <link href="http://hongweiyi.com/2015/08/css-practice/"/>
     <id>http://hongweiyi.com/2015/08/css-practice/</id>
     <published>2015-08-29T16:03:00.000Z</published>
-    <updated>2015-12-29T16:47:38.000Z</updated>
-    <content type="html"><![CDATA[<h2 id="善用_伪元素(Pseudo-elements)">善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
+    <updated>2015-12-30T12:24:36.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="1-_善用_伪元素(Pseudo-elements)">1. 善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
 <li><code>:before</code></li>
 <li><code>:after</code></li>
 <li><code>:first-child</code></li>
@@ -360,18 +360,18 @@
 </li>
 <li><p>插入 clearfix：<a href="https://jsfiddle.net/hy4av6eu/" target="_blank" rel="external">JsFiddle</a></p>
 </li>
-<li><p>first-child &amp; last-child 常用在 ul li 中，用以针对头尾设置不同的样式 </p>
+<li><p>first-child &amp; last-child 常用在 ul li 中，用以针对头尾设置不同的样式</p>
 </li>
 </ul>
-<h2 id="善用属性选择器">善用属性选择器</h2><p>有了属性选择器可以设计很多自己的组件，比如按钮分组、进度条之类的。</p>
+<h2 id="2-_善用属性选择器">2. 善用属性选择器</h2><p>有了属性选择器可以设计很多自己的组件，比如按钮分组、进度条之类的。</p>
 <ul>
 <li><a href="https://jsfiddle.net/j94nvngo/" target="_blank" rel="external">进度条实现 - JsFiddle</a></li>
 </ul>
-<h2 id="待续…">待续…</h2>]]></content>
+<h2 id="3-_待续…">3. 待续…</h2>]]></content>
     <summary type="html">
-    <![CDATA[<h2 id="善用_伪元素(Pseudo-elements)">善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
+    <![CDATA[<h2 id="1-_善用_伪元素(Pseudo-elements)">1. 善用 伪元素(Pseudo-elements)</h2><h3 id="常用伪元素">常用伪元素</h3><ul>
 <li><code>:before</code></li>
-<li><code>:after</c]]>
+<li><code>:af]]>
     </summary>
     
       <category term="CSS" scheme="http://hongweiyi.com/tags/CSS/"/>
@@ -387,9 +387,10 @@
     <link href="http://hongweiyi.com/2015/08/git-practice/"/>
     <id>http://hongweiyi.com/2015/08/git-practice/</id>
     <published>2015-08-28T14:32:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：<br><a id="more"></a></p>
-<h2 id="Labels">Labels</h2><ul>
+    <updated>2015-12-30T12:25:12.000Z</updated>
+    <content type="html"><![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：</p>
+<a id="more"></a>
+<h2 id="1-_Labels">1. Labels</h2><ul>
 <li>BUG</li>
 <li>P0</li>
 <li>P1</li>
@@ -409,7 +410,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="Branch">Branch</h2><ul>
+<h2 id="2-_Branch">2. Branch</h2><ul>
 <li>方式1: <a href="http://www.jianshu.com/p/67afe711c731" target="_blank" rel="external">Git版本控制与工作流</a><ul>
 <li>master</li>
 <li>release</li>
@@ -424,7 +425,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="Issue">Issue</h2><ul>
+<h2 id="3-_Issue">3. Issue</h2><ul>
 <li>命名<ul>
 <li>XX1-XX2-Description</li>
 <li>XX1: 功能</li>
@@ -436,10 +437,10 @@
 </ul>
 </li>
 </ul>
-<h2 id="Push">Push</h2><ul>
+<h2 id="4-_Push">4. Push</h2><ul>
 <li>最小功能提交原则</li>
 </ul>
-<h2 id="Milestone">Milestone</h2><h3 id="常规">常规</h3><ul>
+<h2 id="5-_Milestone">5. Milestone</h2><h3 id="常规">常规</h3><ul>
 <li>命名<ul>
 <li>v1.0.0</li>
 <li>v1.0.1</li>
@@ -452,14 +453,14 @@
 </ul>
 </li>
 </ul>
-<h3 id="其它">其它</h3><ul>
+<h2 id="6-_其它">6. 其它</h2><ul>
 <li>Application Talk<ul>
 <li>针对 Application 的讨论与展望</li>
 <li>同时也可以发设计文档</li>
 </ul>
 </li>
 </ul>
-<h2 id="其它实践">其它实践</h2><ul>
+<h2 id="7-_其它实践">7. 其它实践</h2><ul>
 <li>可以建立 project-management 分支<ul>
 <li>更多的关注项目管理的内容<ul>
 <li>文档</li>
@@ -472,7 +473,7 @@
 </ul>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：<br>]]>
+    <![CDATA[<p>以下是我整理的自己使用及见过比较好的 GIT 实践，草草总结如下，有空会详细描述各项内容：</p>]]>
     
     </summary>
     

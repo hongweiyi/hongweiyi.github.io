@@ -1,17 +1,17 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 源码阅读 最佳实践 · 小e的笔记</title><meta name="description" content="原则原则1：了解使用仔细查看使用文档和说明，写较为详细的 demo 程序。
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 源码阅读 最佳实践 · 小e的笔记</title><meta name="description" content="1. 原则原则1：了解使用仔细查看使用文档和说明，写较为详细的 demo 程序。
 原则2：了解全局了解该产品解决了哪些问题，并了解其周边产品及优缺点。
 原则3：了解原理查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。
 
-方式单步 Debug单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。
+2. 方式单步 Debug单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。
 
 针对应用程序（Tomcat、Hadoop）：找启动脚本 -&amp;gt; 找到 main 入口 -&amp;gt; 开始 Debug
 库、框架（FastJSON、Spring）：找到关键类 -&amp;gt; 打断点 -&amp;gt; 查看堆栈
 
-「无法 Debug？」很多时候我们拿到的都是「无法运行」的代码，比如说"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 源码阅读 最佳实践</h1><div class="post-meta"><div class="post-time">Sep 1, 2015</div></div><div class="post-content"><h2 id="原则">原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
+「无法 Debug？」很多时候我们拿到的都是「"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 源码阅读 最佳实践</h1><div class="post-meta"><div class="post-time">Sep 1, 2015</div></div><div class="post-content"><h2 id="1-_原则">1. 原则</h2><h3 id="原则1：了解使用">原则1：了解使用</h3><p>仔细查看使用文档和说明，写较为详细的 demo 程序。</p>
 <h3 id="原则2：了解全局">原则2：了解全局</h3><p>了解该产品解决了哪些问题，并了解其周边产品及优缺点。</p>
 <h3 id="原则3：了解原理">原则3：了解原理</h3><p>查看其内部架构文档，如果有了周边产品的了解，可以从周边产品推算出其实现基本原理。不过当对其它产品了解比较深刻的时候，这个原则很容易就可以达到了。</p>
 <a id="more"></a>
-<h2 id="方式">方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
+<h2 id="2-_方式">2. 方式</h2><h3 id="单步_Debug">单步 Debug</h3><p>单步 Debug 是比直接阅读源码来得更加直观快速的方式，通过单步 Debug 的主要目的是了解整个源码的大概逻辑和流程。</p>
 <ul>
 <li>针对应用程序（Tomcat、Hadoop）：找启动脚本 -&gt; 找到 main 入口 -&gt; 开始 Debug</li>
 <li>库、框架（FastJSON、Spring）：找到关键类 -&gt; 打断点 -&gt; 查看堆栈</li>
@@ -43,7 +43,7 @@
 <p>搜索三方库需要选择 Custom -&gt; Project and Libraries</p>
 </blockquote>
 <p>如果是 Eclipse 的话，似乎只能是大概知道是哪个 Jar 包之后，解压 source 包再全文搜索吧 = =</p>
-<h2 id="其他">其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
+<h2 id="3-_其他">3. 其他</h2><p>我好像就上面几个方法，看任何源码（Hadoop、Spring、Netty、公司内部的）都能够很快上手。如果想到啥或者有啥比较典型的实例的话，再补充吧。</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2015/09/remoting-practice/" class="prev">上一篇</a><a href="/2015/08/css-practice/" class="next">下一篇</a></div><div data-thread-key="2015/09/java-source-code-practice/" data-title="Java 源码阅读 最佳实践" data-url="http://hongweiyi.com/2015/09/java-source-code-practice/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');

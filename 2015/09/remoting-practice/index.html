@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 网络编程最佳实践 · 小e的笔记</title><meta name="description" content="通信层
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 网络编程最佳实践 · 小e的笔记</title><meta name="description" content="1. 通信层
 直接使用最成熟的网络框架，如 Netty
 单连接 &amp;amp; 连接复用 &amp;amp; 长连接
 建议提前设计心跳机制
@@ -8,7 +8,7 @@
 
 
 
-线程模型如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。
+2. 线程模型如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。
 
 序列化过程在业务线程中处理
 请求/响应包多个批量从 IO 线程交给业务线程处理
@@ -19,10 +19,10 @@
 
 需要定时打印线程池大小，方便性能分析
 
-序列化
+3. 序列化
 全站都是 Java 系
 
-为了以后能让其它语言更好的交互，协议设计越扁平"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 网络编程最佳实践</h1><div class="post-meta"><div class="post-time">Sep 10, 2015</div></div><div class="post-content"><h2 id="通信层">通信层</h2><ul>
+为了以后能"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 网络编程最佳实践</h1><div class="post-meta"><div class="post-time">Sep 10, 2015</div></div><div class="post-content"><h2 id="1-_通信层">1. 通信层</h2><ul>
 <li>直接使用最成熟的网络框架，如 Netty</li>
 <li>单连接 &amp; 连接复用 &amp; 长连接<ul>
 <li>建议提前设计心跳机制</li>
@@ -32,7 +32,7 @@
 </li>
 </ul>
 <a id="more"></a>
-<h2 id="线程模型">线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
+<h2 id="2-_线程模型">2. 线程模型</h2><p>如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。</p>
 <ul>
 <li>序列化过程在业务线程中处理</li>
 <li>请求/响应包多个批量从 IO 线程交给业务线程处理</li>
@@ -43,7 +43,7 @@
 </li>
 <li>需要定时打印线程池大小，方便性能分析</li>
 </ul>
-<h2 id="序列化">序列化</h2><ul>
+<h2 id="3-_序列化">3. 序列化</h2><ul>
 <li>全站都是 Java 系</li>
 </ul>
 <p>为了以后能让其它语言更好的交互，协议设计越扁平越好，切忌将整个协议类对象序列化，仅整个序列化方法参数对象列表及返回值对象。</p>
@@ -51,14 +51,14 @@
 <li>全站各种语言百花齐放</li>
 </ul>
 <p>可以考虑直接使用 Protobuf 或者 msgpack 这样的跨语言的序列化协议，但我个人没使用经验。</p>
-<h2 id="容灾">容灾</h2><ul>
+<h2 id="4-_容灾">4. 容灾</h2><ul>
 <li>必须要有超时时间，分布式环境下无超时机制对整体环境影响非常大</li>
 <li>需要有连接隔离机制（根据请求量、错误率等）<ul>
 <li>可参考 <a href="https://github.com/Netflix/ribbon" target="_blank" rel="external">Netflix 的 ribbon</a></li>
 </ul>
 </li>
 </ul>
-<h2 id="故障定位">故障定位</h2><ul>
+<h2 id="5-_故障定位">5. 故障定位</h2><ul>
 <li>客户端发送、服务端接收均需要打印日志，日志必须要有的几个字段：<ul>
 <li>时间戳</li>
 <li>唯一ID： 由于客户端和服务端的请求量较大，所以需要有唯一 ID 能够将客户端日志和服务端请求串起来</li>
