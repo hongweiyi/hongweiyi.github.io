@@ -1,43 +1,37 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> MapReduce优化（二） —— 善用Writable · 小e的笔记</title><meta name="description" content="一、简述
-上文主要是数据压缩的角度来分析了MapReduce压缩临时数据的优化，参见：MapReduce优化（一）。而这篇会更多的从代码层面说MR任务优化。
-MapReduce大多数任务都是做日志分析，而一般的日志分析也就是高级点的WordCount程序：读入一段文本 -&amp;gt; 获取需要的信息 -&amp;gt; 统计输出。  
-我这里的任务会从SequenceFile中读取文档（每个文档4M），每条文档里面有许多行记录，每个记录有一个词和词频。任务需要统计记录中所有词出现的绝对频率以及文档频率。格式如下：                              word1 freq1\n
-word2 freq2\n
-word3 freq3\n        "><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">MapReduce优化（二） —— 善用Writable</h1><div class="post-meta"><div class="post-time">Sep 27, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><p><strong>一、简述</strong></p>
-<p>上文主要是数据压缩的角度来分析了MapReduce压缩临时数据的优化，参见：<a href="http://www.hongweiyi.com/2012/02/mapred-optimize/" target="_blank" rel="external">MapReduce优化（一）</a>。而这篇会更多的从代码层面说MR任务优化。</p>
-<p>MapReduce大多数任务都是做日志分析，而一般的日志分析也就是高级点的WordCount程序：读入一段文本 -&gt; 获取需要的信息 -&gt; 统计输出。<br><a id="more"></a>  </p>
-<p>我这里的任务会从SequenceFile中读取文档（每个文档4M），每条文档里面有许多行记录，每个记录有一个词和词频。任务需要统计记录中所有词出现的绝对频率以及文档频率。格式如下：   <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>word1 freq1\n</p>
-<p>word2 freq2\n</p>
-<p>word3 freq3\n<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>二、善用**</strong>Writable**</p>
-<p>程序逻辑应该是这样的：</p>
-<p>1）根据换行符分隔文档；</p>
-<p>2）读取每一行数据；</p>
-<p>3）并输出绝对频率(word, freq)与文档频率(word, ONE)两条记录。</p>
-<p>简单明了的程序处理方式应该是这样的：   <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1. String str = value.toString(); </p>
-<p>2. String[] ln = str.split(&quot;\n&quot;); </p>
-<p>3. for(String l : ln) {</p>
-<p>4.&#160;&#160;&#160;&#160; String[] words = ln.split(&quot; &quot;);</p>
-<p>5.&#160;&#160;&#160;&#160; context.write(new Text(words[0]), new LongWritable(1));</p>
-<p>6.&#160;&#160;&#160;&#160; context.write(new Text(words[0]), new LongWritable(Long.parseLong(words[1]));</p>
-<p>7. }<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> MapReduce优化（二） —— 善用Writable · 小e的笔记</title><meta name="description" content="1、简述上文主要是数据压缩的角度来分析了MapReduce压缩临时数据的优化，参见：MapReduce优化（一）。而这篇会更多的从代码层面说MR任务优化。
+MapReduce大多数任务都是做日志分析，而一般的日志分析也就是高级点的WordCount程序：读入一段文本 -&amp;gt; 获取需要的信息 -&amp;gt; 统计输出。
+  
+我这里的任务会从SequenceFile中读取文档（每个文档4M），每条文档里面有许多行记录，每个记录有一个词和词频。任务需要统计记录中所有词出现的绝对频率以及文档频率。格式如下：123&lt;p"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">MapReduce优化（二） —— 善用Writable</h1><div class="post-meta"><div class="post-time">Sep 27, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><h3 id="1、简述">1、简述</h3><p>上文主要是数据压缩的角度来分析了MapReduce压缩临时数据的优化，参见：<a href="http://www.hongweiyi.com/2012/02/mapred-optimize/" target="_blank" rel="external">MapReduce优化（一）</a>。而这篇会更多的从代码层面说MR任务优化。</p>
+<p>MapReduce大多数任务都是做日志分析，而一般的日志分析也就是高级点的WordCount程序：读入一段文本 -&gt; 获取需要的信息 -&gt; 统计输出。</p>
+<a id="more"></a>  
+<p>我这里的任务会从SequenceFile中读取文档（每个文档4M），每条文档里面有许多行记录，每个记录有一个词和词频。任务需要统计记录中所有词出现的绝对频率以及文档频率。格式如下：<br><figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">word1 freq1<span class="string">\n</span></span><br><span class="line">word2 freq2<span class="string">\n</span></span><br><span class="line">word3 freq3<span class="string">\n</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="2、善用Writable">2、善用Writable</h3><p>程序逻辑应该是这样的：</p>
+<ol>
+<li>根据换行符分隔文档；</li>
+<li>读取每一行数据；</li>
+<li>并输出绝对频率(word, freq)与文档频率(word, ONE)两条记录。</li>
+</ol>
+<p>简单明了的程序处理方式应该是这样的：</p>
+<figure class="highlight openscad"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">String <span class="built_in">str</span> = value.toString<span class="params">()</span>;</span><br><span class="line">String[] <span class="built_in">ln</span> = <span class="built_in">str</span>.split<span class="params">(<span class="string">"\n"</span>)</span>;</span><br><span class="line"><span class="keyword">for</span><span class="params">(String l : ln)</span> &#123;</span><br><span class="line">  String[] words = <span class="built_in">ln</span>.split<span class="params">(<span class="string">" "</span>)</span>;</span><br><span class="line">  context.write<span class="params">(new Text<span class="params">(words[<span class="number">0</span>])</span>, new LongWritable<span class="params">(<span class="number">1</span>)</span>)</span>;</span><br><span class="line">  context.write<span class="params">(new Text<span class="params">(words[<span class="number">0</span>])</span>, new LongWritable<span class="params">(Long.parseLong<span class="params">(words[<span class="number">1</span>])</span>)</span>;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure>
 <p>上面代码可优化的地方有三：</p>
-<p>1）在1行代码中，value的toString方法会对数据进行decode，decode效率很慢。而且该方法会分配内存空间；</p>
-<p>2）在2行代码中，和split(&quot;\n&quot;)效率低下；</p>
-<p>3）5和6行中，每次都会“新”创建“两对”Text，LongWritable对象，GC频繁。</p>
+<ol>
+<li><p>在1行代码中，value的toString方法会对数据进行decode，decode效率很慢。而且该方法会分配内存空间；</p>
+</li>
+<li><p>在2行代码中，和<code>split(&quot;\n&quot;)</code>效率低下；</p>
+</li>
+<li><p>5和6行中，每次都会“新”创建“两对”Text，LongWritable对象，GC频繁。</p>
+</li>
+</ol>
 <p>在上面的问题中，问题1和问题2可以一起解决，避免decode和分配内存就需要直接处理byte数组重写Text这个Writable类。只需要继承Text类并添加nextLine()方法即可。添加nextLine()方法是为了逻辑清晰，如果为了更高的效率的话，可以添加nextWord()与nextFreq()方法。</p>
 <p>问题3比较常见，在很多资料以及Hadoop自带的Example里面可以看到，输出的键值对均是复用的。用一个全局的KEY和VALUE，直接将新数据set进KEY、VALUE中即可，无需每次新创建相应对象。上面还有一个小地方可以优化的就是，将LongWritable改为IntWritable，减少数据输出。</p>
 <p>上面的解决方案似乎还不错了，但是map输出的临时数据依然很大。回查代码，发现context.write()数据太多了，最后的解决方案是将文档频率和绝对频率合并起来，简单点的格式就是：d_freq#freq。这样临时数据一下就减少了一半。</p>
-<p>以下是修改后的代码流程：   <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1. while (value.hasNext()) {</p>
-<p>2.&#160;&#160;&#160;&#160; KEY.set(value.nextWord());</p>
-<p>3.&#160;&#160;&#160;&#160; VALUE.set(&quot;1#&quot; + value.nextFreq());</p>
-<p>4.&#160;&#160;&#160;&#160; context.write(KEY, VALUE);</p>
-<p>5. }<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>三、优化结果</strong></p>
-<p>通过上面的优化，处理300G的数据，单个map task平均时间从3’30’’降到45’’，FILE_BYTE_WRITEN从1000G降到了450G，任务总时间从4小时降到了30分钟。</p>
-<p>P.S.: 20台节点。</p>
-<p><strong>四、后记</strong></p>
-<p>后来我在这个任务里面使用了Gzip压缩，压缩率约为44%。但是对效率的影响太大了，单个map task平均时间从45’’升到1’20’’，打了一半的折扣，着实让人难以接受。由于对集群没有完全的管理权限，所以无法在这个任务上面尝试Lzo压缩编码，有机会在尝试吧。</p>
+<p>以下是修改后的代码流程：</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (value.hasNext()) &#123;</span><br><span class="line">   KEY.set(value.nextWord());</span><br><span class="line">   VALUE.set(<span class="string">"1#"</span> + value.nextFre<span class="string">q()</span>);</span><br><span class="line">   context.<span class="keyword">write</span>(KEY, VALUE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、优化结果">3、优化结果</h3><p>通过上面的优化，处理300G的数据，单个map task平均时间从3’30’’降到45’’，FILE_BYTE_WRITEN从1000G降到了450G，任务总时间从4小时降到了30分钟。</p>
+<blockquote>
+<p>20台节点。</p>
+</blockquote>
+<h3 id="4、后记">4、后记</h3><p>后来我在这个任务里面使用了Gzip压缩，压缩率约为44%。但是对效率的影响太大了，单个map task平均时间从45’’升到1’20’’，打了一半的折扣，着实让人难以接受。由于对集群没有完全的管理权限，所以无法在这个任务上面尝试Lzo压缩编码，有机会在尝试吧。</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2012/10/mapreduce-task-src-analysis/" class="prev">上一篇</a><a href="/2012/09/hadoop-bug-in-text/" class="next">下一篇</a></div><div data-thread-key="2012/09/mapred-optimize-writable/" data-title="MapReduce优化（二） —— 善用Writable" data-url="http://hongweiyi.com/2012/09/mapred-optimize-writable/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');

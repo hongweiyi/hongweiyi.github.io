@@ -1,56 +1,30 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop Pipes运行机制 · 小e的笔记</title><meta name="description" content="1**、前言**
-Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写了，C++与Java是通过Socket通信，但是具体的运行机制是什么还是得参考源码。
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Hadoop Pipes运行机制 · 小e的笔记</title><meta name="description" content="1、前言Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写了，C++与Java是通过Socket通信，但是具体的运行机制是什么还是得参考源码。
 这篇博文主要从源码角度来讲解Hadoop Pipes运行机制以及设计原理，实际的Hadoop Pipes编程请参见：Hadoop Pipes编程
 
-2**、Hadoop Pipes**运行图解
- 
-3**、Hadoop**运行机制
-Hadoop端主要类均在org.apache.ha"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop Pipes运行机制</h1><div class="post-meta"><div class="post-time">May 13, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/Hadoop-Pipes/">Hadoop Pipes</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><p><strong>1**</strong>、前言**</p>
-<p>Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写了，C++与Java是通过Socket通信，但是具体的运行机制是什么还是得参考源码。</p>
-<p>这篇博文主要从源码角度来讲解Hadoop Pipes运行机制以及设计原理，实际的Hadoop Pipes编程请参见：<strong><a href="http://www.hongweiyi.com/2012/05/hadoop-pipes/" target="_blank" rel="external">Hadoop Pipes编程</a></strong></p>
+2、Hadoop Pipes运行图解
+3、Hadoop运行机制Hadoop端主要类均在org.apache.hadoop.mapred.pipes包下，见下图。
+其中，Application是JVM中主要运行程序，PipesMapRunner、PipesReducer、PipesPartitioner、PipesNonJavaInput"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Hadoop Pipes运行机制</h1><div class="post-meta"><div class="post-time">May 13, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/Hadoop-Pipes/">Hadoop Pipes</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>Hadoop Pipes可供C++开发者开发MapReduce任务。文献与书籍上也写了，C++与Java是通过Socket通信，但是具体的运行机制是什么还是得参考源码。</p>
+<p>这篇博文主要从源码角度来讲解Hadoop Pipes运行机制以及设计原理，实际的Hadoop Pipes编程请参见：<a href="http://www.hongweiyi.com/2012/05/hadoop-pipes/" target="_blank" rel="external">Hadoop Pipes编程</a></p>
 <a id="more"></a>
-<p><strong>2**</strong>、Hadoop Pipes<strong>**运行图解</strong></p>
-<p><a href="/images/2012/05/image.png"><img src="/images/2012/05/image_thumb.png" alt="image" title="image"></a> </p>
-<p><strong>3**</strong>、Hadoop<strong>**运行机制</strong></p>
-<p>Hadoop端主要类均在org.apache.hadoop.mapred.pipes包下，见下图。</p>
+<h3 id="2、Hadoop_Pipes运行图解">2、Hadoop Pipes运行图解</h3><p><img src="/images/2012/05/image.png" alt="image"></p>
+<h3 id="3、Hadoop运行机制">3、Hadoop运行机制</h3><p>Hadoop端主要类均在org.apache.hadoop.mapred.pipes包下，见下图。</p>
 <p>其中，Application是JVM中主要运行程序，PipesMapRunner、PipesReducer、PipesPartitioner、PipesNonJavaInputFormat分别对应C++版的Mapper、Reducer、Partitioner、RecordReader，由于重写RecordWriter后，C++会直接写文件，这里就没有对应的类了。DownwardProtocol/BinaryProtocol、UpwardProtocol/OutputProtocol是Java与C++交互的接口代理类。</p>
-<p><a href="/images/2012/05/image1.png"><img src="/images/2012/05/image_thumb1.png" alt="image" title="image"></a></p>
-<p>开发者通过$HADOOP_HOME/bin/hadoop pipes将作业提交到了包下的Submitter类。运行过程就直接贴文字了，可以结合代码一起看：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1 解析命令行参数</p>
-<p>2 setupPipes(job)</p>
-<p>2.1 设置Mapper，Partitioner，Reducer，RecordWriter，如果不是java编写的，则用PipesMapRunner，PipesPartitioner，PipesReducer，NullOutputFormat（所有输出均输出到/dev/null中）；</p>
-<p>2.2 设置map/reduce的key/value class，均为Text.class；</p>
-<p>2.3 设置RecordReader，如果不是java编写的，则用PipesNonJavaInputFormat；</p>
-<p>2.4 获得运行程序，debug脚本以及缓存文件；</p>
-<p>3 JobClient.submitJob(job);<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p>JobClient提交任务和非Pipes编程提交过程一致，进行Task调度分配之后，就会在分配的TaskTracker上开启JVM进程，运行Runner。这里解析一下PipesMapRunner的运行机制：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1 创建Application</p>
-<p>1.1 创建ServerSocket</p>
-<p>1.2 设置环境（临时文件位置、命令端口等）</p>
-<p>1.3 获得执行文件，并设置执行权限（chmod +x）</p>
-<p>1.4 执行任务，通过java.lang.ProcessBuilder</p>
-<p>1.5 创建任务交互代理，DownwardProcotol对象。</p>
-<p>1.5.1 创建接收交互代理，UplinkReaderThread对象</p>
-<p>1.5.2 循环接受客户端的请求</p>
-<p>1.6 downlink.start()，发送消息，客户端可以开始运行</p>
-<p>2 如果不是Java编写的RecordReader，直接发送一个InputSplit（注：只是Split的信息，不包括文件数据）给客户端；反之，发送InputSplit之后，再循环读取split，将record格式化之后，将KVP发给客户端。<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p>PipesReducer与PipesMapRunner运行机制一致，见下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1 创建Application，与Map一致；</p>
-<p>2 向客户端发送key，之后循环发送value。<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
+<p><img src="/images/2012/05/image1.png" alt="image"></p>
+<p>开发者通过$HADOOP_HOME/bin/hadoop pipes将作业提交到了包下的Submitter类。运行过程就直接贴文字了，可以结合代码一起看：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> 解析命令行参数</span><br><span class="line"><span class="number">2</span> setupPipes(job)</span><br><span class="line"><span class="number">2.1</span> 设置Mapper，Partitioner，Reducer，RecordWriter，如果不是java编写的，则用PipesMapRunner，PipesPartitioner，PipesReducer，NullOutputFormat（所有输出均输出到/dev/null中）；</span><br><span class="line"><span class="number">2.2</span> 设置<span class="built_in">map</span>/reduce的key/value <span class="keyword">class</span>，均为Text.<span class="keyword">class</span>；</span><br><span class="line"><span class="number">2.3</span> 设置RecordReader，如果不是java编写的，则用PipesNonJavaInputFormat；</span><br><span class="line"><span class="number">2.4</span> 获得运行程序，debug脚本以及缓存文件；</span><br><span class="line"><span class="number">3</span> JobClient.submitJob(job);</span><br></pre></td></tr></table></figure></p>
+<p>JobClient提交任务和非Pipes编程提交过程一致，进行Task调度分配之后，就会在分配的TaskTracker上开启JVM进程，运行Runner。这里解析一下PipesMapRunner的运行机制：    </p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1 创建<span class="tag">Application</span></span><br><span class="line">1<span class="class">.1</span> 创建<span class="tag">ServerSocket</span></span><br><span class="line">1<span class="class">.2</span> 设置环境（临时文件位置、命令端口等）</span><br><span class="line">1<span class="class">.3</span> 获得执行文件，并设置执行权限（<span class="tag">chmod</span> +<span class="tag">x</span>）</span><br><span class="line">1<span class="class">.4</span> 执行任务，通过<span class="tag">java</span><span class="class">.lang</span><span class="class">.ProcessBuilder</span></span><br><span class="line">1<span class="class">.5</span> 创建任务交互代理，<span class="tag">DownwardProcotol</span>对象。</span><br><span class="line">1<span class="class">.5</span><span class="class">.1</span> 创建接收交互代理，<span class="tag">UplinkReaderThread</span>对象</span><br><span class="line">1<span class="class">.5</span><span class="class">.2</span> 循环接受客户端的请求</span><br><span class="line">1<span class="class">.6</span> <span class="tag">downlink</span><span class="class">.start</span>()，发送消息，客户端可以开始运行</span><br><span class="line">2 如果不是<span class="tag">Java</span>编写的<span class="tag">RecordReader</span>，直接发送一个<span class="tag">InputSplit</span>（注：只是<span class="tag">Split</span>的信息，不包括文件数据）给客户端；反之，发送<span class="tag">InputSplit</span>之后，再循环读取<span class="tag">split</span>，将<span class="tag">record</span>格式化之后，将<span class="tag">KVP</span>发给客户端。</span><br></pre></td></tr></table></figure>
+<p>2 如果不是Java编写的RecordReader，直接发送一个InputSplit（注：只是Split的信息，不包括文件数据）给客户端；反之，发送InputSplit之后，再循环读取split，将record格式化之后，将KVP发给客户端。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> 创建Application，与Map一致；</span><br><span class="line"><span class="number">2</span> 向客户端发送key，之后循环发送value。</span><br></pre></td></tr></table></figure>
 <p>以上是Hadoop端的运行机制，C++端的与Java的也基本一致，源文件在$HADOOP_HOME/src/c++/pipes/impl/HadoopPipes.cc</p>
-<p>在组件运行时，会用ProcessBuilder运行C++可执行文件，可执行文件的main程序基本上都是这样写的：<br>  <div class="dp-highlighter">   <div class="bar"></div>    </div></p>
-<ol>
-<li><span><span class="datatypes">int</span><span> main(</span><span class="datatypes">int</span><span> argc, </span><span class="datatypes">char</span><span> *argv[]) {&#160;&#160; </span></span>2.  <span>&#160; </span><span class="keyword">return</span><span> HadoopPipes::runTask(HadoopPipes::TemplateFactory&lt;WordCountMap,&#160;&#160;&#160; </span>3.  <span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; WordCountReduce&gt;());&#160;&#160; </span>4.  <span>}&#160;&#160; </span>     </li>
-</ol>
-<p>调用了HadoopUtils::runTask(factory)方法，运行机制如下：    <table border="1" cellspacing="0" cellpadding="0"><tbody>       <tr>         <td valign="top" width="568">           <p>1 创建运行环境；</p>
-<p>2 获得socket端口，如果有端口，则创建socket，并获得其输入输出流。如果没有端口，则获得文件输出输入流；</p>
-<p>3 创建ping线程，该线程每隔5s发送一次心跳信息；</p>
-<p>4 等待接受任务；</p>
-<p>5 循环获得任务消息，直到结束（done）；</p>
-<p>6 通知Hadoop完成任务，关闭流<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p><strong>4**</strong>、Hadoop Pipes<strong>**浅析</strong></p>
+<p>在组件运行时，会用ProcessBuilder运行C++可执行文件，可执行文件的main程序基本上都是这样写的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> HadoopPipes::runTask(HadoopPipes::TemplateFactory&lt;WordCountMap,                                   WordCountReduce&gt;());   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用了HadoopUtils::runTask(factory)方法，运行机制如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> 创建运行环境；</span><br><span class="line"><span class="number">2</span> 获得socket端口，如果有端口，则创建socket，并获得其输入输出流。如果没有端口，则获得文件输出输入流；</span><br><span class="line"><span class="number">3</span> 创建ping线程，该线程每隔<span class="number">5</span>s发送一次心跳信息；</span><br><span class="line"><span class="number">4</span> 等待接受任务；</span><br><span class="line"><span class="number">5</span> 循环获得任务消息，直到结束（done）；</span><br><span class="line"><span class="number">6</span> 通知Hadoop完成任务，关闭流</span><br></pre></td></tr></table></figure>
+<p>4、Hadoop Pipes浅析</p>
 <p>Hadoop Pipes采用类RPC机制，封装了Hadoop端与C++端的调用接口。Hadoop调用C++的协议为DownwardProtocol，C++调用Hadoop的为UpwardProtocol。同时也封装了传输数据序列化的接口（SerialUtils.cc），代码结构十分清晰。</p>
 <p>但是实际使用中也有一定缺陷，调试起来十分麻烦。C++端挂了之后，Hadoop也就接受不到的心跳消息，所以错误一律为：Pipes Broken。Apache的维基上有一个条目：<a href="http://wiki.apache.org/hadoop/HowToDebugMapReducePrograms" target="_blank" rel="external">howToDebugMapReducePrograms</a>，改天得好好研究一下。</p>
-<p>&#160;</p>
 <blockquote>
-<p><strong>参考资料：</strong></p>
+<p>参考资料：</p>
 <p><a href="http://dongxicheng.org/mapreduce/hadoop-pipes-architecture/" target="_blank" rel="external">董的博客</a></p>
 <p>Hadoop源码</p>
 </blockquote>

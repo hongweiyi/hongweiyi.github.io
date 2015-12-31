@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 转 – 漫话中文自动分词和语义识别（上）：中文分词算法 · 小e的笔记</title><meta name="description" content="M牛的这篇博文实在是太精彩了，读了一遍又一遍，最后干脆就直接转过来了。有兴趣的可以直接看他的博客：matrix67
+
 记得第一次了解中文分词算法是在 Google 黑板报 上看到的，当初看到那个算法时我彻底被震撼住了，想不到一个看似不可能完成的任务竟然有如此神奇巧妙的算法。最近在詹卫东老师的《中文信息处理导论》课上再次学到中文分词算法，才知道这并不是中文分词算法研究的全部，前前后后还有很多故事可讲。在没有建立统计语言模型时，人们还在语言学的角度对自动分词进行研究，期间诞生了很多有意思的理论。
-中文分词的主要困难在于分词歧义。“结婚的和尚未结婚的”，应该分成“结婚／的／和／尚未／结婚／的”，还是“结婚／的／和尚／未／结婚／的”？人来判断很容易，要交给计算机来处理就麻烦了。问题的关键就是，“和尚未”里的"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">转 – 漫话中文自动分词和语义识别（上）：中文分词算法</h1><div class="post-meta"><div class="post-time">Apr 1, 2012 | [<a class="tag-link" href="/tags/算法/">算法</a>, <a class="tag-link" href="/tags/自然语言处理/">自然语言处理</a>, <a class="tag-link" href="/tags/语义/">语义</a>]</div></div><div class="post-content"><p>M牛的这篇博文实在是太精彩了，读了一遍又一遍，最后干脆就直接转过来了。有兴趣的可以直接看他的博客：<a href="http://www.matrix67.com/blog/archives/4212" target="_blank" rel="external">matrix67</a><br><a id="more"></a></p>
+中文分词的主要困难在于分词歧义。“结婚的和尚未结婚的”，应该分成“结婚／的／和／尚未／结婚／的”，还是“结婚／的／和尚／未／结婚／的”？人来判断很容易，要交给计算机来处理就麻烦了。问题的关键就是，“和尚未”里的“和尚"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">转 – 漫话中文自动分词和语义识别（上）：中文分词算法</h1><div class="post-meta"><div class="post-time">Apr 1, 2012 | [<a class="tag-link" href="/tags/算法/">算法</a>, <a class="tag-link" href="/tags/自然语言处理/">自然语言处理</a>, <a class="tag-link" href="/tags/语义/">语义</a>]</div></div><div class="post-content"><p>M牛的这篇博文实在是太精彩了，读了一遍又一遍，最后干脆就直接转过来了。有兴趣的可以直接看他的博客：<a href="http://www.matrix67.com/blog/archives/4212" target="_blank" rel="external">matrix67</a></p>
+<a id="more"></a>
 <p>记得第一次了解中文分词算法是在 <a href="http://www.google.com.hk/ggblog/googlechinablog/2006/04/blog-post_7327.html" target="_blank" rel="external">Google 黑板报</a> 上看到的，当初看到那个算法时我彻底被震撼住了，想不到一个看似不可能完成的任务竟然有如此神奇巧妙的算法。最近在詹卫东老师的《中文信息处理导论》课上再次学到中文分词算法，才知道这并不是中文分词算法研究的全部，前前后后还有很多故事可讲。在没有建立统计语言模型时，人们还在语言学的角度对自动分词进行研究，期间诞生了很多有意思的理论。</p>
 <p>中文分词的主要困难在于分词歧义。“结婚的和尚未结婚的”，应该分成“结婚／的／和／尚未／结婚／的”，还是“结婚／的／和尚／未／结婚／的”？人来判断很容易，要交给计算机来处理就麻烦了。问题的关键就是，“和尚未”里的“和尚”也是一个词，“尚未”也是一个词，从计算机的角度看上去，两者似乎都有可能。对于计算机来说，这样的分词困境就叫做“交集型歧义”。</p>
 <p>有时候，交集型歧义的“歧义链”有可能会更长。“中外科学名著”里，“中外”、“外科”、“科学”、“学名”、“名著”全是词，光从词库的角度来看，随便切几刀下去，得出的切分都是合理的。类似的例子数不胜数，“提高产品质量”、“鞭炮声响彻夜空”、“努力学习语法规则”等句子都有这样的现象。在这些极端例子下，分词算法谁优谁劣可谓是一试便知。</p>
@@ -12,7 +14,7 @@
 <p>对于一种分词方案，里面有多少词，就罚多少分；每出现一个不成词的单字，就加罚一分。最好的分词方案，也就是罚分最少的方案。</p>
 <p>这种算法的效果出人意料的好。“他说的确实在理”是一个很困难的测试用例，“的确”和“实在”碰巧也成词，这给自动分词带来了很大的障碍。但是“确”、“实”、“理”通常都不单独成词的，因此很多切分方案都会被扣掉不少分：</p>
 <blockquote>
-<p>他／说／的／确实／在理 （罚分：1+1+1+1+1 = 5 ）<br>&#160;&#160;&#160;&#160; 他／说／的确／实／在理 （罚分：1+1+1+2+1 = 6 ）<br>&#160;&#160;&#160;&#160; 他／说／的确／实在／理 （罚分：1+1+1+1+2 = 6 ）  </p>
+<p>他／说／的／确实／在理 （罚分：1+1+1+1+1 = 5 ）<br>他／说／的确／实／在理 （罚分：1+1+1+2+1 = 6 ）<br>他／说／的确／实在／理 （罚分：1+1+1+1+2 = 6 ）</p>
 </blockquote>
 <p>正确答案胜出。</p>
 <p>需要指出的是，这个算法并不需要枚举所有的划分可能。整个问题可以转化为图论中的最短路径问题，利用动态规划效率则会更高。</p>
@@ -37,7 +39,7 @@
 <p>但麻烦的情况也是有的。一些高频姓氏本身也是经常单独成词的常用字，例如“于”、“马”、“黄”、“常”、“高”等等。很多反映时代性的名字也是本身就成词的，例如“建国”、“建设”、“国庆”、“跃进”等等。更讨厌的就是那些整个名字本身就是常用词的人了，他们会彻底打乱之前的各种模型。如果分词程序也有智能的话，他一定会把所有叫“高峰”、“汪洋”、”庞博“的人拖出去斩了；要是听说了有人居然敢叫“令计划”，估计直接就崩溃了。</p>
 <p>还有那些恰好与上下文组合成词的人名，例如：</p>
 <blockquote>
-<p>费孝通向人大常委会提交书面报告<br>&#160;&#160;&#160;&#160; 邓颖超生前使用过的物品  </p>
+<p>费孝通向人大常委会提交书面报告<br>邓颖超生前使用过的物品  </p>
 </blockquote>
 <p>这就是最考验分词算法的句子了。</p>
 <p>相比之下，中国地名的用字就分散得多了。北京有一个地方叫“臭泥坑”，网上搜索“臭泥坑”，第一页全是“臭泥坑地图”、“臭泥坑附近酒店”之类的信息。某年《重庆晨报》刊登停电通知，上面赫然印着“停电范围包括沙坪坝区的犀牛屙屎和犀牛屙屎抽水”，读者纷纷去电投诉印刷错误。记者仔细一查，你猜怎么着，印刷并无错误，重庆真的就有叫“犀牛屙屎”和“犀牛屙屎抽水”的地方。</p>

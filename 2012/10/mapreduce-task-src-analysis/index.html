@@ -1,104 +1,50 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Map/Reduce Task源码分析 · 小e的笔记</title><meta name="description" content="一、序言
-这篇文章从十一前开始写，陆陆续续看源码并理解其中的原理。主要了解了Map/Reduce的运行流程，并仔细分析了Map流程以及一些细节，但是没有分析仔细Reduce Task，因为和一个朋友@lidonghua1990一起分析的，他分析ReduceTask，这篇文章的Reduce的注释部分也是由他添加。等到他分析完Reduce之后，再将链接填上……
-&amp;#160;
-二、源码流程分析
-![clip_image001[4]](http://hongweiyi.com/wp-conte"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Map/Reduce Task源码分析</h1><div class="post-meta"><div class="post-time">Oct 18, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><p><strong>一、序言</strong></p>
-<p>这篇文章从十一前开始写，陆陆续续看源码并理解其中的原理。主要了解了Map/Reduce的运行流程，并仔细分析了Map流程以及一些细节，但是没有分析仔细Reduce Task，因为和一个朋友@<a href="http://weibo.com/getix2010" target="_blank" rel="external">lidonghua1990</a>一起分析的，他分析ReduceTask，这篇文章的Reduce的注释部分也是由他添加。等到他分析完Reduce之后，再将链接填上……<br><a id="more"></a></p>
-<p>&#160;</p>
-<p><strong>二、源码流程分析</strong></p>
-<p><strong><a href="http://hongweiyi.com/wp-content/uploads/2012/10/clip_image0014_thumb.jpg" title="clip_image001[4]">![clip_image001[4]</a>](<a href="http://hongweiyi.com/wp-content/uploads/2012/10/clip_image0014.jpg">http://hongweiyi.com/wp-content/uploads/2012/10/clip_image0014.jpg</a>)</strong></p>
-<p>—————————–Start———————————–    <table border="1" cellspacing="0" cellpadding="0" width="642"><tbody>       <tr>         <td valign="top" width="640">           <p><strong>【**</strong>Map Phrase<strong>**】</strong></p>
-<p>// MapTask</p>
-<p><strong>1. map.run();</strong></p>
-<p>&#160; |- map(getCurrentKey(), getCurrentValue(), context);</p>
-<p>// MapTask$NewOutputCollector</p>
-<p><strong>2. context.write(key, value);</strong></p>
-<p>&#160; |- collector.collect(key, value, partioner.getPartition());</p>
-<p>// MapTask$MapOutputBuffer</p>
-<p><strong>3. startSpill();</strong></p>
-<p>&#160; |- spillReady.signal(); // spillThread is waiting</p>
-<p>&#160; |- spillThread.sortAndSpill();</p>
-<p>&#160; |— sorter.sort();&#160;&#160;&#160;&#160;&#160;&#160; // default: QuickSort.class</p>
-<p>&#160; |— if (combiner != null) combiner.combine();</p>
-<p>&#160; |— writer.close();&#160;&#160;&#160;&#160; // flush data</p>
-<p>// MapTask$NewOutputCollector</p>
-<p>// MapTask$MapOutputBuffer</p>
-<p><strong>4. output.close(context);</strong></p>
-<p>&#160; |- collector.flush();</p>
-<p>&#160; |— SortAndSpill();&#160;&#160;&#160; // output last mem data</p>
-<p>&#160; |— MergeParts();</p>
-<p>&#160; |—– Merge.merge();&#160; // merge and sort</p>
-<p>&#160; |—– combinerRunner.combine(kvIter, combineCollector);<br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p>———————-Tmp Data(On disk)——————————-</p>
-<p><a href="http://hongweiyi.com/wp-content/uploads/2012/10/Image.jpg"><img src="http://hongweiyi.com/wp-content/uploads/2012/10/Image_thumb.jpg" alt="Image" title="Image"></a>&#160;&#160; <table border="1" cellspacing="0" cellpadding="0" width="645"><tbody>       <tr>         <td valign="top" width="643">           <p><strong>【**</strong>Reduce Phrase<strong>**】</strong></p>
-<p>// LocalJobRunner$Job</p>
-<p><strong>0. reduce.run(localConf, this);</strong></p>
-<p>// ReduceTask</p>
-<p><strong>1. reduceCopier.fetchOutputs();</strong> // only if data is on HDFS</p>
-<p>&#160; |- copier.start(); // <strong>mapred.reduce.parallel.copies</strong> MapOutputCopiers</p>
-<p>&#160; |— copyOutput(loc); // loc is the location in buffer</p>
-<p>&#160; |—– getMapOutput(); // from remote host to a ramfs/localFS file</p>
-<p>&#160; |——- // setup connection, validates header</p>
-<p>&#160; |——- boolean shuffleInMemory = ramManager.canFitInMemory(decompressedLength); // check if data fit in mem else use localFS</p>
-<p>&#160; |——- shuffleInMemory(); / shuffleToDisk(); // return a MapOutput</p>
-<p>&#160; |—– // add to list (if in mem) / rename to final name (if in localFS)</p>
-<p>&#160; |- localFSMergerThread.start(); // ReduceTask$ReduceCopier$LocalFSMerger.run()</p>
-<p>&#160; |— // wait if number of files &lt; 2*ioSortFactor - 1</p>
-<p>&#160; |— Merger.merge(<strong>sortSegments==true</strong>); // merge <strong>io.sort.factor</strong> files ino 1</p>
-<p>&#160; |- inMemFSMergeThread.start(); // ReduceTask$ReduceCopier$InMemFSMergeThread.run()</p>
-<p>&#160; |— ramManager.waitForDataToMerge();</p>
-<p>&#160; |— doInMemMerge();</p>
-<p>&#160; |—– createInMemorySegments(…);</p>
-<p>&#160; |—– Merger.merge(<strong>sortSegments==false</strong>);</p>
-<p>&#160; |— if (combinerRunner != null) combinerRunner.combine(rIter, combineCollector);</p>
-<p>&#160; |- // schedule until get all required outputs (using exp-back-off for retries on failures)</p>
-<p>// multi-pass (<strong>factor</strong> segments/pass), using <strong>hadoop.util.PriorityQueue</strong></p>
-<p><strong>2. Merger.merge();</strong></p>
-<p>&#160; |- factor = getPassFactor(); // btw: first pass is special</p>
-<p>&#160; |- // set segmentsToMerge (sorted) and put them into PriorityQueue</p>
-<p>&#160; |- // merge into a temp file, add to <strong>MergeQueue.segments</strong>, and sort</p>
-<p>&#160; |- // loop until number of segments &lt; factor</p>
-<p><strong>3. runReducer();</strong><br>         </p></td>       </tr>     </tbody></table> </p>  <p></p>
-<p>—————————–Done————————————</p>
-<p><strong>三、部分问题分析</strong></p>
-<p><strong>1**</strong>）如何排序并输出的？**</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Map/Reduce Task源码分析 · 小e的笔记</title><meta name="description" content="1、序言这篇文章从十一前开始写，陆陆续续看源码并理解其中的原理。主要了解了Map/Reduce的运行流程，并仔细分析了Map流程以及一些细节，但是没有分析仔细Reduce Task，因为和一个朋友@lidonghua1990一起分析的，他分析ReduceTask，这篇文章的Reduce的注释部分也是由他添加。等到他分析完Reduce之后，再将链接填上。
+
+2、源码流程分析
+1234&lt;span "><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Map/Reduce Task源码分析</h1><div class="post-meta"><div class="post-time">Oct 18, 2012 | [<a class="tag-link" href="/tags/Hadoop/">Hadoop</a>, <a class="tag-link" href="/tags/MapReduce/">MapReduce</a>]</div></div><div class="post-content"><h3 id="1、序言">1、序言</h3><p>这篇文章从十一前开始写，陆陆续续看源码并理解其中的原理。主要了解了Map/Reduce的运行流程，并仔细分析了Map流程以及一些细节，但是没有分析仔细Reduce Task，因为和一个朋友@<a href="http://weibo.com/getix2010" target="_blank" rel="external">lidonghua1990</a>一起分析的，他分析ReduceTask，这篇文章的Reduce的注释部分也是由他添加。等到他分析完Reduce之后，再将链接填上。</p>
+<a id="more"></a>
+<h3 id="2、源码流程分析">2、源码流程分析</h3><p><img src="/images/2012/10/clip_image0014.jpg" alt="clip_image0014"></p>
+<figure class="highlight openscad"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">-----------------------------Start-----------------------------------</span><br><span class="line">【Map Phrase】</span><br><span class="line"></span><br><span class="line"><span class="comment">// MapTask</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span>. map.run<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |- map<span class="params">(getCurrentKey<span class="params">()</span>, getCurrentValue<span class="params">()</span>, context)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MapTask$NewOutputCollector</span></span><br><span class="line"></span><br><span class="line"><span class="number">2</span>. context.write<span class="params">(key, value)</span>;</span><br><span class="line"></span><br><span class="line">  |- collector.collect<span class="params">(key, value, partioner.getPartition<span class="params">()</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MapTask$MapOutputBuffer</span></span><br><span class="line"></span><br><span class="line"><span class="number">3</span>. startSpill<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |- spillReady.signal<span class="params">()</span>; <span class="comment">// spillThread is waiting</span></span><br><span class="line"></span><br><span class="line">  |- spillThread.sortAndSpill<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |— sorter.sort<span class="params">()</span>;       <span class="comment">// default: QuickSort.class</span></span><br><span class="line"></span><br><span class="line">  |— <span class="keyword">if</span> <span class="params">(combiner != null)</span> combiner.combine<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |— writer.close<span class="params">()</span>;     <span class="comment">// flush data</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// MapTask$NewOutputCollector</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// MapTask$MapOutputBuffer</span></span><br><span class="line"></span><br><span class="line"><span class="number">4</span>. output.close<span class="params">(context)</span>;</span><br><span class="line"></span><br><span class="line">  |- collector.flush<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |— SortAndSpill<span class="params">()</span>;    <span class="comment">// output last mem data</span></span><br><span class="line"></span><br><span class="line">  |— MergeParts<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |—– Merge.merge<span class="params">()</span>;  <span class="comment">// merge and sort</span></span><br><span class="line"></span><br><span class="line">  |—– combinerRunner.combine<span class="params">(kvIter, combineCollector)</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/2012/10/Image.jpg" alt="Image"></p>
+<figure class="highlight openscad"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">----------------------Tmp Data<span class="params">(On disk)</span>-------------------------------</span><br><span class="line">【Reduce Phrase】</span><br><span class="line"></span><br><span class="line"><span class="comment">// LocalJobRunner$Job</span></span><br><span class="line"></span><br><span class="line"><span class="number">0</span>. reduce.run<span class="params">(localConf, this)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ReduceTask</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span>. reduceCopier.fetchOutputs<span class="params">()</span>; <span class="comment">// only if data is on HDFS</span></span><br><span class="line"></span><br><span class="line">  |- copier.start<span class="params">()</span>; <span class="comment">// mapred.reduce.parallel.copies MapOutputCopiers</span></span><br><span class="line"></span><br><span class="line">  |— copyOutput<span class="params">(loc)</span>; <span class="comment">// loc is the location in buffer</span></span><br><span class="line"></span><br><span class="line">  |—– getMapOutput<span class="params">()</span>; <span class="comment">// from remote host to a ramfs/localFS file</span></span><br><span class="line"></span><br><span class="line">  |——- <span class="comment">// setup connection, validates header</span></span><br><span class="line"></span><br><span class="line">  |——- boolean shuffleInMemory = ramManager.canFitInMemory<span class="params">(decompressedLength)</span>; <span class="comment">// check if data fit in mem else use localFS</span></span><br><span class="line"></span><br><span class="line">  |——- shuffleInMemory<span class="params">()</span>; / shuffleToDisk<span class="params">()</span>; <span class="comment">// return a MapOutput</span></span><br><span class="line"></span><br><span class="line">  |—– <span class="comment">// add to list (if in mem) / rename to final name (if in localFS)</span></span><br><span class="line"></span><br><span class="line">  |- localFSMergerThread.start<span class="params">()</span>; <span class="comment">// ReduceTask$ReduceCopier$LocalFSMerger.run()</span></span><br><span class="line"></span><br><span class="line">  |— <span class="comment">// wait if number of files &lt; 2*ioSortFactor - 1</span></span><br><span class="line"></span><br><span class="line">  |— Merger.merge<span class="params">(sortSegments==<span class="literal">true</span>)</span>; <span class="comment">// merge io.sort.factor files ino 1</span></span><br><span class="line"></span><br><span class="line">  |- inMemFSMergeThread.start<span class="params">()</span>; <span class="comment">// ReduceTask$ReduceCopier$InMemFSMergeThread.run()</span></span><br><span class="line"></span><br><span class="line">  |— ramManager.waitForDataToMerge<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |— doInMemMerge<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |—– createInMemorySegments<span class="params">(…)</span>;</span><br><span class="line"></span><br><span class="line">  |—– Merger.merge<span class="params">(sortSegments==<span class="literal">false</span>)</span>;</span><br><span class="line"></span><br><span class="line">  |— <span class="keyword">if</span> <span class="params">(combinerRunner != null)</span> combinerRunner.combine<span class="params">(rIter, combineCollector)</span>;</span><br><span class="line"></span><br><span class="line">  |- <span class="comment">// schedule until get all required outputs (using exp-back-off for retries on failures)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// multi-pass (factor segments/pass), using hadoop.util.PriorityQueue</span></span><br><span class="line"></span><br><span class="line"><span class="number">2</span>. Merger.merge<span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  |- factor = getPassFactor<span class="params">()</span>; <span class="comment">// btw: first pass is special</span></span><br><span class="line"></span><br><span class="line">  |- <span class="comment">// set segmentsToMerge (sorted) and put them into PriorityQueue</span></span><br><span class="line"></span><br><span class="line">  |- <span class="comment">// merge into a temp file, add to MergeQueue.segments, and sort</span></span><br><span class="line"></span><br><span class="line">  |- <span class="comment">// loop until number of segments &lt; factor</span></span><br><span class="line"></span><br><span class="line"><span class="number">3</span>. runReducer<span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="3、部分问题分析">3、部分问题分析</h3><p>1）如何排序并输出的？</p>
 <p>sortAndSpill();</p>
 <p>mapper接收到map端的输出后，会将所有的输出数据写入一个缓存中，当缓存大小超过一定阈值的时候，就会锁住部分数据，将这些数据写入磁盘中。没被锁住的数据则可继续写入，不受写操作影响。阈值等于io.sort.mb(100MB) * io.sort.spill.percent(0.8)。</p>
 <p>缓存采用的circle buffer，看似简单，但是hadoop中还是会有点小技巧，详细的可以看caibinbupt的博客（<a href="http://caibinbupt.iteye.com/blog/402849" target="_blank" rel="external">分析1</a>，<a href="http://caibinbupt.iteye.com/blog/402214" target="_blank" rel="external">分析2</a>），里面比较详细。</p>
 <p>缓存一般是用byte数组存，因为这样可以严格控制缓存大小。当然，如果记录大小一致的话，可以开相应的对象数组。但是，map中的缓存kv数据大小不一致，这样要排序的话，就会有很多问题：</p>
 <p>如何快速定位其中的排序键；定位了快速键之后，由于记录大小不一，原地排序会带来大量的数据交换。</p>
 <p>为了避免这样的问题出现，mapreduce实现中提供了两个索引记录，第一个为kvindices（kvpair1[partion1, key1_start, value1_start], kvpair2[partition2, key2_start, value2_start]），这个索引指向缓存中记录的起始位置；第二个为kvoffsets，记录kvindices中kvpair的位置，只需要比较kvoffsets中所对应的partition值以及key值再交换kvoffsets中的值即可完成排序。</p>
-<p><strong><a href="http://hongweiyi.com/wp-content/uploads/2012/10/clip_image0054.jpg"></a></strong></p>
-<p><strong><a href="http://hongweiyi.com/wp-content/uploads/2012/10/Image1.jpg"><img src="http://hongweiyi.com/wp-content/uploads/2012/10/Image_thumb1.jpg" alt="Image" title="Image"></a></strong></p>
-<p><strong> 2**</strong>）<strong><strong>combine</strong></strong>什么时候执行的？**</p>
-<p>· 在map端内存溢写到磁盘的时候会执行combine（可配置不执行，min.num.spills.for.combine默认为3，当spill数少于3的时候，就不会执行）；</p>
-<p>· 在map端合并磁盘溢写文件的时候会执行combine；</p>
-<p>· 在reduce端合并内存拉取文件的时候会执行combine（inMemFSMergeThread）。</p>
+<p><img src="/images/2012/10/clip_image0054.jpg" alt="image"></p>
+<p><img src="/images/2012/10/Image1.jpg" alt="Image"></p>
+<p>2）combine什么时候执行的？</p>
+<ul>
+<li>在map端内存溢写到磁盘的时候会执行combine（可配置不执行，min.num.spills.for.combine默认为3，当spill数少于3的时候，就不会执行）；</li>
+<li>在map端合并磁盘溢写文件的时候会执行combine；</li>
+<li>在reduce端合并内存拉取文件的时候会执行combine（inMemFSMergeThread）。</li>
+</ul>
 <p>为什么在localFSMergerThread中不执行combine呢？因为这个时候执行的combine就是reduce过程了。</p>
-<p><strong>3**</strong>）<strong><strong>segment</strong></strong>和<strong><strong>group</strong></strong>是啥？**</p>
-<p><strong>segment</strong></p>
+<p>3）segment和group是啥？</p>
+<p>segment</p>
 <p>每个map端划分出来的partition所对应的数据块为一个segment。如下，partition0/1/2所对应spill.out的一段数据均为一个segment。</p>
 <p>即segment是map端merge spills，以及reduce端merge从map端copy过来的数据的逻辑单元。</p>
-<p><a href="http://hongweiyi.com/wp-content/uploads/2012/10/Image2.jpg"><img src="http://hongweiyi.com/wp-content/uploads/2012/10/Image_thumb2.jpg" alt="Image" title="Image"></a>&#160;<strong>group</strong></p>
+<p><img src="/images/2012/10/Image2.jpg" alt="Image"></p>
 <p>个人理解就是reduce端进入一个reduce()方法的数据称之为一个group。默认按key分组。一般来说，用户涉及到group也就是二次排序的时候需要用到，因为需要自定义分组。可以参见《Hadoop权威指南》第8章的辅助排序。</p>
-<p><strong>4**</strong>）如何合并文件？**</p>
+<p>4）如何合并文件？</p>
 <p>Map阶段的合并发生在spill完所有文件之后，而Reduce阶段则发生在copyPhrase结束之后，两者逻辑是一直的，所以hadoop将合并写成了通用组件，即Merger。在分析Merger的前，需要了解segment（Merger$Segment）的概念，可以参见前文。</p>
 <p>将合并过程简单化：即有一些已经排好序的文件（Segment），需要对其进行合并并排序。需要和解决方案都很明显，用多路归并排序。</p>
 <p>Merger类实现了一个merge方法，该方法生成了一个MergeQueue实例，并调用了该实例的merge方法。MergeQueue继承了PriorityQueue。归并排序的时候需要取多个文件的最小值，hadoop实现是采用的小根堆，比较方法是Merger中的lessThan(a,b)，它会读取segment中当前key，并使用用户自定义类的comparator进行比较。归并路数根据io.sort.factor(10)设置。</p>
-<p><strong>五、我之前的的认识误区</strong></p>
-<p>1）<strong>map**</strong>输出记录格式是怎样的？**</p>
+<h3 id="5、我之前的的认识误区">5、我之前的的认识误区</h3><p>1）map输出记录格式是怎样的？</p>
 <p>map的输出为：(key1, value1); (key1, value2); (key1, value3)，而不是：(key1, list(value1, value2, value3))，这个只是逻辑上的格式。</p>
 <p>为什么这样呢：</p>
 <p>猜测： 一个key对应的list过大的话，内存放不下；不如来一条记录，输出一条记录。所以如果设置了combiner的话，最后对数据的压缩是很可观的。</p>
-<p><strong>2**</strong>）是否可以将<strong><strong>mr</strong></strong>中的临时数据不写入磁盘？**</p>
-<p>从源码的角度来说，是不可能的。可以考虑<strong><a href="http://www.spark-project.org/" target="_blank" rel="external">Spark</a></strong>以及<strong><a href="https://github.com/nathanmarz/storm" target="_blank" rel="external">Storm</a></strong>的实现。</p>
-<p><strong>六、参考资料</strong></p>
-<blockquote>
+<p>2）是否可以将mr中的临时数据不写入磁盘？</p>
+<p>从源码的角度来说，是不可能的。可以考虑<a href="http://www.spark-project.org/" target="_blank" rel="external">Spark</a>以及<a href="https://github.com/nathanmarz/storm" target="_blank" rel="external">Storm</a>的实现。</p>
+<h3 id="6、参考资料">6、参考资料</h3><blockquote>
 <p><a href="http://langyu.iteye.com/blog/992916" target="_blank" rel="external">MapReduce: 详解Shuffle流程</a></p>
 <p><a href="http://caibinbupt.iteye.com/blog/401374" target="_blank" rel="external">caibinbupt的博客</a></p>
 <p>《hadoop权威指南》  </p>
+<p>源码版本 0.20.203.0</p>
 </blockquote>
-<p>P.S.: 源码版本 0.20.203.0</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2012/11/zookeeper-ephemeral-nodes-experience/" class="prev">上一篇</a><a href="/2012/09/mapred-optimize-writable/" class="next">下一篇</a></div><div data-thread-key="2012/10/mapreduce-task-src-analysis/" data-title="Map/Reduce Task源码分析" data-url="http://hongweiyi.com/2012/10/mapreduce-task-src-analysis/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
