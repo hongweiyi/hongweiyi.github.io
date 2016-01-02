@@ -2,6 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hongweiyi.com/2013/01/linux-text-shell/</loc>
+    <lastmod>2016-01-02T05:55:08.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/01/linux-process-shell/</loc>
+    <lastmod>2016-01-02T05:54:29.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/01/linux-file-directory-shell/</loc>
+    <lastmod>2016-01-02T05:54:17.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/01/2013-learning-plan/</loc>
+    <lastmod>2016-01-02T05:47:14.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2012/11/zookeeper-ephemeral-nodes-experience/</loc>
+    <lastmod>2016-01-02T05:46:58.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2012/10/mapreduce-task-src-analysis/</loc>
     <lastmod>2015-12-31T12:24:50.000Z</lastmod>
   </url>
@@ -242,12 +267,17 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2013/01/2013-learning-plan/</loc>
+    <loc>http://hongweiyi.com/2011/10/dist-filesystem-metadata-server/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
+    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2015/03/oom-killer-1/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -272,6 +302,11 @@
   </url>
   
   <url>
+    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2014/01/netty-4-x-bytebuf/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
@@ -282,42 +317,7 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2012/11/zookeeper-ephemeral-nodes-experience/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2015/03/oom-killer-1/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/01/linux-file-directory-shell/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/01/linux-process-shell/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2011/10/dist-filesystem-metadata-server/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/01/linux-text-shell/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-introduction/</loc>
+    <loc>http://hongweiyi.com/2013/04/apache-solr-distributed-search/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -332,7 +332,7 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2013/04/apache-solr-distributed-search/</loc>
+    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-introduction/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   

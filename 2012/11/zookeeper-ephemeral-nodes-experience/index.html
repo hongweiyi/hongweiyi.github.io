@@ -1,20 +1,19 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Zookeeper Ephemeral结点使用心得 · 小e的笔记</title><meta name="description" content="公司里面在拿Zookeeper做命名服务，通过使用ZK，前端只需要根据指定的ZK地址获得相应的资源或服务的后端服务器地址即可，而后端服务器需要做的仅仅是将自己的地址注册到ZK上作为一个Ephemeral结点即可。（虽然是挺方便后端扩容，但是我个人不太建议直接上ZK，否则开发成本会增加）  &amp;gt; P.S.:Ephemeral结点在Apache Zookeeper中是一个临时结点，这些结点只要创建它的结点session不挂，它就一直存在，当session中止了，结点也就删除了。  
-问题：
-在开发的时候遇到了一个奇怪的问题，当某个后端快速重启之后，该后端的结点信息过一段时间后会被删除，这样就导致了后端服务永远无法被前端访问到。
-原因：
-查了资料后得知，如果在你的session中，ephemeral结点不是由你创建的，你的session就不会拥有该结点，所以当拥有该结点的session终止（expire）了，该结点也就销毁了。那么，如果不是你显式的删除该结点的话，就只能由ZK帮你终止它，在会话超时之后ZK就自动删除结点。如果在会话还未超时的过程中（一般是30s），你重启后端服务器的"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Zookeeper Ephemeral结点使用心得</h1><div class="post-meta"><div class="post-time">Nov 5, 2012 | [<a class="tag-link" href="/tags/ZooKeeper/">ZooKeeper</a>]</div></div><div class="post-content"><p>公司里面在拿Zookeeper做命名服务，通过使用ZK，前端只需要根据指定的ZK地址获得相应的资源或服务的后端服务器地址即可，而后端服务器需要做的仅仅是将自己的地址注册到ZK上作为一个Ephemeral结点即可。（虽然是挺方便后端扩容，但是我个人不太建议直接上ZK，否则开发成本会增加）<br><a id="more"></a>  &gt; <strong>P.S.:</strong>Ephemeral结点在Apache Zookeeper中是一个临时结点，这些结点只要创建它的结点session不挂，它就一直存在，当session中止了，结点也就删除了。  </p>
-<p><strong>问题：</strong></p>
-<p>在开发的时候遇到了一个奇怪的问题，当某个后端快速重启之后，该后端的结点信息过一段时间后会被删除，这样就导致了后端服务永远无法被前端访问到。</p>
-<p><strong>原因：</strong></p>
-<p>查了资料后得知，如果在你的session中，ephemeral结点不是由你创建的，你的session就不会拥有该结点，所以当拥有该结点的session终止（expire）了，该结点也就销毁了。那么，如果不是你显式的删除该结点的话，就只能由ZK帮你终止它，在会话超时之后ZK就自动删除结点。如果在会话还未超时的过程中（一般是30s），你重启后端服务器的话，就会导致我所说的情况。</p>
-<p><strong>解决方案：</strong></p>
-<p>Apache提供了几个patch，也有人提供了一些解决方案，均是显式的终止session。但是后端服务器挂了，显式终止一般是没用的。找到的这个方法是比较靠谱的，那就是在创建结点前，先删除之前的结点：   <table border="1" cellspacing="0" cellpadding="0" width="637"><tbody>       <tr>         <td valign="top" width="635">           <p> 1. try {</p>
-<p> 2.&#160;&#160; zk.delete(path)</p>
-<p> 3. } catch {</p>
-<p> 4.&#160;&#160; e: NoNodeException =&gt; // do nothing</p>
-<p> 5. }</p>
-<p> 6. zk.create(path, data, CreateMode.EPHEMERAL)<br>         </p></td>       </tr>     </tbody></table> </p>  &gt; <strong>参考资料：</strong><p></p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Zookeeper Ephemeral结点使用心得 · 小e的笔记</title><meta name="description" content="公司里面在拿Zookeeper做命名服务，通过使用ZK，前端只需要根据指定的ZK地址获得相应的资源或服务的后端服务器地址即可，而后端服务器需要做的仅仅是将自己的地址注册到ZK上作为一个Ephemeral结点即可。（虽然是挺方便后端扩容，但是我个人不太建议直接上ZK，否则开发成本会增加）  
+
+Ephemeral结点在Apache Zookeeper中是一个临时结点，这些结点只要创建它的结点session不挂，它就一直存在，当session中止了，结点也就删除了。  
+
+问题在开发的时候遇到了一个奇怪的问题，当某个后端快速重启之后，该后端的结点信息过一段时间后会被删除，这样就导致了后端服务永远无法被前端访问到。
+原因查了资料后得知，如果在你的session中，ephemeral结点不是由你创建的，你的session就不会拥有该结点，所以当拥有该结点的session终止（expire）了，该结点也就销毁了。那么，如果不是你显式的删除该结点的话，就只能由ZK帮你终止它，在会话超时之后ZK就自动删除结点。如果在会话还未超时的过程中（一般是30s），你重启后端服务器的话，就会导致我所说的"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Zookeeper Ephemeral结点使用心得</h1><div class="post-meta"><div class="post-time">Nov 5, 2012 | [<a class="tag-link" href="/tags/ZooKeeper/">ZooKeeper</a>]</div></div><div class="post-content"><p>公司里面在拿Zookeeper做命名服务，通过使用ZK，前端只需要根据指定的ZK地址获得相应的资源或服务的后端服务器地址即可，而后端服务器需要做的仅仅是将自己的地址注册到ZK上作为一个Ephemeral结点即可。（虽然是挺方便后端扩容，但是我个人不太建议直接上ZK，否则开发成本会增加）<br><a id="more"></a>  </p>
 <blockquote>
+<p>Ephemeral结点在Apache Zookeeper中是一个临时结点，这些结点只要创建它的结点session不挂，它就一直存在，当session中止了，结点也就删除了。  </p>
+</blockquote>
+<h3 id="问题">问题</h3><p>在开发的时候遇到了一个奇怪的问题，当某个后端快速重启之后，该后端的结点信息过一段时间后会被删除，这样就导致了后端服务永远无法被前端访问到。</p>
+<h3 id="原因">原因</h3><p>查了资料后得知，如果在你的session中，ephemeral结点不是由你创建的，你的session就不会拥有该结点，所以当拥有该结点的session终止（expire）了，该结点也就销毁了。那么，如果不是你显式的删除该结点的话，就只能由ZK帮你终止它，在会话超时之后ZK就自动删除结点。如果在会话还未超时的过程中（一般是30s），你重启后端服务器的话，就会导致我所说的情况。</p>
+<p>解决方案：</p>
+<p>Apache提供了几个patch，也有人提供了一些解决方案，均是显式的终止session。但是后端服务器挂了，显式终止一般是没用的。找到的这个方法是比较靠谱的，那就是在创建结点前，先删除之前的结点：</p>
+<figure class="highlight julia"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">   zk.delete(path)</span><br><span class="line">&#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">   <span class="literal">e</span>: NoNodeException =&gt; // <span class="keyword">do</span> <span class="literal">nothing</span></span><br><span class="line">&#125;</span><br><span class="line">zk.create(path, data, CreateMode.EPHEMERAL)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考资料：</p>
 <p><a href="http://developers.blog.box.com/2012/04/10/a-gotcha-when-using-zookeeper-ephemeral-nodes/" target="_blank" rel="external">A Gotcha When Using ZooKeeper Ephemeral Nodes</a></p>
 <p><a href="http://zookeeper-user.578899.n2.nabble.com/ephemerals-handling-after-restart-td1084715.html" target="_blank" rel="external">ephemerals handling after restart</a></p>
 </blockquote>

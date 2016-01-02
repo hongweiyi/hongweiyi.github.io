@@ -1,104 +1,82 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Shell常用命令 进程操作篇 · 小e的笔记</title><meta name="description" content="4.0 **前言**
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Shell常用命令 进程操作篇 · 小e的笔记</title><meta name="description" content="4.0 前言
 这篇算是尾篇了，命令较多也较繁杂，每个都是点到为止，基本也够用。有兴趣深入的朋友可自行谷歌学习。
 
-&amp;lt;!--more--&amp;gt;
-
-**4.1 ****进程执行**
-
+4.1 进程执行
 进程执行无外乎前台运行，但是前台运行需要用户等待程序运行完毕才可继续，所以就有了后台运行进程这一说。后台进程又分两种，当前终端后台进程，以及托管给OS的后台进程。这里就稍微介绍一下如何运行这些个进程吧。
 
 BTW: 以上分类都是我瞎分的，仅供参考。
 
-**后台运行进程:**
-
-在运行命令末尾加上&amp;amp;amp;符号，该程序就会在后台运行，如果忘记敲&amp;amp;amp;命令的话，也可以同过ctrl+z，暂停当前进程，再用bg(backgroud)命令即可让暂停任务变成后台运行。
-&lt;"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Shell常用命令 进程操作篇</h1><div class="post-meta"><div class="post-time">Jan 22, 2013 | [<a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/Shell/">Shell</a>]</div></div><div class="post-content"><p><strong>4.0 **</strong>前言**</p>
-<pre><code>这篇算是尾篇了，命令较多也较繁杂，每个都是点到为止，基本也够用。有兴趣深入的朋友可自行谷歌学习。
-
-<span class="comment">&lt;!--more--&gt;</span>
-
-**4.1 ****进程执行**
-
-进程执行无外乎前台运行，但是前台运行需要用户等待程序运行完毕才可继续，所以就有了后台运行进程这一说。后台进程又分两种，当前终端后台进程，以及托管给OS的后台进程。这里就稍微介绍一下如何运行这些个进程吧。
-</code></pre><blockquote>
-<p><strong>BTW:</strong> 以上分类都是我瞎分的，仅供参考。</p>
-</blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>后台运行进程:<span class="keyword">*</span><span class="keyword">*</span>
-
+后台运行进程:
 在运行命令末尾加上&amp;amp;符号，该程序就会在后台运行，如果忘记敲&amp;amp;命令的话，也可以同过ctrl+z，暂停当前进程，再用bg(backgroud)命令即可让暂停任务变成后台运行。
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ /bin/sh your.sh &amp;<br><br>                    &nbsp; [1]&nbsp;&nbsp;&nbsp; pid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 输出进程在当前终端的序号以及pid<br><br>                    &nbsp; &gt;&gt; $ /bin/sh your.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ctrl + z<br><br>                    &nbsp; [1]+&nbsp; Stopped&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /bin/sh your.sh<br><br>                    &nbsp; &gt;&gt; $ bg %1&nbsp;&nbsp; # %1 代表当前终端的第一个进程<br><br>                    &nbsp; [1]+&nbsp; /bin/sh your.sh &amp;<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+                            &amp;nbsp; &amp;gt;&amp;gt; $ /bin/sh your.sh &amp;amp;                &amp;n"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Shell常用命令 进程操作篇</h1><div class="post-meta"><div class="post-time">Jan 22, 2013 | [<a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/Shell/">Shell</a>]</div></div><div class="post-content"><p>4.0 前言</p>
+<p>这篇算是尾篇了，命令较多也较繁杂，每个都是点到为止，基本也够用。有兴趣深入的朋友可自行谷歌学习。</p>
+<a id="more"></a>
+<p>4.1 进程执行</p>
+<p>进程执行无外乎前台运行，但是前台运行需要用户等待程序运行完毕才可继续，所以就有了后台运行进程这一说。后台进程又分两种，当前终端后台进程，以及托管给OS的后台进程。这里就稍微介绍一下如何运行这些个进程吧。</p>
+<blockquote>
+<p>BTW: 以上分类都是我瞎分的，仅供参考。</p>
+</blockquote>
+<p>后台运行进程:</p>
+<p>在运行命令末尾加上&amp;符号，该程序就会在后台运行，如果忘记敲&amp;命令的话，也可以同过ctrl+z，暂停当前进程，再用bg(backgroud)命令即可让暂停任务变成后台运行。</p>
+<table border="1" cellpadding="0" cellspacing="0" width="632"><br><tbody><br>    <tr><br>        <td valign="top" width="630"><br><br>                &nbsp; &gt;&gt; $ /bin/sh your.sh &amp;<br><br>                &nbsp; [1]&nbsp;&nbsp;&nbsp; pid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 输出进程在当前终端的序号以及pid<br><br>                &nbsp; &gt;&gt; $ /bin/sh your.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ctrl + z<br><br>                &nbsp; [1]+&nbsp; Stopped&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /bin/sh your.sh<br><br>                &nbsp; &gt;&gt; $ bg %1&nbsp;&nbsp; # %1 代表当前终端的第一个进程<br><br>                &nbsp; [1]+&nbsp; /bin/sh your.sh &amp;<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>TIPS:</strong> The plus sign shows the most recently invoked job; the minus sign shows the next most recently invoked job.- &lt;Learning the Korn Shell, 2nd Edition&gt;</p>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>WARNING:<span class="keyword">*</span><span class="keyword">*</span> 当运行某个有大量输出的进程，如果直接让其进入后台运行是很不明智的，一般来说会将输出写入文件中。如： $ /bin/sh your.sh &amp;gt; ./your.log 2&amp;gt;&amp;amp;1 &amp;amp;
+<p>TIPS: The plus sign shows the most recently invoked job; the minus sign shows the next most recently invoked job.- &lt;Learning the Korn Shell, 2nd Edition&gt;</p>
+<pre><code><span class="label">WARNING: </span>当运行某个有大量输出的进程，如果直接让其进入后台运行是很不明智的，一般来说会将输出写入文件中。如： $ /bin/sh your.sh &amp;gt; ./your.log 2&amp;gt;&amp;amp;1 &amp;amp;
 </code></pre></blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>前台运行进程：<span class="keyword">*</span><span class="keyword">*</span>
+<p>前台运行进程：</p>
+<p>有了后台，就有相应的前台运行进程了。fg(foreground)就是了，但一般来说，很少需要将后台进程推到前台的需求，我一般是这样用的：</p>
+<table border="1" cellpadding="0" cellspacing="0" width="632"><br><tbody><br>    <tr><br>        <td valign="top" width="630"><br><br>                &nbsp; &gt;&gt; $ vim your_file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ctrl + z<br><br>                &nbsp; [1]+&nbsp;&nbsp; Stopped&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vim your_file<br><br>                &nbsp; &gt;&gt; $ fg %1&nbsp;<br><br>        </td><br>    </tr><br></tbody><br></table>
 
-有了后台，就有相应的前台运行进程了。fg(foreground)就是了，但一般来说，很少需要将后台进程推到前台的需求，我一般是这样用的：
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="632"><br>    <tbody><br>        <tr><br>            <td valign="top" width="630"><br><br>                    &nbsp; &gt;&gt; $ vim your_file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ctrl + z<br><br>                    &nbsp; [1]+&nbsp;&nbsp; Stopped&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vim your_file<br><br>                    &nbsp; &gt;&gt; $ fg %1&nbsp;<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p>托管进程：</p>
+<p>上面的命令均是在当前终端运行，如果终端关闭，相应的进程也关闭了，如果想进程继续运行，则需要将进程托管给系统管理。主要命令是nohup。</p>
+<table border="1" cellpadding="0" cellspacing="0" width="631"><br><tbody><br>    <tr><br>        <td valign="top" width="629"><br><br>                &nbsp; &gt;&gt; $ nohup /bin/sh your.sh &amp;<br><br>                &nbsp; [1]&nbsp;&nbsp;&nbsp; pid<br><br>                &nbsp; nohup: appending output to &lsquo;nohup.out&#39;<br><br>        </td><br>    </tr><br></tbody><br></table>
 
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>托管进程：<span class="keyword">*</span><span class="keyword">*</span>
-
-上面的命令均是在当前终端运行，如果终端关闭，相应的进程也关闭了，如果想进程继续运行，则需要将进程托管给系统管理。主要命令是nohup。
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="631"><br>    <tbody><br>        <tr><br>            <td valign="top" width="629"><br><br>                    &nbsp; &gt;&gt; $ nohup /bin/sh your.sh &amp;<br><br>                    &nbsp; [1]&nbsp;&nbsp;&nbsp; pid<br><br>                    &nbsp; nohup: appending output to &lsquo;nohup.out&#39;<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code><span class="tag">&lt;<span class="title">span</span> <span class="attribute">style</span>=<span class="value">"line-height: 1.6em;"</span>&gt;</span>实战的时候，更多的情况是这样的：突然有事要走开一下，又生怕跑了半天的程序因为终端挂了，想将其托管给系统。那么就可以用disown命令。<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="631"><br>    <tbody><br>        <tr><br>            <td valign="top" width="629"><br><br>                    &nbsp; &gt;&gt; $ /bin/sh your.sh &amp;<br><br>                    &nbsp; [1]&nbsp;&nbsp;&nbsp; pid<br><br>                    &nbsp; &gt;&gt; disown %1<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p><span style="line-height: 1.6em;">实战的时候，更多的情况是这样的：突然有事要走开一下，又生怕跑了半天的程序因为终端挂了，想将其托管给系统。那么就可以用disown命令。</span></p>
+<table border="1" cellpadding="0" cellspacing="0" width="631"><br><tbody><br>    <tr><br>        <td valign="top" width="629"><br><br>                &nbsp; &gt;&gt; $ /bin/sh your.sh &amp;<br><br>                &nbsp; [1]&nbsp;&nbsp;&nbsp; pid<br><br>                &nbsp; &gt;&gt; disown %1<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>REFE:</strong> 看这个解释得更为详细，我对其理解较为肤浅：<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-nohup/" target="_blank" rel="external"><strong>Linux**</strong>技巧：让后台在后台可靠运行的几种方法**</a><strong>。</strong></p>
+<p>REFE: 看这个解释得更为详细，我对其理解较为肤浅：<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-nohup/" target="_blank" rel="external">Linux技巧：让后台在后台可靠运行的几种方法</a>。</p>
 </blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>screen:<span class="keyword">*</span><span class="keyword">*</span>
-
-上面两个命令都不是最好用的，最好用的应该是screen命令了。screen 提供了 ANSI/VT100 的终端模拟器，使它能够在一个真实终端下运行多个全屏的伪终端。screen用好了，感觉也不比tmux差多少。
-
-要同时跑多个screen，并想快速切换的换，可以添加几个screen的alias。
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="631"><br>    <tbody><br>        <tr><br>            <td valign="top" width="629"><br><br>                    alias s=&quot;screen&quot;<br><br>                    alias sr=&quot;screen -r&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 连接到某个模拟器<br><br>                    alias sl=&quot;screen -ls&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 显示当前所有模拟器<br><br>                    alias sl=&quot;screen -d&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 强制断开某个模拟器连接<br><br>                    ctrl+a :sessionname MyName&nbsp;&nbsp; # 在screen模拟器中，修改模拟器名字<br><br>                    ctrl+a :kill&nbsp;&nbsp;&nbsp; # 强制关闭模拟器（模拟器有时候会莫名其妙的没响应）<br><br>                    ctrl+a :encoding gbk&nbsp;&nbsp;&nbsp;&nbsp; # 设置screen编码<br><br>                    ctrl+a d&nbsp;&nbsp;&nbsp;&nbsp; # detached模拟器（就是临时退出）<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p>screen:</p>
+<p>上面两个命令都不是最好用的，最好用的应该是screen命令了。screen 提供了 ANSI/VT100 的终端模拟器，使它能够在一个真实终端下运行多个全屏的伪终端。screen用好了，感觉也不比tmux差多少。</p>
+<p>要同时跑多个screen，并想快速切换的换，可以添加几个screen的alias。</p>
+<table border="1" cellpadding="0" cellspacing="0" width="631"><br><tbody><br>    <tr><br>        <td valign="top" width="629"><br><br>                alias s=&quot;screen&quot;<br><br>                alias sr=&quot;screen -r&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 连接到某个模拟器<br><br>                alias sl=&quot;screen -ls&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 显示当前所有模拟器<br><br>                alias sl=&quot;screen -d&quot;&nbsp;&nbsp;&nbsp;&nbsp; # 强制断开某个模拟器连接<br><br>                ctrl+a :sessionname MyName&nbsp;&nbsp; # 在screen模拟器中，修改模拟器名字<br><br>                ctrl+a :kill&nbsp;&nbsp;&nbsp; # 强制关闭模拟器（模拟器有时候会莫名其妙的没响应）<br><br>                ctrl+a :encoding gbk&nbsp;&nbsp;&nbsp;&nbsp; # 设置screen编码<br><br>                ctrl+a d&nbsp;&nbsp;&nbsp;&nbsp; # detached模拟器（就是临时退出）<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>TIPS</strong>: screen终端ls文件没有颜色，是因为screen终端类型比较特殊，echo $TERM显示为screen或者screen.linux类型，解决方案是修改/etc/DIR_COLORS或者复制/etc/DIR_COLORS到~/.dir_colors，加入一句：&quot;TERM screen&quot;注销重登即可。</p>
+<p>TIPS: screen终端ls文件没有颜色，是因为screen终端类型比较特殊，echo $TERM显示为screen或者screen.linux类型，解决方案是修改/etc/DIR_COLORS或者复制/etc/DIR_COLORS到~/.dir_colors，加入一句：&quot;TERM screen&quot;注销重登即可。</p>
 </blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>jobs:<span class="keyword">*</span><span class="keyword">*</span>
+<p>jobs:</p>
+<p>列出当前终端运行的后台进程。</p>
+<p>ps:</p>
+<p>列出系统正在运行的程序。</p>
+<p>top:</p>
+<p>理解为win下面的任务管理器，需要注意的地方应该是load average了，Load Average表示了CPU的Load，它所包含的信息不是 CPU的使用率状况，而是在一段时间内CPU正在处理以及等待CPU处理的进程数之和的统计信息，也就是 CPU使用队列的长度的统计信息。load average: 0.06, 0.60, 0.48，三个数值分别为 1分钟、5分钟、15分钟前到现在的平均值。需要注意，load average如果超过一定的数的话，系统负载较高。</p>
+<p>Load Average &lt; CPU个数 <em> 核数 </em>0.7</p>
+<p>我常用的命令也不多，如下：</p>
+<table border="1" cellpadding="0" cellspacing="0" width="635"><br><tbody><br>    <tr><br>        <td valign="top" width="633"><br><br>                &nbsp; &gt;&gt; $ top<br><br>                &nbsp; …<br><br>                &nbsp; …<br><br>                &nbsp; &gt;&gt; $ top -p pid [-p pid2 …]<br><br>                &nbsp; …&nbsp;&nbsp;&nbsp; # 只查看pid这个进程<br><br>        </td><br>    </tr><br></tbody><br></table>
 
-列出当前终端运行的后台进程。
-
-<span class="keyword">*</span><span class="keyword">*</span>ps:<span class="keyword">*</span><span class="keyword">*</span>
-
-列出系统正在运行的程序。
-
-<span class="keyword">*</span><span class="keyword">*</span>top:<span class="keyword">*</span><span class="keyword">*</span>
-
-理解为win下面的任务管理器，需要注意的地方应该是load average了，Load Average表示了CPU的Load，它所包含的信息不是 CPU的使用率状况，而是在一段时间内CPU正在处理以及等待CPU处理的进程数之和的统计信息，也就是 CPU使用队列的长度的统计信息。load average: 0.06, 0.60, 0.48，三个数值分别为 1分钟、5分钟、15分钟前到现在的平均值。需要注意，load average如果超过一定的数的话，系统负载较高。
-
-<span class="keyword">*</span><span class="keyword">*</span>Load Average &amp;lt; CPU个数 <span class="keyword">*</span> 核数 <span class="keyword">*</span>0.7<span class="keyword">*</span><span class="keyword">*</span>
-
-我常用的命令也不多，如下：
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="635"><br>    <tbody><br>        <tr><br>            <td valign="top" width="633"><br><br>                    &nbsp; &gt;&gt; $ top<br><br>                    &nbsp; …<br><br>                    &nbsp; …<br><br>                    &nbsp; &gt;&gt; $ top -p pid [-p pid2 …]<br><br>                    &nbsp; …&nbsp;&nbsp;&nbsp; # 只查看pid这个进程<br><br>            </td><br>        </tr><br>    </tbody><br></table>
-
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>crontab:<span class="keyword">*</span><span class="keyword">*</span>
-
-定时任务命令，这个东西有时候也折磨了好一段时间。内容格式说着也简单：
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="635"><br>    <tbody><br>        <tr><br>            <td valign="top" width="633"><br><br>                    &gt;&gt; $ crontab -e&nbsp;&nbsp;&nbsp; # 编辑定时任务列表<br><br>                    <em> </em> <em> </em> <em> cmd &gt; /dev/null 2&gt;&amp;1&nbsp;&nbsp;&nbsp;&nbsp; # 5个</em>分别代表分、时、日、月、周。需要将输出写到某个文件或者/dev/null中，因为它的所有输出均会按邮件发到服务器上，日积月累也是个负担<br><br>                    <em>/2 </em> <em> </em> * cmd &gt; /dev/null 2&gt;&amp;1&nbsp;&nbsp;&nbsp;&nbsp; # 代表每两分钟执行一次cmd<br><br>                    &gt;&gt; $ crontab -l&nbsp;&nbsp;&nbsp; # 显示定时任务列表<br><br>                    &gt;&gt; $ crontab -r&nbsp;&nbsp;&nbsp; # 删除定时任务列表（- -，不知道为什么要有这个选项）<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p>crontab:</p>
+<p>定时任务命令，这个东西有时候也折磨了好一段时间。内容格式说着也简单：</p>
+<table border="1" cellpadding="0" cellspacing="0" width="635"><br><tbody><br>    <tr><br>        <td valign="top" width="633"><br><br>                &gt;&gt; $ crontab -e&nbsp;&nbsp;&nbsp; # 编辑定时任务列表<br><br>                <em> </em> <em> </em> <em> cmd &gt; /dev/null 2&gt;&amp;1&nbsp;&nbsp;&nbsp;&nbsp; # 5个</em>分别代表分、时、日、月、周。需要将输出写到某个文件或者/dev/null中，因为它的所有输出均会按邮件发到服务器上，日积月累也是个负担<br><br>                <em>/2 </em> <em> </em> * cmd &gt; /dev/null 2&gt;&amp;1&nbsp;&nbsp;&nbsp;&nbsp; # 代表每两分钟执行一次cmd<br><br>                &gt;&gt; $ crontab -l&nbsp;&nbsp;&nbsp; # 显示定时任务列表<br><br>                &gt;&gt; $ crontab -r&nbsp;&nbsp;&nbsp; # 删除定时任务列表（- -，不知道为什么要有这个选项）<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>REFE:</strong> 偷懒，直接贴其他人的帖子吧：<a href="http://www.cnblogs.com/cosiray/archive/2012/03/09/2387361.html" target="_blank" rel="external">Crontab 错误分析及不执行原因</a></p>
+<p>REFE: 偷懒，直接贴其他人的帖子吧：<a href="http://www.cnblogs.com/cosiray/archive/2012/03/09/2387361.html" target="_blank" rel="external">Crontab 错误分析及不执行原因</a></p>
 </blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>history:<span class="keyword">*</span><span class="keyword">*</span>
-
-查看命令历史，以下是常用方法和有用的设置：
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="635"><br>    <tbody><br>        <tr><br>            <td valign="top" width="633"><br><br>                    &gt;&gt; $ history | more<br><br>                    &gt;&gt; $ history | grep ls<br><br>                    &gt;&gt; $ vi ~/.bashrc<br><br>                    HISTFILESIZE=2000&nbsp;&nbsp;&nbsp;&nbsp; # history 记录长度<br><br>                    HISTTIMEFORMAT=&#39;%F %T &#39;&nbsp;&nbsp;&nbsp;&nbsp; # 给记录添加时间戳<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p>history:</p>
+<p>查看命令历史，以下是常用方法和有用的设置：</p>
+<table border="1" cellpadding="0" cellspacing="0" width="635"><br><tbody><br>    <tr><br>        <td valign="top" width="633"><br><br>                &gt;&gt; $ history | more<br><br>                &gt;&gt; $ history | grep ls<br><br>                &gt;&gt; $ vi ~/.bashrc<br><br>                HISTFILESIZE=2000&nbsp;&nbsp;&nbsp;&nbsp; # history 记录长度<br><br>                HISTTIMEFORMAT=&#39;%F %T &#39;&nbsp;&nbsp;&nbsp;&nbsp; # 给记录添加时间戳<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>TIPS1:</strong> 输入命令前，输入一个空格，该记录不添加进history中。嘿嘿嘿嘿&hellip;&hellip;</p>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>TIPS2:<span class="keyword">*</span><span class="keyword">*</span> ctrl + r是找历史记录，查找过程中继续按ctrl+r是当前查找结果的上一条
+<p>TIPS1: 输入命令前，输入一个空格，该记录不添加进history中。嘿嘿嘿嘿&hellip;&hellip;</p>
+<pre><code><span class="attribute">TIPS2</span>: <span class="string">ctrl + r是找历史记录，查找过程中继续按ctrl+r是当前查找结果的上一条</span>
 </code></pre></blockquote>
-<pre><code><span class="keyword">*</span><span class="keyword">*</span>ssh:<span class="keyword">*</span><span class="keyword">*</span>
-
-最后一个说ssh，好像也没啥说的。远程登录，远程拷贝&amp;hellip;&amp;hellip;
-</code></pre><table border="1" cellpadding="0" cellspacing="0" width="634"><br>    <tbody><br>        <tr><br>            <td valign="top" width="632"><br><br>                    &gt;&gt; $ ssh -l user ip [-p port]<br><br>                    &gt;&gt; $ ssh user@ip<br><br>                    &gt;&gt; $ scp user@ip:/src/dir/or/file user@ip:/dest/dir/or/file<br><br>            </td><br>        </tr><br>    </tbody><br></table>
+<p>ssh:</p>
+<p>最后一个说ssh，好像也没啥说的。远程登录，远程拷贝&hellip;&hellip;</p>
+<table border="1" cellpadding="0" cellspacing="0" width="634"><br><tbody><br>    <tr><br>        <td valign="top" width="632"><br><br>                &gt;&gt; $ ssh -l user ip [-p port]<br><br>                &gt;&gt; $ ssh user@ip<br><br>                &gt;&gt; $ scp user@ip:/src/dir/or/file user@ip:/dest/dir/or/file<br><br>        </td><br>    </tr><br></tbody><br></table>
 
 <blockquote>
-<p><strong>FINAL TIPS:</strong> 拷贝的时候需要输入对方的用户密码，可以添加相关的密钥一劳永逸。但是添加密钥的方式有点微麻烦，所以可以用其他方式代替，那就是用expect命令。下面这段脚本可以实现无间断的远程push，可以自己改成远程pull。</p>
+<p>FINAL TIPS: 拷贝的时候需要输入对方的用户密码，可以添加相关的密钥一劳永逸。但是添加密钥的方式有点微麻烦，所以可以用其他方式代替，那就是用expect命令。下面这段脚本可以实现无间断的远程push，可以自己改成远程pull。</p>
 <pre><code>    &amp;nbsp;
 
 
