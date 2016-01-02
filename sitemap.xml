@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hongweiyi.com/2012/05/hadoop-pipes-src/</loc>
+    <lastmod>2016-01-02T16:15:30.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2012/05/hadoop-pipes/</loc>
+    <lastmod>2016-01-02T16:15:18.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/01/linux-text-shell/</loc>
+    <lastmod>2016-01-02T16:14:31.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
     <lastmod>2016-01-02T06:09:51.000Z</lastmod>
   </url>
@@ -19,11 +34,6 @@
   <url>
     <loc>http://hongweiyi.com/2013/01/2013-learning-plan/</loc>
     <lastmod>2016-01-02T06:03:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/01/linux-text-shell/</loc>
-    <lastmod>2016-01-02T05:55:08.000Z</lastmod>
   </url>
   
   <url>
@@ -54,16 +64,6 @@
   <url>
     <loc>http://hongweiyi.com/2012/09/apache-hadoop-yarn-background-and-an-overview/</loc>
     <lastmod>2015-12-31T12:15:54.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2012/05/hadoop-pipes/</loc>
-    <lastmod>2015-12-31T12:10:07.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2012/05/hadoop-pipes-src/</loc>
-    <lastmod>2015-12-31T09:58:29.000Z</lastmod>
   </url>
   
   <url>
