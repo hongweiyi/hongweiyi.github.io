@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
+    <lastmod>2016-01-02T05:55:09.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2013/01/linux-text-shell/</loc>
     <lastmod>2016-01-02T05:55:08.000Z</lastmod>
   </url>
@@ -272,7 +277,7 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2013/01/linux-shell-term-tuning/</loc>
+    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -297,12 +302,12 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/</loc>
+    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
+    <loc>http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -318,11 +323,6 @@
   
   <url>
     <loc>http://hongweiyi.com/2013/04/apache-solr-distributed-search/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
