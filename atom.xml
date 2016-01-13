@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://hongweiyi.com/"/>
-  <updated>2016-01-09T11:12:47.000Z</updated>
+  <updated>2016-01-13T15:30:08.000Z</updated>
   <id>http://hongweiyi.com/</id>
   
   <author>
@@ -13,6 +13,61 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[BTrace 基本使用]]></title>
+    <link href="http://hongweiyi.com/2016/01/introduce-btrace/"/>
+    <id>http://hongweiyi.com/2016/01/introduce-btrace/</id>
+    <published>2016-01-13T14:54:00.000Z</published>
+    <updated>2016-01-13T15:30:08.000Z</updated>
+    <content type="html"><![CDATA[<p>最近在做性能优化项目时，发现 RPC 框架调用极个别请求在路由过程非常耗时。对于这种极个别的问题要定位起来还是比较棘手的，如果性能问题可以稳定复现的还可以一步步打点缩小范围，但我这个是千分之一的出现概率，需要大规模日志打点才能够准确找到耗时的地方。如何搞呢，只能网上找找有没有更好的办法了，在网上看资料时，突然看到毕玄的文章提到可以用 btrace 定位这样的问题，现学现卖了一把。</p>
+<a id="more"></a>
+<h3 id="1-_基本使用">1. 基本使用</h3><p>直接下载安装 <a href="https://github.com/jbachorik/btrace/releases/tag/v1.3.4" target="_blank" rel="external">github release</a> 即可。</p>
+<ul>
+<li>添加 <code>BTRACE_HOME</code> 到环境变量</li>
+<li>运行：<code>bin/btrace &lt;PID&gt; &lt;trace_script&gt;</code></li>
+<li>编译：<code>bin/btracec &lt;trace_script&gt;</code></li>
+</ul>
+<blockquote>
+<p>btrace 不需要预先编译脚本。</p>
+</blockquote>
+<h3 id="2-_我的脚本">2. 我的脚本</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 可以不用 package</span></span><br><span class="line"><span class="keyword">package</span> com.sun.btrace.scripts;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* BTrace Script Template */</span></span><br><span class="line"><span class="keyword">import</span> com.sun.btrace.annotations.*;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.sun.btrace.BTraceUtils.*;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@BTrace</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProfileScript</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@TLS</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">long</span> startTime = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// com.alipay.sofa.rpc.process</span></span><br><span class="line">    <span class="annotation">@OnMethod</span>(clazz = <span class="string">"/com\\.hongweiyi\\.package\\.name\\..+/"</span>, method = <span class="string">"/.+/"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">startMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        startTime = timeMillis();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@SuppressWarnings</span>(<span class="string">"deprecation"</span>)</span><br><span class="line">    <span class="annotation">@OnMethod</span>(clazz = <span class="string">"/com\\.hongweiyi\\.package\\.name\\..+/"</span>, method = <span class="string">"/.+/"</span>, location = <span class="annotation">@Location</span>(Kind.RETURN))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">endMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> cost = timeMillis() - startTime;</span><br><span class="line">        <span class="keyword">if</span> (cost &gt; <span class="number">3</span>) &#123;</span><br><span class="line">            print(strcat(strcat(strcat(strcat(name(probeClass()), <span class="string">"."</span>), probeMethod()), <span class="string">":"</span>), str(probeLine())));</span><br><span class="line">            print(<span class="string">"  ["</span>);</span><br><span class="line">            print(strcat(<span class="string">"Time taken : "</span>, str(timeMillis() - startTime)));</span><br><span class="line">            println(<span class="string">"]"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-_使用实例">3. 使用实例</h3><p>正常使用：启动程序，拿到 PID，运行 <code>bin/btrace PID ProfileScript.java</code>，在脚本目录会出现 <code>ProfileScript.xxx.btrace</code> 的输出日志，可以直接通过这个日志定位问题。</p>
+<p>但是我的程序运行后不断抛 <code>java.lang.NoClassDefFoundError: ProfileScript</code> 异常。想到我的程序比较特殊，是运行在 OSGi 之上的，在网上搜到 btrace 在 glassfish 上运行同样有这样的问题。</p>
+<p>如果需要将 btrace 运行在 OSGi 程序上，其中一个解决方案是配置 OSGi 的 bootdelegation：</p>
+<p><code>org.osgi.framework.bootdelegation = com.sun.btrace,com.sun.btrace.*</code></p>
+<blockquote>
+<p>注意：这个时候建议将 btrace 的 package 和 btrace 的设置成一样，这样 bootdelegation 才能生效</p>
+</blockquote>
+<p>同时，通过 javaagent 配置 btrace 脚本：</p>
+<p><code>-javaagent:/home/admin/btrace/build/btrace-agent.jar=script=/home/admin/btrace/com/sun/btrace/scripts/ProfileScript.class</code></p>
+<blockquote>
+<p>注意：javaagent 的方式配置需要编译 btrace 脚本，不能直接使用 java 文件。编译命令 <code>bin/btracec com/sun/btrace/ProfileScript.java</code></p>
+</blockquote>
+<h3 id="4-_btrace_优化小结">4. btrace 优化小结</h3><p>如果 <code>@OnMethod(clazz)</code> 设置得比较准确的话，还是可以很快的定位一些优化点。优化了一些并发 Map 操作，性能提升 5%，发现了一个历史大坑，性能提升 90%。这个历史大坑也就是导致极个别请求耗时较长的原因。</p>
+<p>我在压测过程中，YGC 比较频繁，这样会导致会出现很多不必要的结果。如果实在没有头绪了，建议把 <code>@OnMethod(clazz)</code> 设置的范围比较大，扫所有的的类，待拿到结果之后，排除掉一些噪音后可以看到一些不错的结果。运行：</p>
+<p><code>cat ProfileScript.btrace | awk &#39;{print $1}&#39; | sort | uniq -c | grep -v &#39;1 &#39; | grep -v &#39;2 &#39; | sort -k 2</code></p>
+<blockquote>
+<p>不要忽略任何一个可疑的问题，极个别耗时长的请求完全可以拖垮整个系统</p>
+</blockquote>
+<h3 id="5-_资料">5. 资料</h3><ul>
+<li><a href="http://bluedavy.me/?p=334" target="_blank" rel="external">NFS-RPC框架优化过程</a></li>
+<li><a href="http://blog.csdn.net/wildandfly/article/details/21107661" target="_blank" rel="external">BTrace简介及使用</a></li>
+<li><a href="https://blogs.oracle.com/nishigaya/entry/btrace_with_glassfish_v3" target="_blank" rel="external">Running BTrace custom script with GlassFish V3</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>最近在做性能优化项目时，发现 RPC 框架调用极个别请求在路由过程非常耗时。对于这种极个别的问题要定位起来还是比较棘手的，如果性能问题可以稳定复现的还可以一步步打点缩小范围，但我这个是千分之一的出现概率，需要大规模日志打点才能够准确找到耗时的地方。如何搞呢，只能网上找找有没有更好的办法了，在网上看资料时，突然看到毕玄的文章提到可以用 btrace 定位这样的问题，现学现卖了一把。</p>]]>
+    
+    </summary>
+    
+      <category term="BTrace" scheme="http://hongweiyi.com/tags/BTrace/"/>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[2015 年小结]]></title>
@@ -437,6 +492,29 @@
   </entry>
   
   <entry>
+    <title><![CDATA[Java 最佳实践]]></title>
+    <link href="http://hongweiyi.com/2015/08/java-practice/"/>
+    <id>http://hongweiyi.com/2015/08/java-practice/</id>
+    <published>2015-08-28T14:32:00.000Z</published>
+    <updated>2015-12-29T14:26:50.000Z</updated>
+    <content type="html"><![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<ul>
+<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
+</ul>
+]]>
+    </summary>
+    
+      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
+    
+      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[GIT 最佳实践]]></title>
     <link href="http://hongweiyi.com/2015/08/git-practice/"/>
     <id>http://hongweiyi.com/2015/08/git-practice/</id>
@@ -532,29 +610,6 @@
     </summary>
     
       <category term="GIT" scheme="http://hongweiyi.com/tags/GIT/"/>
-    
-      <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Java 最佳实践]]></title>
-    <link href="http://hongweiyi.com/2015/08/java-practice/"/>
-    <id>http://hongweiyi.com/2015/08/java-practice/</id>
-    <published>2015-08-28T14:32:00.000Z</published>
-    <updated>2015-12-29T14:26:50.000Z</updated>
-    <content type="html"><![CDATA[<ul>
-<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<ul>
-<li><a href="/upload/java-at-alibaba.pptx">毕玄的演讲</a></li>
-</ul>
-]]>
-    </summary>
-    
-      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
     
       <category term="最佳实践" scheme="http://hongweiyi.com/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
     
@@ -1109,90 +1164,6 @@
     </summary>
     
       <category term="双11" scheme="http://hongweiyi.com/tags/%E5%8F%8C11/"/>
-    
-      <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[记一次java性能问题定位]]></title>
-    <link href="http://hongweiyi.com/2013/10/once-java-profiling/"/>
-    <id>http://hongweiyi.com/2013/10/once-java-profiling/</id>
-    <published>2013-10-22T15:21:52.000Z</published>
-    <updated>2015-12-29T15:01:45.000Z</updated>
-    <content type="html"><![CDATA[<p><strong>1、前言</strong></p>
-<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。
-
-<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
-
-<span class="strong">**2、定位流程**</span>
-
-<span class="strong">**2.1 定位问题进程**</span>
-
-top命令可以简单定位进程pid，如下：
-
-[<span class="link_label">![Image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image_thumb.png "Image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image.png</span>)
-
-jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。
-
-<span class="strong">**2.2 查看日志**</span>
-
-常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？
-
-<span class="strong">**2.3 定位问题线程**</span>
-
-既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。
-
-[<span class="link_label">![Image(1)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image1_thumb.png "Image(1</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image1.png)
-
-不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。
-
-<span class="strong">**2.4 Thread dump**</span>
-
-拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。
-
-jstack 15195 &amp;gt; jstack.15195.dump
-
-[<span class="link_label">![Image(2)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image2_thumb.png "Image(2</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image2.png)
-
-快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。
-
-通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。
-
-<span class="strong">**2.5 查看gc状态**</span>
-
-jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：
-
-[<span class="link_label">![Image(3)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image3_thumb.png "Image(3</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image3.png)
-
-[<span class="link_label">![Image(4)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image4_thumb.png "Image(4</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image4.png)
-
-短短几分钟，就FGC了28次！初步定位问题为FGC问题。
-</code></pre><blockquote>
-<p>注：用jstat -gcutil $PID $INTERVAL $TIMES查询可能会更直接，我查到这里应用被停止了，就木有现场了。</p>
-</blockquote>
-<pre><code><span class="strong">**3、问题解决**</span>
-
-现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。
-
-CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。
-
-解决方法有两种：1）提高Perm区大小，-XX:PermSize -XX:MaxPermSize，2）关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled。
-
-这里有关于Perm区GC时机的深入且详细的解释，[<span class="link_label">http://rednaxelafx.iteye.com/blog/1108439</span>](<span class="link_url">http://rednaxelafx.iteye.com/blog/1108439</span>)
-</code></pre><blockquote>
-<p>CMS收集器的使用好像有很多很多的优(jiu)化(shi)点(keng)啊！</p>
-<pre><code>还得深入学习实践一下！
-</code></pre></blockquote>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p><strong>1、前言</strong></p>
-<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下]]>
-    </summary>
-    
-      <category term="JVM" scheme="http://hongweiyi.com/tags/JVM/"/>
-    
-      <category term="Java" scheme="http://hongweiyi.com/tags/Java/"/>
     
       <category term="技术分享" scheme="http://hongweiyi.com/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/"/>
     
