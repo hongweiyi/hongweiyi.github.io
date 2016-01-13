@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hongweiyi.com/2015/03/oom-killer-1/</loc>
+    <lastmod>2016-01-13T11:57:13.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://hongweiyi.com/2016/01/a-summary-of-2015/</loc>
     <lastmod>2016-01-09T11:12:47.000Z</lastmod>
   </url>
@@ -277,41 +282,6 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2011/10/dist-filesystem-metadata-server/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2015/10/docker-volume-plugin/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2015/03/oom-killer-1/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-introduction/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hongweiyi.com/2014/05/netty-mina-in-depth-2/</loc>
-    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://hongweiyi.com/2013/04/apache-solr-distributed-search/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
@@ -322,7 +292,27 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/</loc>
+    <loc>http://hongweiyi.com/2014/05/netty-mina-in-depth-2/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2014/05/netty-mina-in-depth-1/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2015/10/docker-volume-plugin/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2011/10/dist-filesystem-metadata-server/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2015/08/java-practice/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
@@ -332,7 +322,17 @@
   </url>
   
   <url>
-    <loc>http://hongweiyi.com/2014/05/netty-mina-in-depth-1/</loc>
+    <loc>http://hongweiyi.com/2014/01/netty-4-x-channel-pipeline/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-pivot-implementation-tranplant/</loc>
+    <lastmod>2015-12-29T14:26:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hongweiyi.com/2013/03/apache-solr-facet-introduction/</loc>
     <lastmod>2015-12-29T14:26:50.000Z</lastmod>
   </url>
   
