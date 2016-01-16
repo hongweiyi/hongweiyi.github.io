@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://hongweiyi.com/"/>
-  <updated>2016-01-13T15:30:08.000Z</updated>
+  <updated>2016-01-16T05:06:52.000Z</updated>
   <id>http://hongweiyi.com/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[BTrace 基本使用]]></title>
-    <link href="http://hongweiyi.com/2016/01/introduce-btrace/"/>
-    <id>http://hongweiyi.com/2016/01/introduce-btrace/</id>
+    <title><![CDATA[BTrace 使用实践]]></title>
+    <link href="http://hongweiyi.com/2016/01/btrace-practice/"/>
+    <id>http://hongweiyi.com/2016/01/btrace-practice/</id>
     <published>2016-01-13T14:54:00.000Z</published>
-    <updated>2016-01-13T15:30:08.000Z</updated>
+    <updated>2016-01-16T05:06:52.000Z</updated>
     <content type="html"><![CDATA[<p>最近在做性能优化项目时，发现 RPC 框架调用极个别请求在路由过程非常耗时。对于这种极个别的问题要定位起来还是比较棘手的，如果性能问题可以稳定复现的还可以一步步打点缩小范围，但我这个是千分之一的出现概率，需要大规模日志打点才能够准确找到耗时的地方。如何搞呢，只能网上找找有没有更好的办法了，在网上看资料时，突然看到毕玄的文章提到可以用 btrace 定位这样的问题，现学现卖了一把。</p>
 <a id="more"></a>
 <h3 id="1-_基本使用">1. 基本使用</h3><p>直接下载安装 <a href="https://github.com/jbachorik/btrace/releases/tag/v1.3.4" target="_blank" rel="external">github release</a> 即可。</p>
