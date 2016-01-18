@@ -27,7 +27,9 @@ btrace 不需要预先编译脚本。
 <blockquote>
 <p>注意：这个时候建议将 btrace 的 package 和 btrace 的设置成一样，这样 bootdelegation 才能生效</p>
 </blockquote>
-<p>同时，通过 javaagent 配置 btrace 脚本：</p>
+<p>之后运行：</p>
+<p><code>btrace PID /home/admin/btrace/com/sun/btrace/scripts/ProfileScript.java</code></p>
+<p>不过，由于运行 btrace 的时候 OSGi 已经起来了，如果需要跟踪 OSGi 启动过程的话，可以通过 javaagent 来配置 btrace 脚本：</p>
 <p><code>-javaagent:/home/admin/btrace/build/btrace-agent.jar=script=/home/admin/btrace/com/sun/btrace/scripts/ProfileScript.class</code></p>
 <blockquote>
 <p>注意：javaagent 的方式配置需要编译 btrace 脚本，不能直接使用 java 文件。编译命令 <code>bin/btracec com/sun/btrace/ProfileScript.java</code></p>

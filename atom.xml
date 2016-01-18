@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://hongweiyi.com/"/>
-  <updated>2016-01-16T05:06:52.000Z</updated>
+  <updated>2016-01-18T07:35:00.000Z</updated>
   <id>http://hongweiyi.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://hongweiyi.com/2016/01/btrace-practice/"/>
     <id>http://hongweiyi.com/2016/01/btrace-practice/</id>
     <published>2016-01-13T14:54:00.000Z</published>
-    <updated>2016-01-16T05:06:52.000Z</updated>
+    <updated>2016-01-18T07:35:00.000Z</updated>
     <content type="html"><![CDATA[<p>最近在做性能优化项目时，发现 RPC 框架调用极个别请求在路由过程非常耗时。对于这种极个别的问题要定位起来还是比较棘手的，如果性能问题可以稳定复现的还可以一步步打点缩小范围，但我这个是千分之一的出现概率，需要大规模日志打点才能够准确找到耗时的地方。如何搞呢，只能网上找找有没有更好的办法了，在网上看资料时，突然看到毕玄的文章提到可以用 btrace 定位这样的问题，现学现卖了一把。</p>
 <a id="more"></a>
 <h3 id="1-_基本使用">1. 基本使用</h3><p>直接下载安装 <a href="https://github.com/jbachorik/btrace/releases/tag/v1.3.4" target="_blank" rel="external">github release</a> 即可。</p>
@@ -39,7 +39,9 @@
 <blockquote>
 <p>注意：这个时候建议将 btrace 的 package 和 btrace 的设置成一样，这样 bootdelegation 才能生效</p>
 </blockquote>
-<p>同时，通过 javaagent 配置 btrace 脚本：</p>
+<p>之后运行：</p>
+<p><code>btrace PID /home/admin/btrace/com/sun/btrace/scripts/ProfileScript.java</code></p>
+<p>不过，由于运行 btrace 的时候 OSGi 已经起来了，如果需要跟踪 OSGi 启动过程的话，可以通过 javaagent 来配置 btrace 脚本：</p>
 <p><code>-javaagent:/home/admin/btrace/build/btrace-agent.jar=script=/home/admin/btrace/com/sun/btrace/scripts/ProfileScript.class</code></p>
 <blockquote>
 <p>注意：javaagent 的方式配置需要编译 btrace 脚本，不能直接使用 java 文件。编译命令 <code>bin/btracec com/sun/btrace/ProfileScript.java</code></p>
