@@ -36,7 +36,7 @@ btrace 不需要预先编译脚本。
 </blockquote>
 <h3 id="4-_btrace_优化小结">4. btrace 优化小结</h3><p>如果 <code>@OnMethod(clazz)</code> 设置得比较准确的话，还是可以很快的定位一些优化点。优化了一些并发 Map 操作，性能提升 5%，发现了一个历史大坑，性能提升 90%。这个历史大坑也就是导致极个别请求耗时较长的原因。</p>
 <p>我在压测过程中，YGC 比较频繁，这样会导致会出现很多不必要的结果。如果实在没有头绪了，建议把 <code>@OnMethod(clazz)</code> 设置的范围比较大，扫所有的的类，待拿到结果之后，排除掉一些噪音后可以看到一些不错的结果。运行：</p>
-<p><code>cat ProfileScript.btrace | awk &#39;{print $1}&#39; | sort | uniq -c | grep -v &#39;1 &#39; | grep -v &#39;2 &#39; | sort -k 2</code></p>
+<p><code>cat ProfileScript.btrace | awk &#39;{print $1}&#39; | sort | uniq -c | grep -v &#39;1 &#39; | grep -v &#39;2 &#39; | sort -rnk 1</code></p>
 <blockquote>
 <p>不要忽略任何一个可疑的问题，极个别耗时长的请求完全可以拖垮整个系统</p>
 </blockquote>

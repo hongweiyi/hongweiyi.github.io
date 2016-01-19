@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://hongweiyi.com/"/>
-  <updated>2016-01-18T07:35:00.000Z</updated>
+  <updated>2016-01-19T07:33:43.000Z</updated>
   <id>http://hongweiyi.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://hongweiyi.com/2016/01/btrace-practice/"/>
     <id>http://hongweiyi.com/2016/01/btrace-practice/</id>
     <published>2016-01-13T14:54:00.000Z</published>
-    <updated>2016-01-18T07:35:00.000Z</updated>
+    <updated>2016-01-19T07:33:43.000Z</updated>
     <content type="html"><![CDATA[<p>最近在做性能优化项目时，发现 RPC 框架调用极个别请求在路由过程非常耗时。对于这种极个别的问题要定位起来还是比较棘手的，如果性能问题可以稳定复现的还可以一步步打点缩小范围，但我这个是千分之一的出现概率，需要大规模日志打点才能够准确找到耗时的地方。如何搞呢，只能网上找找有没有更好的办法了，在网上看资料时，突然看到毕玄的文章提到可以用 btrace 定位这样的问题，现学现卖了一把。</p>
 <a id="more"></a>
 <h3 id="1-_基本使用">1. 基本使用</h3><p>直接下载安装 <a href="https://github.com/jbachorik/btrace/releases/tag/v1.3.4" target="_blank" rel="external">github release</a> 即可。</p>
@@ -48,7 +48,7 @@
 </blockquote>
 <h3 id="4-_btrace_优化小结">4. btrace 优化小结</h3><p>如果 <code>@OnMethod(clazz)</code> 设置得比较准确的话，还是可以很快的定位一些优化点。优化了一些并发 Map 操作，性能提升 5%，发现了一个历史大坑，性能提升 90%。这个历史大坑也就是导致极个别请求耗时较长的原因。</p>
 <p>我在压测过程中，YGC 比较频繁，这样会导致会出现很多不必要的结果。如果实在没有头绪了，建议把 <code>@OnMethod(clazz)</code> 设置的范围比较大，扫所有的的类，待拿到结果之后，排除掉一些噪音后可以看到一些不错的结果。运行：</p>
-<p><code>cat ProfileScript.btrace | awk &#39;{print $1}&#39; | sort | uniq -c | grep -v &#39;1 &#39; | grep -v &#39;2 &#39; | sort -k 2</code></p>
+<p><code>cat ProfileScript.btrace | awk &#39;{print $1}&#39; | sort | uniq -c | grep -v &#39;1 &#39; | grep -v &#39;2 &#39; | sort -rnk 1</code></p>
 <blockquote>
 <p>不要忽略任何一个可疑的问题，极个别耗时长的请求完全可以拖垮整个系统</p>
 </blockquote>
