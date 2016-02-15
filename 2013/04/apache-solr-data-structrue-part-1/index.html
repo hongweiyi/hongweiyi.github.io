@@ -1,19 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Apache Solr —— 常用数据结构（一） · 小e的笔记</title><meta name="description" content="1、前言这一段时间看Solr源码，主要的心思都是放在了整体框架运行流程，或者称之为“算法”。这些流程中间会穿插很多有意思的接口/类，NamedList、DocSet、DocIdSet、Query、Document、FieldType、ResponseBuilder等，这些接口/类看似简单，但是里面又有各种不同的实现，在翻源码的时候，确实会让人有些招架不过来，所以就准备写这篇博文让自己梳理梳理Solr的常用“数据结构”，有了算法和数据结构才能对Solr有一个完整的理解。
-
-2、NamedList一个简单的键值对列表，与Map不同的是：
-
-键名可以重复；
-保持数据的插入顺序；
-元素可以通过下标访问；
-键与值均可为null。
-
-内部实现其实也挺简单，内部容器采用的是ArrayList。list中的内部数据格式为：
-
-[key1, value1, key2, value2, key3, value3,…]
-
-键与值通过线性排列组合在一起，访问下标则为：
-
-key = lis"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Apache Solr —— 常用数据结构（一）</h1><div class="post-meta"><div class="post-time">Apr 8, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>, <a class="tag-link" href="/tags/数据结构/">数据结构</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>这一段时间看Solr源码，主要的心思都是放在了整体框架运行流程，或者称之为“算法”。这些流程中间会穿插很多有意思的接口/类，NamedList、DocSet、DocIdSet、Query、Document、FieldType、ResponseBuilder等，这些接口/类看似简单，但是里面又有各种不同的实现，在翻源码的时候，确实会让人有些招架不过来，所以就准备写这篇博文让自己梳理梳理Solr的常用“数据结构”，有了算法和数据结构才能对Solr有一个完整的理解。</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Apache Solr —— 常用数据结构（一） · 小e的笔记</title><meta name="description" content="Apache Solr —— 常用数据结构（一） - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Apache Solr —— 常用数据结构（一）</h1><div class="post-meta"><div class="post-time">Apr 8, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>, <a class="tag-link" href="/tags/数据结构/">数据结构</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>这一段时间看Solr源码，主要的心思都是放在了整体框架运行流程，或者称之为“算法”。这些流程中间会穿插很多有意思的接口/类，NamedList、DocSet、DocIdSet、Query、Document、FieldType、ResponseBuilder等，这些接口/类看似简单，但是里面又有各种不同的实现，在翻源码的时候，确实会让人有些招架不过来，所以就准备写这篇博文让自己梳理梳理Solr的常用“数据结构”，有了算法和数据结构才能对Solr有一个完整的理解。</p>
 <a id="more"></a>
 <h3 id="2、NamedList">2、NamedList</h3><p>一个简单的键值对列表，与Map不同的是：</p>
 <ul>

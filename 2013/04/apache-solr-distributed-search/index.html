@@ -1,17 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Apache Solr —— DistributedSearch · 小e的笔记</title><meta name="description" content="1、前言当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。
-Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，这个分布式查询内部是怎么实现的呢？
-
-2、机制解析一个SearchComponent如果作为Distributed SearchComponent，需要重写以下四个方法：
-
-distributedProcess()
-modifyRequest()
-handleResponses()
-finishStage()
-
-同时，Distributed Search主要有4个主要阶段：
-
-Start(ResponseBuilder.STAGE_START)
-Que"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Apache Solr —— DistributedSearch</h1><div class="post-meta"><div class="post-time">Apr 8, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Apache Solr —— DistributedSearch · 小e的笔记</title><meta name="description" content="Apache Solr —— DistributedSearch - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Apache Solr —— DistributedSearch</h1><div class="post-meta"><div class="post-time">Apr 8, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>当索引太大以致单台服务器的磁盘无法承受了，当一个简单的查询实在要耗费过多的时间，可以考虑使用Solr的分布式索引机制，或者配置一台多核机制（multicore）。当Solr配置了这样的机制，实质上就是将大索引分成了多个小索引分布在了不同服务器上，或者将请求发到多核，充分利用服务器CPU资源。</p>
 <p>Solr会将请求请求分发不同shards（理解为地址）上，并合并所有请求结果并返回给客户端。那么，这个分布式查询内部是怎么实现的呢？</p>
 <a id="more"></a>
 <h3 id="2、机制解析">2、机制解析</h3><p>一个SearchComponent如果作为Distributed SearchComponent，需要重写以下四个方法：</p>

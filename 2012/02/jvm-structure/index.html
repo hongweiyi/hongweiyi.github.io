@@ -1,17 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> JVM内存结构 · 小e的笔记</title><meta name="description" content="1、JVM规定《The Java Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：
-
-The pc Register
-Java Virtual Machine Stacks
-Heap
-Method Area
-Runtime Constant Pool
-Native Method Stacks；
-
-以上数据区的具体描述可参考规范。需要注意的是，以上只是一个规范说明，并没有规定虚拟机如何实现这些数据区。Sun JDK实现将内存空间划分为方法区、堆、本地方法栈、JVM方法栈、PC寄存器五部分。
-  
-如下图所示：
-
-2、内存空间详解1）PC寄存器和JVM方法栈每个线程都会拥有以及创建一个属于自己的PC"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">JVM内存结构</h1><div class="post-meta"><div class="post-time">Feb 13, 2012 | [<a class="tag-link" href="/tags/JVM/">JVM</a>]</div></div><div class="post-content"><h3 id="1、JVM规定">1、JVM规定</h3><p>《The Java Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> JVM内存结构 · 小e的笔记</title><meta name="description" content="JVM内存结构 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">JVM内存结构</h1><div class="post-meta"><div class="post-time">Feb 13, 2012 | [<a class="tag-link" href="/tags/JVM/">JVM</a>]</div></div><div class="post-content"><h3 id="1、JVM规定">1、JVM规定</h3><p>《The Java Machine Specification》中将JVM内存结构（又称运行时数据区Runtime Data Area）分为六部分（参看第三章）：</p>
 <ol>
 <li>The pc Register</li>
 <li>Java Virtual Machine Stacks</li>

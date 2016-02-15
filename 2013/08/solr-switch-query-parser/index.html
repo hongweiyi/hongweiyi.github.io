@@ -1,18 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Solr Query Parser学习有感 · 小e的笔记</title><meta name="description" content="1、前言早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&amp;ldquo;友好&amp;rdquo;的filter query功能。
-
-2、细说插件的语法如下：
-
-fq={!switch case.foo=XXX case.bar=zzz case.yak=qqq}foo
-
-这个语法是官方文档里面的，这算个什么嘛，还真只是语法，一点逻辑都没有！！！我就写了带一点点逻辑的查询语句如下：
-
-fq={!switch case.cs=city:changsha case.bj=city:beijing}cs
-
-这句话翻译过来，其实就是：
-
-fq=city:changsha
-
-因为在SwitchQParserPlugin的parse()中，只是找到了localParams的v属性（即cs），"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Solr Query Parser学习有感</h1><div class="post-meta"><div class="post-time">Aug 31, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Solr Query Parser学习有感 · 小e的笔记</title><meta name="description" content="Solr Query Parser学习有感 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Solr Query Parser学习有感</h1><div class="post-meta"><div class="post-time">Aug 31, 2013 | [<a class="tag-link" href="/tags/Solr/">Solr</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>早上了解QueryParser的时候，发现了一个有意思的插件-SwitchQueryParser。看名字有种高端大气上档次的感觉，但是用起来好像就没这种感觉了，因为好像功能确实有限，这插件只是提供了一种更为&ldquo;友好&rdquo;的filter query功能。</p>
 <a id="more"></a>
 <h3 id="2、细说">2、细说</h3><p>插件的语法如下：</p>
 <blockquote>

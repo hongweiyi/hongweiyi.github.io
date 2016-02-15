@@ -1,15 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 从《社交网络》以及美女排名系统看问题 · 小e的笔记</title><meta name="description" content="
-大概是2个月前看的这部电影，没有过多关注拍摄手法、演技等电影元素，关注的是Jesse Eisenberg对Mark的人物演绎。人和人是有差距的，这点我很赞同。那么，我和Mark之间的差距在哪？
-
-来分析下：
-
-Mark是一个Geek（褒义的），我是一个伪Geek。
-Mark对技术狂热，热到可以不吃不睡以及禁欲，我对技术热爱，爱到可以不吃晚睡但不会禁欲。
-Mark可以心无旁骛的钻研，我可以左顾右盼的学习。
-
-是的，差距就是这样来的，可能我较Mark好的就是，我对衣着的品位还是好一点，毕竟Mark去年被英国时尚杂志《Esquire》评为十大着装品位最差男人之一嘛，哈哈，玩笑话……
-来说说正事吧，一直对Mark的Facemash对女孩评分的算法感兴趣，今天琢磨了一下，写写心得体会。
-该排名系统出自Elo Rating System"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">从《社交网络》以及美女排名系统看问题</h1><div class="post-meta"><div class="post-time">Mar 6, 2011 | [<a class="tag-link" href="/tags/电影/">电影</a>, <a class="tag-link" href="/tags/算法/">算法</a>]</div></div><div class="post-content"><p><img src="/images/ranksystem-in-social-network.png" alt="image"></p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 从《社交网络》以及美女排名系统看问题 · 小e的笔记</title><meta name="description" content="从《社交网络》以及美女排名系统看问题 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">从《社交网络》以及美女排名系统看问题</h1><div class="post-meta"><div class="post-time">Mar 6, 2011 | [<a class="tag-link" href="/tags/电影/">电影</a>, <a class="tag-link" href="/tags/算法/">算法</a>]</div></div><div class="post-content"><p><img src="/images/ranksystem-in-social-network.png" alt="image"></p>
 <p>大概是2个月前看的这部电影，没有过多关注拍摄手法、演技等电影元素，关注的是<a href="http://people.mtime.com/914798/" target="_blank" rel="external">Jesse Eisenberg</a>对Mark的人物演绎。人和人是有差距的，这点我很赞同。那么，我和Mark之间的差距在哪？</p>
 <a id="more"></a>
 <p>来分析下：</p>

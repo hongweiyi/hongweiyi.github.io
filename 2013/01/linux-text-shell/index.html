@@ -1,16 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Shell常用命令 文本操作篇 · 小e的笔记</title><meta name="description" content="3.0 前言《Linux/Unix设计思想》中有一条准则：采用纯文本文件来存储数据，原因如下：
-
-文本是通用的可转换格式
-文本文件易于阅读和编辑
-文本数据文件简化了Unix工具的使用
-可移植性的提高克服了速度的不足
-速度欠佳的缺点会被明年的机器克服
-
-在实战中有能感受到，文本文件的方便，也有非常多的工具辅助开发者处理、查看、编辑它们，如：awk、sed等，这篇博文就介绍与文本操作相关的常用命令。
-
-3.1 输入输出流echo：echo如同python中的print，不过不需要引号包住字符串，echo后接的除管理和重定向字符外均会输出。
-cat（Concatenate）：它主要的功能是将文件的内容连续（concatenate）的输出到屏幕上，在上篇博文中就已经看到了，用来合并多个split的文件。
-|：管道符号，接收管道左边命令的输出，并输入到右边的命令。在L"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Shell常用命令 文本操作篇</h1><div class="post-meta"><div class="post-time">Jan 19, 2013 | [<a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/Shell/">Shell</a>]</div></div><div class="post-content"><h3 id="3-0_前言">3.0 前言</h3><p>《Linux/Unix设计思想》中有一条准则：采用纯文本文件来存储数据，原因如下：</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Shell常用命令 文本操作篇 · 小e的笔记</title><meta name="description" content="Shell常用命令 文本操作篇 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Shell常用命令 文本操作篇</h1><div class="post-meta"><div class="post-time">Jan 19, 2013 | [<a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/Shell/">Shell</a>]</div></div><div class="post-content"><h3 id="3-0_前言">3.0 前言</h3><p>《Linux/Unix设计思想》中有一条准则：采用纯文本文件来存储数据，原因如下：</p>
 <ol>
 <li>文本是通用的可转换格式</li>
 <li>文本文件易于阅读和编辑</li>

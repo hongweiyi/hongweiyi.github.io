@@ -1,28 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 网络编程最佳实践 · 小e的笔记</title><meta name="description" content="1. 通信层
-直接使用最成熟的网络框架，如 Netty
-单连接 &amp;amp; 连接复用 &amp;amp; 长连接
-建议提前设计心跳机制
-集群较小，长连接无需开启心跳
-如果网络情况比较复杂，建议开启心跳。如有防火墙，会将连接清掉且不会向客户端发送 RST 信令，导致长连接变成一个脏连接
-
-
-
-
-2. 线程模型如果采用了 Netty 这样的框架，线程模型基本已经决定了，但是 Netty 只需负责 IO 处理，需要提供额外的业务线程池负责处理业务请求。
-
-序列化过程在业务线程中处理
-请求/响应包多个批量从 IO 线程交给业务线程处理
-服务端线程池需要有保护策略
-框架层面的 RejectExcetpion
-业务层面的限流策略
-
-
-需要定时打印线程池大小，方便性能分析
-
-3. 序列化
-全站都是 Java 系
-
-为了以后能"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 网络编程最佳实践</h1><div class="post-meta"><div class="post-time">Sep 10, 2015 | [<a class="tag-link" href="/tags/Java/">Java</a>, <a class="tag-link" href="/tags/Network/">Network</a>]</div></div><div class="post-content"><h2 id="1-_通信层">1. 通信层</h2><ul>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Java 网络编程最佳实践 · 小e的笔记</title><meta name="description" content="Java 网络编程最佳实践 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">Java 网络编程最佳实践</h1><div class="post-meta"><div class="post-time">Sep 10, 2015 | [<a class="tag-link" href="/tags/Java/">Java</a>, <a class="tag-link" href="/tags/Network/">Network</a>]</div></div><div class="post-content"><h2 id="1-_通信层">1. 通信层</h2><ul>
 <li>直接使用最成熟的网络框架，如 Netty</li>
 <li>单连接 &amp; 连接复用 &amp; 长连接<ul>
 <li>建议提前设计心跳机制</li>

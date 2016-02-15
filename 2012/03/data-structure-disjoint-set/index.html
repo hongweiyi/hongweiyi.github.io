@@ -1,18 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - 并查集 · 小e的笔记</title><meta name="description" content="1、简介在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。
-
-并查集保持了一组不相交的动态集合，每个集合通过一个代表来识别，代表即集合中的某个成员。哪个成员被选中无所谓iwom关心的是如果寻找某一动态集合的代表两次，并且在两次寻找之间不修改集合，两次得到的答案应该是一样的。
-2、基本操作它主要涉及两个基本操作，分别为：
-
-Union-Set(x, y)：合并两个不相交集合
-
-Find-Set(x)：判断两个元素是否属于同一个集合
-
-
-还需要另外一个基本操作，即：
-
-Make-Set(x)：新建一个集合，唯一的成员也是代表就是x
-
-3、实现方法&lt;"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - 并查集</h1><div class="post-meta"><div class="post-time">Mar 16, 2012 | [<a class="tag-link" href="/tags/数据结构/">数据结构</a>]</div></div><div class="post-content"><h3 id="1、简介">1、简介</h3><p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。</p>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 趣味数据结构 - 并查集 · 小e的笔记</title><meta name="description" content="趣味数据结构 - 并查集 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">趣味数据结构 - 并查集</h1><div class="post-meta"><div class="post-time">Mar 16, 2012 | [<a class="tag-link" href="/tags/数据结构/">数据结构</a>]</div></div><div class="post-content"><h3 id="1、简介">1、简介</h3><p>在某些应用中，会将n个不同的元素分成一组不相交的集合（disjoint）。不相交的集合有两个重要的操作，即找到给定的元素所属的集合（find）和合并两个集合（union）。为了更好的支持这两种操作，就出现了并查集（Disjoint-Set or Union-find set）。</p>
 <a id="more"></a>
 <p>并查集保持了一组不相交的动态集合，每个集合通过一个代表来识别，代表即集合中的某个成员。哪个成员被选中无所谓iwom关心的是如果寻找某一动态集合的代表两次，并且在两次寻找之间不修改集合，两次得到的答案应该是一样的。</p>
 <h3 id="2、基本操作">2、基本操作</h3><p>它主要涉及两个基本操作，分别为：</p>
