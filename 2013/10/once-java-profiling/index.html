@@ -1,67 +1,32 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 记一次java性能问题定位 · 小e的笔记</title><meta name="description" content="记一次java性能问题定位 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">记一次java性能问题定位</h1><div class="post-meta"><div class="post-time">Oct 22, 2013 | [<a class="tag-link" href="/tags/JVM/">JVM</a>, <a class="tag-link" href="/tags/Java/">Java</a>]</div></div><div class="post-content"><p><strong>1、前言</strong></p>
-<pre><code>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。
-
-<span class="xml"><span class="comment">&lt;!--more--&gt;</span></span>
-
-<span class="strong">**2、定位流程**</span>
-
-<span class="strong">**2.1 定位问题进程**</span>
-
-top命令可以简单定位进程pid，如下：
-
-[<span class="link_label">![Image</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image_thumb.png "Image"</span>)](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image.png</span>)
-
-jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。
-
-<span class="strong">**2.2 查看日志**</span>
-
-常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？
-
-<span class="strong">**2.3 定位问题线程**</span>
-
-既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。
-
-[<span class="link_label">![Image(1)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image1_thumb.png "Image(1</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image1.png)
-
-不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。
-
-<span class="strong">**2.4 Thread dump**</span>
-
-拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。
-
-jstack 15195 &amp;gt; jstack.15195.dump
-
-[<span class="link_label">![Image(2)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image2_thumb.png "Image(2</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image2.png)
-
-快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。
-
-通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。
-
-<span class="strong">**2.5 查看gc状态**</span>
-
-jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：
-
-[<span class="link_label">![Image(3)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image3_thumb.png "Image(3</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image3.png)
-
-[<span class="link_label">![Image(4)</span>](<span class="link_url">http://hongweiyi.com/wp-content/uploads/2013/10/Image4_thumb.png "Image(4</span>)")](http://hongweiyi.com/wp-content/uploads/2013/10/Image4.png)
-
-短短几分钟，就FGC了28次！初步定位问题为FGC问题。
-</code></pre><blockquote>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 记一次java性能问题定位 · 小e的笔记</title><meta name="description" content="记一次java性能问题定位 - Hongwei Yi"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/tags" target="_self" class="nav-list-link">TAGS</a></li><li class="nav-list-item"><a href="http://weibo.com/1674333040" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://twitter.com/hongwei89" target="_blank" class="nav-list-link">TWITTER</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">记一次java性能问题定位</h1><div class="post-meta"><div class="post-time">Oct 22, 2013 | [<a class="tag-link" href="/tags/JVM/">JVM</a>, <a class="tag-link" href="/tags/Java/">Java</a>]</div></div><div class="post-content"><h3 id="1、前言">1、前言</h3><p>前一段时间检查集群状态时，发现某部分机器的load较高，故登录服务器查看，某几个java进程的cpu使用率为1000%，没见过这么高的cpu时间，顿时就长见识了！长完见识问题还是要解决的，故本文记录下问题定位的过程。</p>
+<a id="more"></a>
+<h3 id="2、定位流程">2、定位流程</h3><h4 id="2-1_定位问题进程">2.1 定位问题进程</h4><p>top命令可以简单定位进程pid，如下：</p>
+<p><img src="/images/2013/10/Image.png" alt="Image"></p>
+<p>jps -vm | grep 15195 可以查看java进程的参数或者日志地址等，如果没有显示参数的话，可以cd到/proc/15195/cwd目录，该目录便是进程的运行目录。</p>
+<h4 id="2-2_查看日志">2.2 查看日志</h4><p>常规做法就是查看日志了，但是扫了几遍日志也没发现问题，因为这个进程这几天的请求都不是很多，难道是线程空转了？</p>
+<h4 id="2-3_定位问题线程">2.3 定位问题线程</h4><p>既然日志没有发现异常，那只是通过查看进程内部发现问题了。man top可以看到top命令的详细信息，-H则是线程开关，传入该参数的话，top界面会显示所有单独的线程列表。</p>
+<p><img src="/images/2013/10/Image1.png" alt="Image(1)"></p>
+<p>不看不知道，一看吓一跳啊，cpu跑满的线程挺多的，第一列便是他们的线程id。</p>
+<h4 id="2-4_Thread_dump">2.4 Thread dump</h4><p>拿到异常的线程id后，便可以将该进程的线程栈全部输出了，用到的工具是jstack。</p>
+<p><code>jstack 15195 &gt; jstack.15195.dump</code></p>
+<p><img src="/images/2013/10/Image2.png" alt="Image(2)"></p>
+<p>快速搜索的话，可以直接拿pid转换成16进程定位，当然，也可以慢慢看那些线程处于RUNNABLE状态，不过定位问题较慢。</p>
+<p>通过查询异常线程pid，发现所有的都是Parallel GC Threads，实在是太奇怪了。</p>
+<h4 id="2-5_查看gc状态">2.5 查看gc状态</h4><p>jstat -gc 15195 获得当前进程的gc状态，会发现该线程在不断的进行FullGC操作：</p>
+<p><img src="/images/2013/10/Image3.png" alt="Image(3)"></p>
+<p><img src="/images/2013/10/Image4.png" alt="Image(4)"></p>
+<p>短短几分钟，就FGC了28次！初步定位问题为FGC问题。</p>
+<blockquote>
 <p>注：用jstat -gcutil $PID $INTERVAL $TIMES查询可能会更直接，我查到这里应用被停止了，就木有现场了。</p>
 </blockquote>
-<pre><code><span class="strong">**3、问题解决**</span>
-
-现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。
-
-CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。
-
-解决方法有两种：1）提高Perm区大小，-XX:PermSize -XX:MaxPermSize，2）关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled。
-
-这里有关于Perm区GC时机的深入且详细的解释，[<span class="link_label">http://rednaxelafx.iteye.com/blog/1108439</span>](<span class="link_url">http://rednaxelafx.iteye.com/blog/1108439</span>)
-</code></pre><blockquote>
-<p>CMS收集器的使用好像有很多很多的优(jiu)化(shi)点(keng)啊！</p>
-<pre><code>还得深入学习实践一下！
-</code></pre></blockquote>
+<h3 id="3、问题解决">3、问题解决</h3><p>现在出现的问题就是表现在了full gc次数频繁，从上面的应用而言，可以发现PU(PermGen Usage)占用非常高，约为95.7%。由于Perm代过高，且CMS GC无法回收掉Perm区内容，而导致频繁GC。</p>
+<p>CMS GC与普通的STW Full GC不同，不会暂停应用，但是会导致CPU使用率非常高。</p>
+<p>解决方法有两种：</p>
+<ol>
+<li>提高Perm区大小，-XX:PermSize -XX:MaxPermSize</li>
+<li>关掉Perm区收集机制，取消-XX:+CMSClassUnloadingEnabled</li>
+</ol>
+<p>这里有关于Perm区GC时机的深入且详细的解释，<a href="http://rednaxelafx.iteye.com/blog/1108439" target="_blank" rel="external">http://rednaxelafx.iteye.com/blog/1108439</a></p>
 </div></article></div></section><footer><div class="paginator"><a href="/2013/11/what-i-think-about-1111/" class="prev">上一篇</a><a href="/2013/08/solr-switch-query-parser/" class="next">下一篇</a></div><div data-thread-key="2013/10/once-java-profiling/" data-title="记一次java性能问题定位" data-url="http://hongweiyi.com/2013/10/once-java-profiling/" data-author-key="1" class="ds-thread"></div><script>var duoshuoQuery = {short_name:"yihongwei"};
 (function() {
     var ds = document.createElement('script');
